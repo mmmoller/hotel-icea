@@ -1,0 +1,19 @@
+extends layout
+
+block content
+	h1.
+		Permissões
+	ul
+		each user, i in users
+			li
+				form(name="permissao",method="post",action="/home/gerente/permissao" )   
+					input(type="checkbox", checked=user.permissao[0], name="recepcao")
+					Tick  Recepcao  
+					input(type="checkbox", checked=user.permissao[1], name="reserva")
+					Tick  Reserva  
+					input(type="checkbox", checked=user.permissao[2], name="gerente")
+					Tick  Gerencia  
+					button(type="submit", value=user.username, name="bizu") #{user.username}
+					br
+					br
+					br

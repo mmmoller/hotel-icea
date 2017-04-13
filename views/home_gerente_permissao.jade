@@ -1,0 +1,16 @@
+extends layout
+
+block content
+	h1.
+		Permissões
+	ul
+		each user, j in users
+			li
+				form(name="permissao",method="post",action="/home/gerente/permissao" )
+					- for (var i = 0; i < user.permissao.length; ++i){
+						input(type="checkbox", checked=user.permissao[i], name=dic[i])
+						Tick   #{dic[i]}  
+					-}
+					button(type="submit", value=user.username, name="bizu") #{user.username}
+					br
+					br

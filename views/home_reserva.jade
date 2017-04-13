@@ -1,0 +1,13 @@
+extends layout
+
+block content
+	h1.
+		Cadastros
+	ul
+		each cadastro, j in cadastros
+			li Nome completo: #{cadastro.name}
+			li Email: #{cadastro.email}
+			li Cpf: #{cadastro.cpf}
+			li Data de entrada: #{cadastro.dateIn}
+			li Data de saida: #{cadastro.dateOut}
+			br

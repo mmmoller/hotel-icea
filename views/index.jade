@@ -1,0 +1,22 @@
+extends layout
+
+block content
+	div.container
+		div.row
+			div.col-sm-6.col-md-4.col-md-offset-4
+				h1.text-center.login-title Registration Details
+					div.signup-wall
+						form(class='form-signin', action='/cadastro', method='POST')
+							input(type='text', name='nome', class='form-control', placeholder='Nome completo',required, autofocus)
+							input(type='text', name='email', class='form-control', placeholder='Email',required)
+							input(type='text', name='cpf', class='form-control', placeholder='CPF',required)
+							input(type='text', name='checkin', class='form-control', placeholder='Data de entrada',required)
+							input(type='text', name='checkout', class='form-control', placeholder='Data de saida',required)
+							button(class='btn btn-lg btn-primary btn-block', type='submit') Realizar Cadastro
+							span.clearfix
+					#message
+						if message
+							h1.text-center.error-message #{message}
+	form(class='form-login', action='/login', method='GET')
+		button(class='btn btn-lg btn-primary btn-block', type='submit') Login
+		span.clearfix
