@@ -1,11 +1,16 @@
 body {
-  padding: 50px;
-  font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
-}
+  height: 100%;
+  font-family: "Lucida Sans Unicode", "Lucida Grande", sans-serif;
+  text-align: center;
+  background-color: #1D763C;
+  color: #000066; }
 
-a {
-  color: #00B7FF;
-}
+body header {
+    background-color: #99CCFF;
+    padding: 0;
+    margin: 0;
+    overflow: auto; }
+
 
 .form-signin{
     max-width: 330px;
@@ -57,16 +62,24 @@ a {
 	margin-top: 20px;
     padding: 20px 0px 20px 0px;
     background-color: #f7f7f7;
+    
     -moz-box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.3);
     -webkit-box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.3);
     box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.3);	
 }
 .login-title{
     color: #555;
-    font-size: 18px;
+    font-size: 32px;
     font-weight: 400;
     display: block;
 }
+.login-existente{
+    color: #555;
+    font-size: 25px;
+    font-weight: 400;
+    display: block;
+}
+
 .profile-img{
     width: 96px;
     height: 96px;
@@ -85,4 +98,25 @@ h1.error-message{
 }
 ul.user-details{
     list-style: none;
+}
+
+
+/* drop down menu*/
+a {color: white;margin: 5px; text-decoration: none;}
+
+.dropdown-menu li:hover .sub-menu {
+    visibility: visible;
+}
+
+.dropdown:hover .dropdown-menu {
+    display: block;
+    margin-top: 0;
+}
+
+.dropdown-menu .sub-menu {
+    left: 100%;
+    position: absolute;
+    top: 0;
+    visibility: hidden;
+    margin-top: -1px;
 }
