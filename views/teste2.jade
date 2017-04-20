@@ -1,0 +1,17 @@
+extends layout
+
+block content
+	h1.
+		Registros
+	ul
+		each registro, j in registros
+			li Data: #{registro.data}
+			Tick   #{registro.leito.leito} 
+			br
+			br
+		Criar Registros
+	ul
+		form(class='form-signin', action='/teste', method='POST')
+			input(type='text', name='data' class='form-control', placeholder='Data',required, autofocus)
+			button(class='btn btn-lg btn-primary btn-block', type='submit') Criar Registros
+			span.clearfix
