@@ -4,17 +4,18 @@ block content
 	div.container
 		div.row
 			div.col-sm-6.col-md-4.col-md-offset-4
-				#user
-					h1.text-center.login-title Welcome #{user.username}
-						a(href='/home/signout', class='text-center new-account') Sign Out
-
-	h1= "Modulos"
-	- for (var i = 0; i < user.permissao.length; ++i){
-		if user.permissao[i] == true
-			form(class='form-signin', action='/home/'+dic[i], method='GET')
-				button(class='btn btn-lg btn-primary btn-block', type='submit') #{dic[i]}
-				span.clearfix
-	-}
+				div.home-wall-1
+					#user
+						h1.text-center.login-title Bem-vindo,  #{user.username}
+							a(href='/home/signout', class='text-center new-account') Sign Out
+				div.home-wall-2
+					h1= "Modulos"
+					- for (var i = 0; i < user.permissao.length; ++i){
+						if user.permissao[i] == true
+							form(class='form-signin', action='/home/'+dic[i], method='GET')
+								button(class='btn btn-lg btn-primary btn-block', type='submit') #{dic[i]}
+								span.clearfix
+					-}
 		
 	
 	
