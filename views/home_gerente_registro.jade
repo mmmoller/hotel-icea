@@ -2,22 +2,22 @@ extends layout
 
 block content
 	ul
-		form(class='form-signin', action='/teste', method='POST')
+		form(class='form-signin', action='/home/gerente/registro', method='GET')
 			input(type='date', name='dataIn' class='form-control', placeholder='Data',required, autofocus)
 			input(type='date', name='dataOut' class='form-control', placeholder='Data',required, autofocus)
 			input(type='hidden', name='recente', class='form-control')
-			button(class='btn btn-lg btn-primary btn-block', type='submit') Criar Registros
+			button(class='btn btn-lg btn-primary btn-block', type='submit') Visualizar Registros
 			span.clearfix
 	h1.
 		Registros
 	ul
 		each registro, j in registros
 			li Data: #{registro.data.toUTCString()}
-			- for (var i = 0; i < registro.leito.length; ++i){
-				Tick   #{registro.leito[i]}
+			- for (var i = 0; i < leito.length; ++i){
+				Tick   #{leito[i]}
 				Tick   #{registro.estado[i]}  
 				if (registro.estado[i] == 'ocupado')
-					Tick   #{registro.ocupante[i]}
+					Tick   #{registro.ocupante[i].name}
 				else
 					Tick   #{registro.ocupante[i]}
 				br
