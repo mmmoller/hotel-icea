@@ -75,13 +75,13 @@ module.exports = function(passport){
 	
 	// /HOME/RESERVA
 	
-	router.get('/home/reserva', function(req, res){
+	router.get('/home/reserva', isAuthenticated, isReserva, function(req, res){
 		Cadastro.find({}, function(err, cadastros) {
 			res.render('home_reserva', {cadastros: cadastros});
 		});
 	});
 	
-	router.post('/home/reserva', function(req, res){
+	router.post('/home/reserva', isAuthenticated, isReserva, function(req, res){
 		
 		Cadastro.findOne({_id: req.param('_id')},function(err, cadastro) {
 			req.session.cadastro = cadastro;
@@ -123,11 +123,11 @@ module.exports = function(passport){
 	
 	// /HOME/RESERVA/ALOCACAO
 	
-	router.get('/home/reserva/alocacao', function(req, res){
+	router.get('/home/reserva/alocacao', isAuthenticated, isReserva, function(req, res){
 		res.redirect('/home/reserva');
 	});
 	
-	router.post('/home/reserva/alocacao', function(req, res){
+	router.post('/home/reserva/alocacao', isAuthenticated, isReserva, function(req, res){
 		
 		Registro.find({data: {"$gte": req.session.cadastro.dateIn, "$lte": req.session.cadastro.dateOut}}
 		, null, {sort: 'data'}, function(err, registros) {
@@ -161,7 +161,7 @@ module.exports = function(passport){
 	
 	// /HOME/RECEPCAO
 	
-	router.get('/home/recepcao', function(req,res){
+	router.get('/home/recepcao', isAuthenticated, isRecepcao, function(req,res){
 		var today = new Date();
 		var tomorrow = new Date(today);
 		tomorrow.setDate(tomorrow.getDate()+1);
@@ -187,7 +187,7 @@ module.exports = function(passport){
 		//res.send(new Date());
 	});
 	
-	router.post('/home/recepcao', function(req,res){
+	router.post('/home/recepcao', isAuthenticated, isRecepcao, function(req,res){
 		
 		Registro.find({data: {"$gte": req.param('dateIn'), "$lte": req.param('dateOut')}}
 		, null, {sort: 'data'}, function(err, registros) {
@@ -255,11 +255,11 @@ module.exports = function(passport){
 	
 	// /HOME/GERENTE/SIGNUP
 	
-	router.get('/home/gerente/signup', isAuthenticated, function(req, res){
+	router.get('/home/gerente/signup', isAuthenticated, isGerente, function(req, res){
 		res.render('home_gerente_signup',{message: req.flash('message')});
 	});
 
-	router.post('/home/gerente/signup', isAuthenticated, function(req, res){
+	router.post('/home/gerente/signup', isAuthenticated, isGerente, function(req, res){
 		User.findOne({ 'username' :  req.param('username') }, function(err, user) {
             // In case of any error, return using the done method
 			if (err){
@@ -289,7 +289,7 @@ module.exports = function(passport){
 	
 	// /HOME/GERENTE/REGISTRO
 	
-	router.get('/home/gerente/registro', function(req,res){
+	router.get('/home/gerente/registro', isAuthenticated, isGerente, function(req,res){
 		Registro.find({data: {"$gte": new Date(req.param('dataIn')), "$lte": new Date(req.param('dataOut'))}}, null, {sort: '-data'}, function(err, registros) {	
 			res.render('home_gerente_registro', {registros: registros, leito: leito});
 		});
@@ -382,11 +382,25 @@ var isAuthenticated = function (req, res, next) {
 	if (req.isAuthenticated())
 		return next();
 	// if the user is not authenticated then redirect him to the login page
-	res.redirect('/');
+	res.redirect('/login');
+}
+
+var isRecepcao = function (req, res, next) {
+	if (req.user.permissao[0] == true){
+		return next();
+	}
+	res.redirect('/home');
 }
 
 var isReserva = function (req, res, next) {
 	if (req.user.permissao[1] == true){
+		return next();
+	}
+	res.redirect('/home');
+}
+
+var isFinanceiro = function (req, res, next) {
+	if (req.user.permissao[4] == true){
 		return next();
 	}
 	res.redirect('/home');
