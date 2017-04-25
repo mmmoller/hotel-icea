@@ -49,6 +49,79 @@ body header {
 }
 
 
+
+#register-table{
+}
+    #register-table-wrapper{
+        border: 3px solid #3333ff;
+        position: relative;
+        margin-top: 20px;
+        margin-bottom: 50px;
+        border-radius: 5px;
+        width: 80%;
+        height: 800px;
+        left: 0%;
+        padding: 20px 0px 20px 0px;
+        background-color: #f7f7f7;
+        -moz-box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.3);
+        -webkit-box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.3);
+        box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.3); 
+        overflow: auto;
+    }
+    #register-table thead{
+    }
+    #register-table tbody{
+
+    }
+    #register-table tr{
+        text-align: center;W
+    }
+    #register-table th{
+        border-bottom: 3px solid #000066;
+    }
+
+    #register-table th, #register-table td{
+        text-align: center;
+        padding: 20px 20px 20px 20px;
+    }
+#reservas-table{
+
+}
+    #reservas-table-wrapper{
+        border: 3px solid #3333ff;
+        position: relative;
+        margin-top: 20px;
+        margin-bottom: 50px;
+        border-radius: 5px;
+        width: 50%;
+        height: 600px;
+        left: 0%;
+        padding: 20px 0px 20px 0px;
+        background-color: #f7f7f7;
+        -moz-box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.3);
+        -webkit-box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.3);
+        box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.3); 
+        overflow: auto;
+    }
+    #reservas-table thead{
+    }
+    #reservas-table tbody{
+
+    }
+    #reservas-table tr{
+        text-align: center;
+    }
+    #reservas-table th{
+        border-bottom: 3px solid #000066;
+    }
+
+    #reservas-table th, #reservas-table td{
+        text-align: center;
+        padding: 20px 20px 20px 20px;
+    }
+
+
+
 .botoes-wrapper {
 
     background-position: 80% 0px;

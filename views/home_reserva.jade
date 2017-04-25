@@ -6,23 +6,24 @@ block content
 			div.col-sm-6.col-md-4.col-md-offset-4
 				div.home-wall-1
 					h1 Cadastros
-	div.container
-		table#tabela-cadastros.table-hover
-			thead
-				tr
-					th Nome
-					th E-mail
-					th CPF
-					th Data de Check-in
-					th Data de Check-out
-			tbody
-				each cadastro, j in cadastros
+	div.container#reservas-table-wrapper
+		center
+			table#reservas-table
+				thead
 					tr
-						td #{cadastro.name}
-						td #{cadastro.email}
-						td #{cadastro.cpf}
-						td #{cadastro.dateIn}
-						td #{cadastro.dateOut}
+						th Nome
+						th E-mail
+						th CPF
+						th Data de Check-in
+						th Data de Check-out
+				tbody
+					each cadastro, j in cadastros
+						tr
+							td #{cadastro.name}
+							td #{cadastro.email}
+							td #{cadastro.cpf}
+							td #{cadastro.dateIn}
+							td #{cadastro.dateOut}
 
 					//form(class='form-signin', action='/home/reserva', method='POST')
 					//	input(type='hidden', name='nome', value=cadastro.name)
