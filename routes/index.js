@@ -5,8 +5,8 @@ var Cadastro = require('../models/cadastro');
 var Registro = require('../models/registro');
 var bCrypt = require('bcrypt-nodejs');
 
-
 module.exports = function(passport){
+
 
 	// /'INDEX'
 	router.get('/', function(req, res) {
@@ -15,6 +15,8 @@ module.exports = function(passport){
 	});
 	
 	// /CADASTRO
+	
+	//  criar get para /cadastro
 	router.post('/cadastro', function(req, res){
 		Cadastro.findOne({ 'cpf' :  req.param('cpf') }, function(err, cadastro) {
             // In case of any error, return using the done method
@@ -57,118 +59,6 @@ module.exports = function(passport){
 	})); 
 
 	
-	// /HOME/RESERVA
-	
-	router.get('/home/reserva', function(req, res){
-		Cadastro.find({}, function(err, cadastros) {	
-			res.render('home_reserva', {cadastros: cadastros});
-		});
-	});
-	
-	router.post('/home/reserva', function(req, res){
-		//console.log(req.body.nome);
-		//console.log(req.param('nome'));
-		//console.log(req.param('checkin'));
-		//console.log(new Date(req.param('checkin')));
-		//console.log("batatatata");
-		//console.log(req.param('cadastro'));
-		
-		var cadastro = new Cadastro();
-		cadastro.name = req.param('nome');
-		cadastro.cpf = req.param('cpf');
-		cadastro.email = req.param('email');
-		cadastro.dateIn = req.param('checkin');
-		cadastro.dateOut = req.param('checkout');
-		
-		console.log(cadastro);
-		
-		Registro.find({data: {"$gte": req.param('checkin'), "$lte": req.param('checkout')}}, 
-		null, {sort: 'data'}, function(err, registros) {
-			
-			var livre = [];
-			for (var i = 0; i < registros[0].leito.length; ++i){
-				livre[i] = true;
-			}
-			
-			for (var i = 0; i < registros.length; ++i){
-				for (var j = 0; j < registros[0].leito.length; ++j){
-					if (registros[i].estado[j] != 'livre'){
-						livre[j] = false;
-					}
-				}
-			}
-			
-			var leitos = [];
-			var j = 0;
-			for (var i = 0; i < registros[0].leito.length; ++i){
-				if (livre[i]){
-					leitos[i-j] = registros[0].leito[i];
-				}
-				else {
-					j++;
-				}
-			}
-		//req.session.registros = registros;
-		req.session.cadastro = cadastro;
-		//req.session.leitos = leitos;
-		//res.redirect('/home/reserva/alocacao');
-		res.render('home_reserva_alocacao', {registros: registros, cadastro: cadastro, leitos: leitos});
-		});
-	});
-	
-	// /HOME/RESERVA/ALOCACAO
-	
-	router.get('/home/reserva/alocacao', function(req, res){
-		res.redirect('/home/reserva');
-	});
-	
-	router.post('/home/reserva/alocacao', function(req, res){
-		//res.redirect('/home/reserva');
-		console.log(req.session.cadastro);
-		Registro.find({data: {"$gte": req.session.cadastro.dateIn, "$lte": req.session.cadastro.dateOut}}, 
-		null, {sort: 'data'}, function(err, registros) {
-			
-			
-			var leito = req.body.bizu;
-			console.log(req.body.leito);
-			console.log(leito);
-			var estado = [];
-			var ocupante = [];
-			var cadastro = req.session.cadastro;
-			console.log(cadastro);
-			
-			for (var i = 0; i < registros.length; ++i){
-				for (var j = 0; j < registros[0].leito.length; ++j){
-					if (registros[i].leito[j] == leito){
-						//registros[i].estado[j] = 'ocupado';
-						//registros[i].ocupante[j] = req.session.cadastro;
-						registros[i].estado.splice(j, 1, 'ocupado');
-						registros[i].ocupante.splice(j, 1, req.session.cadastro);
-						console.log("teste");
-					}
-					//else{
-					//	estado[j] = 
-					//	ocupante[j] =
-					//}
-				}
-			}
-			
-			console.log(registros);
-			
-			
-			for (var i = 0; i < registros.length; ++i){
-				//registros[i].data = new Date('1000-1-1'); Essa porra funcionou.
-				registros[i].save(function (err, updatedRegistros) {
-					if (err) return handleError(err);
-					//console.log(updatedRegistros);
-				});
-			}
-			
-			// deletar cadastro;
-			res.redirect('/home/reserva');
-		});
-	});
-	
 	// /HOME
 	router.get('/home', isAuthenticated, function(req, res){
 		res.render('home', { user: req.user, dic: dicionario });
@@ -181,20 +71,148 @@ module.exports = function(passport){
 		res.redirect('/');
 	});
 	
-	router.get('/recepcao', isAuthenticated, function(req, res){
-		/*
-		User.findOne({ 'username' :  "moller" }, function(err, user) {
-            // In case of any error, return using the done method
-			if (err){
-				return handleError(err);
-			}
-			user.email = "email@trocado.com";
-			user.save(function (err, updatedUser) {
-				if (err) return handleError(err);
-				res.send(updatedUser);
+	
+	
+	// /HOME/RESERVA
+	
+	router.get('/home/reserva', function(req, res){
+		Cadastro.find({}, function(err, cadastros) {
+			res.render('home_reserva', {cadastros: cadastros});
+		});
+	});
+	
+	router.post('/home/reserva', function(req, res){
+		
+		Cadastro.findOne({_id: req.param('_id')},function(err, cadastro) {
+			req.session.cadastro = cadastro;
+		
+		
+			Registro.find({data: {"$gte": cadastro.dateIn, "$lte": cadastro.dateOut}}, 
+			null, {sort: 'data'}, function(err, registros) {
+			
+				var livre = [];
+				for (var i = 0; i < leito.length; ++i){
+					livre[i] = true;
+				}
+				
+				for (var i = 0; i < registros.length; ++i){
+					for (var j = 0; j < leito.length; ++j){
+						if (registros[i].estado[j] != 'livre'){
+							livre[j] = false;
+						}
+					}
+				}
+				
+				var leitos = [];
+				var j = 0;
+				for (var i = 0; i < leito.length; ++i){
+					if (livre[i]){
+						leitos[i-j] = leito[i];
+					}
+					else {
+						j++;
+					}
+				}
+				
+				res.render('home_reserva_alocacao', {leitos: leitos});
 			});
-        });*/
-		next();
+		
+		
+		});
+	});
+	
+	// /HOME/RESERVA/ALOCACAO
+	
+	router.get('/home/reserva/alocacao', function(req, res){
+		res.redirect('/home/reserva');
+	});
+	
+	router.post('/home/reserva/alocacao', function(req, res){
+		
+		Registro.find({data: {"$gte": req.session.cadastro.dateIn, "$lte": req.session.cadastro.dateOut}}
+		, null, {sort: 'data'}, function(err, registros) {
+			
+			var leito_ = req.body.bizu;
+			
+			for (var i = 0; i < registros.length; ++i){
+				for (var j = 0; j < leito.length; ++j){
+					if (leito[j] == leito_){
+						registros[i].estado.splice(j, 1, 'reservado');
+						registros[i].ocupante.splice(j, 1, req.session.cadastro);
+					}
+				}
+			}
+			
+			for (var i = 0; i < registros.length; ++i){
+				registros[i].save(function (err, updatedRegistros) {
+					if (err) return handleError(err);
+				});
+			}
+			
+			Cadastro.remove({'_id': req.session.cadastro._id}, function(err) {
+				if (err) return handleError(err);
+			});
+			
+			res.redirect('/home/reserva');
+		});
+	});
+	
+	
+	
+	// /HOME/RECEPCAO
+	
+	router.get('/home/recepcao', function(req,res){
+		var today = new Date();
+		var tomorrow = new Date(today);
+		tomorrow.setDate(tomorrow.getDate()+1);
+		
+		Registro.findOne({data: {"$gte": today, "$lte": tomorrow}}, null, {sort: '-data'}, function(err, registro) {	
+			
+			
+			var cadastros = [];
+			
+			console.log(registro);
+			
+			
+			for (var i = 0; i < leito.length; i++){
+				if (registro.estado[i] == 'reservado'){
+					cadastros[cadastros.length] = registro.ocupante[i];
+				}
+			}
+			
+			res.render('home_recepcao', {cadastros: cadastros});
+		});
+		
+		
+		//res.send(new Date());
+	});
+	
+	router.post('/home/recepcao', function(req,res){
+		
+		Registro.find({data: {"$gte": req.param('dateIn'), "$lte": req.param('dateOut')}}
+		, null, {sort: 'data'}, function(err, registros) {
+			
+			
+			for (var i = 0; i < registros.length; ++i){
+				for (var j = 0; j < leito.length; ++j){
+					if (registros[i].ocupante[j]._id == req.param('_id')){
+						registros[i].estado.splice(j, 1, 'ocupado');
+					}
+				}
+			}
+			
+			for (var i = 0; i < registros.length; ++i){
+				registros[i].save(function (err, updatedRegistros) {
+					if (err) return handleError(err);
+				});
+			}
+			
+			res.redirect('/home/recepcao');
+		});
+		
+		
+		
+		
 		
 	});
 	
@@ -269,7 +287,16 @@ module.exports = function(passport){
 	});
 	
 	
-	// GAMBIARRA
+	// /HOME/GERENTE/REGISTRO
+	
+	router.get('/home/gerente/registro', function(req,res){
+		Registro.find({data: {"$gte": new Date(req.param('dataIn')), "$lte": new Date(req.param('dataOut'))}}, null, {sort: '-data'}, function(err, registros) {	
+			res.render('home_gerente_registro', {registros: registros, leito: leito});
+		});
+	});
+	
+	// TUDO DAQUI PARA BAIXO É PARA DEBUGAR
+	// ADMIN
 	router.get('/admin', function(req, res){
 		
 		User.findOneAndRemove({ 'username' :  'admin' }, function(err, user) {
@@ -302,111 +329,51 @@ module.exports = function(passport){
 		
 	});
 	
-	
-	// TESTE
-	
-	
-	router.get('/teste', function(req,res){
-		
-		Registro.find({}, null, {sort: '-data'}, function(err, registros) {	
-			res.render('teste', {registros: registros});
+	// DELETE
+	router.get('/delete', function(req, res){
+		User.remove({}, function(err) { 
+			console.log('Users removed')
 		});
-		/*
-		var dataTeste = new Date('2117-04-01');
-		var proximoDia = new Date(dataTeste);
-		proximoDia.setDate(proximoDia.getDate()+1);
-		
-		console.log(dataTeste);
-		console.log(proximoDia);
-		
-		//proximoDia.setDate(dataTeste.getDate()+1);
-		var dataTeste2 = new Date('2117-04-02');
-		console.log(dataTeste2);
-		if (proximoDia == dataTeste2){
-			console.log("sao o mesmo dia");
-		}
-		res.send("banana");*/
+		Cadastro.remove({}, function(err) { 
+			console.log('Cadastros removed')
+		});
+		Registro.remove({}, function(err) { 
+			console.log('Registros removed')
+		});
+		res.redirect('/');
 	});
 	
-	router.post('/teste', function(req, res){
+	
+	// CRIAR
+	router.get('/criar', function(req,res){
+		res.render('criar');
+	});
+	
+	router.post('/criar', function(req, res){
 		var dataInicial = new Date(req.param('dataIn'));
 		var dataFinal = new Date(req.param('dataOut'));
 		var proximoDia = new Date(dataInicial);
 		
-		
-		var gravar = [new Date(proximoDia)];
-		var i = 0;
-		
 		while (proximoDia < dataFinal){
-			console.log(gravar[i]);
-			
 			var newRegistro = new Registro();
-				newRegistro.data = new Date(proximoDia);
-				newRegistro.leito = [];
-				newRegistro.estado = [];
-				newRegistro.ocupante = [];
-				for (var i = 0; i < 10; i++){
-					newRegistro.leito[newRegistro.leito.length] = "quarto" + i.toString();
-					newRegistro.estado[newRegistro.estado.length] = "livre";
-					if (i == 5) {
-						newRegistro.estado[5] = "ocupado";
-						newRegistro.ocupante[5] = "ocupante2";
-					}
-					
-				}
-				
-				
-				
-				newRegistro.save(function (err, updatedRegistro) {
-					if (err) return handleError(err);
-					
-				});
-			
-			/*
-			Registro.findOne({ 'data' :  gravar[i] }, function(err, registro) {
-				// In case of any error, return using the done method
-				if (err){
-					return handleError(err);
-				}
-				if (registro){
-					res.send("Data já existe");
-					return;
-				}
-				console.log(gravar[i]);
-				var newRegistro = new Registro();
-				newRegistro.data = new Date(gravar[i]);
-				newRegistro.leito = [];
-				newRegistro.estado = [];
-				newRegistro.ocupante = [];
-				for (var i = 0; i < 10; i++){
-					newRegistro.leito[newRegistro.leito.length] = "quarto" + i.toString();
-					newRegistro.estado[newRegistro.estado.length] = "livre";
-					if (i == 5) {
-						newRegistro.estado[5] = "ocupado";
-						newRegistro.ocupante[5] = "ocupante2";
-					}
-					
-				}
-				
-				newRegistro.save(function (err, updatedRegistro) {
-					if (err) return handleError(err);
-					
-				});
-				
-			});*/
-			
-			gravar[i] = new Date(proximoDia);
-			console.log(proximoDia);
+			newRegistro.data = new Date(proximoDia);
+			newRegistro.estado = [];
+			newRegistro.ocupante = [];
+			for (var i = 0; i < leito.length; i++){
+				newRegistro.estado[newRegistro.estado.length] = "livre";
+				newRegistro.ocupante[newRegistro.ocupante.length] = "";
+			}
+			newRegistro.save(function (err, updatedRegistro) {
+				if (err) return handleError(err);	
+			});
 			proximoDia.setDate(proximoDia.getDate()+1);
-			i++;
-			
 		}
-		res.redirect('/teste');
-		
+		res.redirect('/');
 	});
 	
 	return router;
 }
+
 
 var isAuthenticated = function (req, res, next) {
 	// if user is authenticated in the session, call the next() to call the next request handler 
@@ -438,15 +405,7 @@ var createHash = function(password){
 
 var dicionario = {0: "Recepcao", 1: "Reserva", 2: "Lavanderia", 3:"Manutencao",4: "Financeiro",5: "Gerente"};
 
-//var gravar = [];
-
-/*function preencherGravar(dateIn, dateOut){
-	var i = 0;
-	while (dateIn < dateOut){
-		gravar[i] = dateIn;
-		dateIn.setDate(dateIn.getDate()+1);
-		i++;
-	}
-}*/
+var leito = ['A1a', 'A1b', 'A2a', 'A2b', 'A3a', 'A3b', 'A4a', 'A4b',
+ 'A5a', 'A5b', 'A6a', 'A6b', 'A7a', 'A7b', 'A8a', 'A8b'];
 
 
