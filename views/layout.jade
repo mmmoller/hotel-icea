@@ -1,45 +1,73 @@
 doctype html
 html
-  head
-    title= title
-    link(rel='stylesheet', href='/stylesheets/style.css')
-    link(rel='stylesheet', href='http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css')
-    img(src="/img/logo.png", style="width:100%")
-    .dropdown(style='position:absolute;left:1200px;top:167px')
-      button.btn.btn-link.dropdown-toggle.test(type='button', data-toggle='dropdown', style='color:white')
-        | Opcao A
-        span.caret
-      ul.dropdown-menu
-        li
-          a(href='#') A1
-        li
-          a(href='#') A2
-        li
-          a(href='#') A3
-    .dropdown(style='position:absolute;left:1300px;top:167px')
-      button.btn.btn-link.dropdown-toggle(type='button', data-toggle='dropdown', style='color:white')
-        | Opcao B
-        span.caret
-      ul.dropdown-menu
-        li
-          a(href='#') B1
-        li
-          a(href='#') B2
-        li
-          a(href='#') B3
-    .dropdown(style='position:absolute;left:1400px;top:167px')
-      button.btn.btn-link.dropdown-toggle(type='button', data-toggle='dropdown', style='color:white')
-        | Opcao C
-        span.caret
-      ul.dropdown-menu
-        li
-          a(href='#') C1
-        li
-          a(href='#') C2
-        li
-          a(href='#') C3
-  body.body-background
-    block content
+	head
+		title= title
+		link(rel='stylesheet', href='/stylesheets/style.css')
+		link(rel='stylesheet', href='http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css')
+	body.body-background
+		img(src="/img/logo.png", style='width:100%')
+		.botoes-wrapper
+			.botao-header
+				.botao-box.pos-botao-1
+					.dropdown
+						button.btn.btn-link.dropdown-toggle.test(type='button', data-toggle='dropdown', style='color:white')
+							| Recepção
+							span.caret
+						ul.dropdown-menu
+							li
+								a(href='#') Realizar Check-in de cliente
+							li
+								a(href='#') Realizar Check-out de cliente
+				.botao-box.pos-botao-2
+					.dropdown
+						button.btn.btn-link.dropdown-toggle.test(type='button', data-toggle='dropdown', style='color:white')
+							| Reserva
+							span.caret
+						ul.dropdown-menu
+							li
+								a(href='/home/reserva') Ver cadastros de reserva
+				.botao-box.pos-botao-3
+					.dropdown
+						button.btn.btn-link.dropdown-toggle.test(type='button', data-toggle='dropdown', style='color:white')
+							| Lavanderia
+							span.caret
+						ul.dropdown-menu
+							li
+								a(href='#') Gerenciar itens da lavanderia
+				.botao-box.pos-botao-4
+					.dropdown
+						button.btn.btn-link.dropdown-toggle.test(type='button', data-toggle='dropdown', style='color:white')
+							| Manutenção
+							span.caret
+						ul.dropdown-menu
+							li
+								a(href='#') Gerenciar itens em manutenção
+				.botao-box.pos-botao-5
+					.dropdown
+						button.btn.btn-link.dropdown-toggle.test(type='button', data-toggle='dropdown', style='color:white')
+							| Financeiro
+							span.caret
+						ul.dropdown-menu
+							li
+								a(href='#') Gerar relatório financeiro
+				.botao-box.pos-botao-6
+					.dropdown
+						button.btn.btn-link.dropdown-toggle.test(type='button', data-toggle='dropdown', style='color:white')
+							| Gerência
+							span.caret
+						ul.dropdown-menu
+							li
+								a(href='/home/gerente/permissao') Gerenciar permissões de usuários
+							li
+								a(href='/home/gerente/signup') Criar usuários
+				.botao-box.pos-botao-7
+					.dropdown
+						button.btn.btn-link.dropdown-toggle.test(type='button', data-toggle='dropdown', style='color:white')
+							a(href='/home' style='color:white') Início
+							span.caret
+
+
+		block content
 
 
 

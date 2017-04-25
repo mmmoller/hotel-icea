@@ -8,14 +8,15 @@ block content
 					#user
 						h1.text-center.login-title Bem-vindo,  #{user.username}
 							a(href='/home/signout', class='text-center new-account') Sair
-				div.home-wall-2
-					h1= "Modulos"
-					- for (var i = 0; i < user.permissao.length; ++i){
-						if user.permissao[i] == true
-							form(class='form-signin', action='/home/'+dic[i], method='GET')
-								button(class='btn btn-lg btn-primary btn-block', type='submit') #{dic[i]}
-								span.clearfix
-					-}
+				//div.home-wall-2
+				//h1.text-center.login-title Módulos:
+				//br
+				//- for (var i = 0; i < user.permissao.length; ++i){
+				//if user.permissao[i] == true
+				//form(class='form-signin', action='/home/'+dic[i], method='GET')
+				//	button(class='btn btn-lg btn-primary btn-block', type='submit') #{dic[i]}
+				//	span.clearfix
+				//-}
 		
 	
 	

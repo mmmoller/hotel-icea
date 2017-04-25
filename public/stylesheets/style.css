@@ -14,7 +14,7 @@ body header {
 
 .body-background {
     background-color:#99CCFF;
-    background-image:url("/img/fab.jpg");
+    /*background-image:url("/img/fab.jpg");*/
     background-size: 100%;
 }
 
@@ -49,7 +49,61 @@ body header {
 }
 
 
+.botoes-wrapper {
 
+    background-position: 80% 0px;
+    width: 1000px;
+    margin: -20px auto 0 auto;
+    text-align: center;
+}
+
+.botao-header {
+    width: 800px;
+    height: 50px;
+    text-align: left;
+    display: block;
+    position: relative;
+    top: -50px;
+    left: 40%;
+}
+.botao-box {
+        position: absolute;
+        float: none;
+        width: 135px;
+        height: 35px;
+        /*border: 5px solid #F1F1EF;
+        background: #F1F1EF;
+       /* z-index: 10;*/
+        margin: 30px 0px 0px 0px;
+        top:25%;
+        font-size: 10px;
+        font-weight: bold;
+        text-indent: 3px;
+        padding: 0;
+}
+
+
+.pos-botao-1{
+    left: 0%;
+}
+.pos-botao-2{
+    left: 15%;
+}
+.pos-botao-3{
+    left: 30%;
+}
+.pos-botao-4{
+    left: 45%;
+}
+.pos-botao-5{
+    left: 60%;
+}
+.pos-botao-6{
+    left: 75%;
+}
+.pos-botao-7{
+    left: 90%;
+}
 
 .form-signin{
     max-width: 330px;
@@ -151,7 +205,7 @@ body header {
 
 .gerencia-wall{
     margin-top: 20px;
-    padding: 10px 10px 20px 10px;
+    padding: 20px 20px 20px 20px;
     background-color: #f7f7f7;
     -moz-box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.3);
     -webkit-box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.3);
@@ -159,7 +213,7 @@ body header {
 }
 .voltar-wall{
     margin-top: 20px;
-    padding: 20px 10px 20px 10px;
+    padding: 20px 20px 20px 20px;
     background-color: #f7f7f7;
     -moz-box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.3);
     -webkit-box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.3);
