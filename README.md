@@ -12,4 +12,6 @@
 4) No browser:
 - localhost:3000
 
-- testando
+- /delete para deletar todos os dados do BD.
+- /admin para criar o admin.
+- /criar para criar todos os registros entre duas datas.
