@@ -24,15 +24,10 @@ block content
 						td #{cadastro.dateIn}
 						td #{cadastro.dateOut}
 
-					//form(class='form-signin', action='/home/reserva', method='POST')
-					//	input(type='hidden', name='nome', value=cadastro.name)
-					//	input(type='hidden',name='email', value=cadastro.email)
-					//	input(type='hidden',name='cpf', value=cadastro.cpf)
-					//	input(type='hidden',name='checkin', value=cadastro.dateIn)
-					//	input(type='hidden',name='checkout', value=cadastro.dateOut)
-					//	input(type='hidden',name='cadastro', value=cadastro)
-					//	button(class='btn btn-lg btn-primary btn-block', type='submit') #{cadastro.name} #{cadastro.dateIn} #{cadastro.dateOut}
-					//	span.clearfix
+					form(class='form-signin', action='/home/reserva', method='POST')
+						input(type='hidden', name='_id', value=cadastro._id)
+						button(class='btn btn-lg btn-primary btn-block', type='submit') #{cadastro.name} #{cadastro.dateIn} #{cadastro.dateOut}
+						span.clearfix
 
 	div.container
 		div.row
