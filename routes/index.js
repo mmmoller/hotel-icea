@@ -16,7 +16,7 @@ module.exports = function(passport){
 	
 	// /CADASTRO
 	
-	//  get no /cadastro. Mostrar o cadastro e que ele já foi realizado com sucesso.
+	//  criar get para /cadastro
 	router.post('/cadastro', function(req, res){
 		Cadastro.findOne({ 'cpf' :  req.param('cpf') }, function(err, cadastro) {
             // In case of any error, return using the done method
