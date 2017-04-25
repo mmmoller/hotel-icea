@@ -399,6 +399,13 @@ var isReserva = function (req, res, next) {
 	res.redirect('/home');
 }
 
+var isFinanceiro = function (req, res, next) {
+	if (req.user.permissao[4] == true){
+		return next();
+	}
+	res.redirect('/home');
+}
+
 var isGerente = function (req, res, next) {
 	if (req.user.permissao[5] == true){
 		return next();
