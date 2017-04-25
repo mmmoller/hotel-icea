@@ -1,0 +1,10 @@
+extends layout
+
+block content
+	each cadastro, j in cadastros
+		form(class='form-signin', action='/home/recepcao', method='POST')
+			input(type='hidden', name='_id', value=cadastro._id)
+			input(type='hidden', name='dateOut', value=cadastro.dateOut)
+			input(type='hidden', name='dateIn', value=cadastro.dateIn)
+			button(class='btn btn-lg btn-primary btn-block', type='submit') #{cadastro.name}
+			span.clearfix

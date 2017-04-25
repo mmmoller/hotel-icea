@@ -16,7 +16,7 @@ block content
 			- for (var i = 0; i < leito.length; ++i){
 				Tick   #{leito[i]}
 				Tick   #{registro.estado[i]}  
-				if (registro.estado[i] == 'ocupado')
+				if (registro.estado[i] != 'livre')
 					Tick   #{registro.ocupante[i].name}
 				else
 					Tick   #{registro.ocupante[i]}
