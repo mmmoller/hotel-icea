@@ -12,8 +12,16 @@
 4) No browser:
 - localhost:3000
 
+5) Debugar:
 - /delete para deletar todos os dados do BD.
 - /admin para criar o admin.
 - /criar para criar todos os registros entre duas datas.
-- /tesX
 
+6) Shortcuts úteis. (Criar um shortcut, ir em properties e mudar os campos TARGET e START).
+- inicializar o DB 
+- TARGET: %windir%\system32\cmd.exe /k mongod --dbpath C:\dev\hotel-icea\data
+- START: "C:\Program Files\MongoDB\Server\3.4\bin"
+
+- inicializar o Server
+- TARGET: %windir%\system32\cmd.exe /k npm start
+- START: C:\dev\hotel-icea
