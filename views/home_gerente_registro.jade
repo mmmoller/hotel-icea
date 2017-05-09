@@ -19,13 +19,13 @@ block content
 					thead
 						tr
 							th Leitos
-							each registro, j in registros
+							each registro in registros
 								th #{registro.data.toUTCString()}
 					tbody
 						-for (var i = 0; i < leito.length; ++i){
 							tr
 								td Leito #{leito[i]}
-								each registro, j in registros
+								each registro in registros
 									td
 										.dropdown
 										button.btn.btn-link.dropdown-toggle.test(type='button', data-toggle='dropdown')

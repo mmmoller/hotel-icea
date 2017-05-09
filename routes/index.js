@@ -3,6 +3,7 @@ var router = express.Router();
 var User = require('../models/user');
 var Cadastro = require('../models/cadastro');
 var Registro = require('../models/registro');
+var Estado_leitos = require('../models/estado_leitos');
 var bCrypt = require('bcrypt-nodejs');
 
 module.exports = function(passport){
@@ -71,7 +72,12 @@ module.exports = function(passport){
 		res.redirect('/');
 	});
 	
-	
+	// /HOME/MANUTENCAO/QUADRO
+	router.get('/home/manutencao/quadro', isAuthenticated, isManutencao, function(req, res){
+		Estado_leitos.find({}, function(err, estado_leitos) {
+			res.render('home_manutencao_quadro', {estado_leitos: estado_leitos});
+		});
+	});
 	
 	// /HOME/RESERVA
 	
@@ -342,11 +348,156 @@ module.exports = function(passport){
 		});
 		res.redirect('/');
 	});
-	
+	router.get('/delete/estado_leitos', function(req, res){
+		Estado_leitos.remove({}, function(err) { 
+			console.log('Estado_leitos removed')
+		});
+		res.redirect('/');
+	});
 	
 	// CRIAR
 	router.get('/criar', function(req,res){
 		res.render('criar');
+	});
+
+
+	router.get('/criar/estado_leitos', function(req,res){
+		var newEstado;
+		//A
+		for(var i = 1; i <= 18; i++){
+			newEstado = createEstado_leitos(("A" + i + "a"));
+			newEstado.save(function(err, updatedEstado_leito){
+				if(err) return handleError(err);
+			});
+			newEstado = createEstado_leitos(("A" + i + "b"));
+			newEstado.save(function(err, updatedEstado_leito){
+				if(err) return handleError(err);
+			});
+		}
+		newEstado = createEstado_leitos("A19a");
+		newEstado.save(function(err, updatedEstado_leito){
+			if(err) return handleError(err);
+		});
+		newEstado = createEstado_leitos("A19b");
+		newEstado.save(function(err, updatedEstado_leito){
+			if(err) return handleError(err);
+		});
+		newEstado = createEstado_leitos("A19c");
+		newEstado.save(function(err, updatedEstado_leito){
+			if(err) return handleError(err);
+		});
+		newEstado = createEstado_leitos("A20a");
+		newEstado.save(function(err, updatedEstado_leito){
+			if(err) return handleError(err);
+		});		
+		newEstado = createEstado_leitos("A21a");
+		newEstado.save(function(err, updatedEstado_leito){
+			if(err) return handleError(err);
+		});		
+
+
+		//B
+		newEstado = createEstado_leitos("B1a");
+		newEstado.save(function(err, updatedEstado_leito){
+			if(err) return handleError(err);
+		});
+		for(var i = 2; i <= 19; i++){
+			newEstado = createEstado_leitos(("B" + i + "a"));
+			newEstado.save(function(err, updatedEstado_leito){
+				if(err) return handleError(err);
+			});
+			newEstado = createEstado_leitos(("B" + i + "b"));
+			newEstado.save(function(err, updatedEstado_leito){
+				if(err) return handleError(err);
+			});
+		}
+
+		//C
+		for(var i = 1; i <= 25; i++){
+			newEstado = createEstado_leitos(("C" + i + "a"));
+			newEstado.save(function(err, updatedEstado_leito){
+				if(err) return handleError(err);
+			});
+			newEstado = createEstado_leitos(("C" + i + "b"));
+			newEstado.save(function(err, updatedEstado_leito){
+				if(err) return handleError(err);
+			});
+			newEstado = createEstado_leitos(("C" + i + "c"));
+			newEstado.save(function(err, updatedEstado_leito){
+				if(err) return handleError(err);
+			});
+		}
+		for(var i = 26; i <= 35; i++){
+			newEstado = createEstado_leitos(("C" + i + "a"));
+			newEstado.save(function(err, updatedEstado_leito){
+				if(err) return handleError(err);
+			});
+			newEstado = createEstado_leitos(("C" + i + "b"));
+			newEstado.save(function(err, updatedEstado_leito){
+				if(err) return handleError(err);
+			});
+		}
+
+		//D
+		for(var i = 101; i <= 119; i++){
+			newEstado = createEstado_leitos(("D" + i + "a"));
+			newEstado.save(function(err, updatedEstado_leito){
+				if(err) return handleError(err);
+			});
+			newEstado = createEstado_leitos(("D" + i + "b"));
+			newEstado.save(function(err, updatedEstado_leito){
+				if(err) return handleError(err);
+			});
+			newEstado = createEstado_leitos(("D" + i + "c"));
+			newEstado.save(function(err, updatedEstado_leito){
+				if(err) return handleError(err);
+			});
+			newEstado = createEstado_leitos(("D" + i + "d"));
+			newEstado.save(function(err, updatedEstado_leito){
+				if(err) return handleError(err);
+			});
+		}
+		for(var i = 201; i <= 221; i++){
+			newEstado = createEstado_leitos(("D" + i + "a"));
+			newEstado.save(function(err, updatedEstado_leito){
+				if(err) return handleError(err);
+			});
+			newEstado = createEstado_leitos(("D" + i + "b"));
+			newEstado.save(function(err, updatedEstado_leito){
+				if(err) return handleError(err);
+			});
+			newEstado = createEstado_leitos(("D" + i + "c"));
+			newEstado.save(function(err, updatedEstado_leito){
+				if(err) return handleError(err);
+			});
+			newEstado = createEstado_leitos(("D" + i + "d"));
+			newEstado.save(function(err, updatedEstado_leito){
+				if(err) return handleError(err);
+			});
+		}
+		for(var i = 222; i <= 223; i++){
+			newEstado = createEstado_leitos(("D" + i + "a"));
+			newEstado.save(function(err, updatedEstado_leito){
+				if(err) return handleError(err);
+			});
+			newEstado = createEstado_leitos(("D" + i + "b"));
+			newEstado.save(function(err, updatedEstado_leito){
+				if(err) return handleError(err);
+			});
+			newEstado = createEstado_leitos(("D" + i + "c"));
+			newEstado.save(function(err, updatedEstado_leito){
+				if(err) return handleError(err);
+			});
+			newEstado = createEstado_leitos(("D" + i + "d"));
+			newEstado.save(function(err, updatedEstado_leito){
+				if(err) return handleError(err);
+			});
+			newEstado = createEstado_leitos(("D" + i + "e"));
+			newEstado.save(function(err, updatedEstado_leito){
+				if(err) return handleError(err);
+			});
+		}
+		res.send('criados estados dos leitos');
 	});
 	
 	router.post('/criar', function(req, res){
@@ -374,6 +525,15 @@ module.exports = function(passport){
 	return router;
 }
 
+function createEstado_leitos(cod_leito){
+	var ret = new Estado_leitos();
+	ret.cod_leito = cod_leito;
+	ret.limpeza = "limpo";
+	ret.ocupabilidade = "normal";
+	ret.manutencao = "normal";
+	ret.ocupante = [];
+	return ret;
+}
 
 var isAuthenticated = function (req, res, next) {
 	// if user is authenticated in the session, call the next() to call the next request handler 
@@ -394,6 +554,12 @@ var isRecepcao = function (req, res, next) {
 
 var isReserva = function (req, res, next) {
 	if (req.user.permissao[1] == true){
+		return next();
+	}
+	res.redirect('/home');
+}
+var isManutencao = function (req, res, next) {
+	if (req.user.permissao[3] == true){
 		return next();
 	}
 	res.redirect('/home');
