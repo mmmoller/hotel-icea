@@ -28,33 +28,15 @@ block content
 								each registro in registros
 									td
 										.dropdown
-										button.btn.btn-link.dropdown-toggle.test(type='button', data-toggle='dropdown')
-											| #{registro.estado[i]} 
-										ul.dropdown-menu
-											li
-												a(href='#' style='color:black;font-size:500px') Ação 1
-											li
-												a(href='#') Ação 2
-											li
-												a(href='#') Ação 3
+											button.btn.btn-link.dropdown-toggle.test(type='button', data-toggle='dropdown')
+												| #{registro.estado[i]} 
+											ul.dropdown-menu
+												li
+													a(href='#' style='color:black') Ação 1
+												li
+													a(href='#') Ação 2
+												li
+													a(href='#') Ação 3
 						-}
 
-
-	//h1.
-	//	Situação atual:
-	//ul
-	//	each registro, j in registros
-	//		li Data: #{registro.data.toUTCString()}
-	//		- for (var i = 0; i < leito.length; ++i){
-	//			Tick   #{leito[i]}
-	//			Tick   #{registro.estado[i]}  
-	//			if (registro.estado[i] != 'livre')
-	//				Tick   #{registro.ocupante[i].name}
-	//			else
-	//				Tick   #{registro.ocupante[i]}
-	//			br
-	//		-}
-	//		br
-	//		br
-	
 	

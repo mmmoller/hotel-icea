@@ -457,7 +457,22 @@ module.exports = function(passport){
 				if(err) return handleError(err);
 			});
 		}
-		for(var i = 201; i <= 221; i++){
+		newEstado = createEstado_leitos(("D200a"));
+		newEstado.save(function(err, updatedEstado_leito){
+			if(err) return handleError(err);
+		});
+		newEstado = createEstado_leitos(("D200b"));
+		newEstado.save(function(err, updatedEstado_leito){
+			if(err) return handleError(err);
+		});
+		newEstado = createEstado_leitos(("D200c"));
+		newEstado.save(function(err, updatedEstado_leito){
+			if(err) return handleError(err);
+		});
+		newEstado = createEstado_leitos(("D200d"));
+		newEstado.save(function(err, updatedEstado_leito){
+			if(err) return handleErr200		});
+		for(var i = 202; i <= 221; i++){
 			newEstado = createEstado_leitos(("D" + i + "a"));
 			newEstado.save(function(err, updatedEstado_leito){
 				if(err) return handleError(err);
@@ -584,8 +599,5 @@ var createHash = function(password){
 }
 
 var dicionario = {0: "Recepcao", 1: "Reserva", 2: "Lavanderia", 3:"Manutencao",4: "Financeiro",5: "Gerente"};
-
-var leito = ['A1a', 'A1b', 'A2a', 'A2b', 'A3a', 'A3b', 'A4a', 'A4b',
- 'A5a', 'A5b', 'A6a', 'A6b', 'A7a', 'A7b', 'A8a', 'A8b'];
 
 
