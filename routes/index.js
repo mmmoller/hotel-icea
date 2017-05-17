@@ -78,6 +78,13 @@ module.exports = function(passport){
 			res.render('home_manutencao_quadro', {estado_leitos: estado_leitos});
 		});
 	});
+
+	// /HOME/MANUTENCAO/LIMPEZA
+	router.get('/home/manutencao/limpeza', isAuthenticated, isManutencao, function(req, res){
+		Estado_leitos.find({}, function(err, estado_leitos) {
+			res.render('home_manutencao_limpeza', {estado_leitos: estado_leitos});
+		});
+	});
 	
 	// /HOME/RESERVA
 	
@@ -163,6 +170,15 @@ module.exports = function(passport){
 		});
 	});
 	
+
+	// /HOME /LAVANDERIA
+	router.get('/home/lavanderia/folha', isAuthenticated, function(req, res){
+		res.render('home_lavanderia_folha');
+	});
+	router.get('/home/lavanderia/gerencia', isAuthenticated, function(req, res){
+		res.render('home_lavanderia_gerencia');
+	});
+
 	
 	
 	// /HOME/RECEPCAO

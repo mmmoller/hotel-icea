@@ -5,8 +5,7 @@ block content
 		div.row
 			div.col-sm-6.col-md-4.col-md-offset-4
 				div.home-wall-1
-					h1 Quadro de manutenções
-
+					h1 Quadro de limpeza
 
 	div.container#manutencao-table-wrapper
 		center
@@ -25,16 +24,15 @@ block content
 									if(idx == (estado_leitos.length-1) || estado_leitos[idx+1].cod_leito.slice(-1) == "a")
 										//isso significa q estamos iterando pelo ultimo leito do quarto
 										-var nleitos = estado_leitos[idx].cod_leito.slice(-1).charCodeAt(0)-"a".charCodeAt(0)+1;
+										-var limpo = estado_leitos[idx].limpeza;
 										td
 											.dropdown
-												-var letras= ['a','b','c','d','e'];
 												button.btn.btn-link.dropdown-toggle.test#manutencao-dropdown(type='button', data-toggle='dropdown')
 													| #{estado_leitos[idx].cod_leito.slice(0,-1)}
 												ul.dropdown-menu
-													-for(var leito_num = 0; leito_num < nleitos; leito_num++){
-														li
-															a(href='#') #{estado_leitos[idx].cod_leito.slice(0,-1)+letras[leito_num]}
-													-}
+													li
+														a(href='#') Marcar como ...
+											| #{limpo}
 									
 							-}
 
