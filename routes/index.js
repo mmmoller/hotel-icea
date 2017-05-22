@@ -3,7 +3,7 @@ var router = express.Router();
 var User = require('../models/user');
 var Cadastro = require('../models/cadastro');
 var Registro = require('../models/registro');
-var Estado_leitos = require('../models/estado_leitos');
+var Leito = require('../models/leito');
 var bCrypt = require('bcrypt-nodejs');
 
 module.exports = function(passport){
@@ -11,40 +11,27 @@ module.exports = function(passport){
 
 	// /'INDEX'
 	router.get('/', function(req, res) {
-    	// Display the Login page with any flash message, if any
 		res.render('index', { message: req.flash('message') });
 	});
 	
-	// /CADASTRO
-	
-	//  criar get para /cadastro
-	router.post('/cadastro', function(req, res){
-		Cadastro.findOne({ 'cpf' :  req.param('cpf') }, function(err, cadastro) {
-            // In case of any error, return using the done method
-			if (err){
-				return handleError(err);
-			}
-			if (cadastro){
-				res.send("Esse cadastro já foi realizado");
-				return;
-			}
-			var newCadastro = new Cadastro();
-			newCadastro.name = req.param('nome');
-            newCadastro.email = req.param('email');
-            newCadastro.cpf = req.param('cpf');
-            newCadastro.dateIn = req.param('checkin');
-            newCadastro.dateOut = req.param('checkout');
-			
-			newCadastro.save(function (err, updatedCadastro) {
-				if (err) return handleError(err);
-				
-			});
-			res.send('Cadastro realizado com sucesso');
-        });
+	router.post('/', function(req, res){
+		var newCadastro = new Cadastro();
+		newCadastro.name = req.param('nome');
+		newCadastro.email = req.param('email');
+		newCadastro.cpf = req.param('cpf');
+		newCadastro.dateIn = req.param('checkin');
+		newCadastro.dateOut = req.param('checkout');
 		
+		newCadastro.save(function (err, updatedCadastro) {
+			if (err) return handleError(err,req,res);
+			
+		});
+		req.flash('message', "Solicitação de reserva realizado com sucesso, aguarde confirmação por e-mail");
+		res.redirect('/');
 	});
-	
-	
+		
+		
+		
 	// /LOGIN
 	router.get('/login', function(req,res){
 		if (req.isAuthenticated()){
@@ -56,86 +43,187 @@ module.exports = function(passport){
 	router.post('/login', passport.authenticate('login', {
 		successRedirect: '/home',
 		failureRedirect: '/login',
-		failureFlash : true  
+		failureFlash : true
 	})); 
 
 	
+	
 	// /HOME
 	router.get('/home', isAuthenticated, function(req, res){
-		res.render('home', { user: req.user, dic: dicionario });
+		res.render('home', { user: req.user, message: req.flash('message')});
 	});
 	
 	// /HOME/LOGOUT
-	
 	router.get('/home/signout', function(req, res) {
 		req.logout();
 		res.redirect('/');
 	});
 	
-	// /HOME/MANUTENCAO/QUADRO
-	router.get('/home/manutencao/quadro', isAuthenticated, isManutencao, function(req, res){
-		Estado_leitos.find({}, function(err, estado_leitos) {
-			res.render('home_manutencao_quadro', {estado_leitos: estado_leitos});
-		});
-	});
-
-	// /HOME/MANUTENCAO/LIMPEZA
-	router.get('/home/manutencao/limpeza', isAuthenticated, isManutencao, function(req, res){
-		Estado_leitos.find({}, function(err, estado_leitos) {
-			res.render('home_manutencao_limpeza', {estado_leitos: estado_leitos});
+	
+	// /HOME/RECEPCAO/CHECKIN
+	router.get('/home/recepcao/checkin', isAuthenticated, isRecepcao, function(req,res){
+		var today = new Date();
+		var tomorrow = new Date(today);
+		tomorrow.setDate(tomorrow.getDate()+1);
+		
+		Registro.findOne({data: {"$gte": today, "$lte": tomorrow}}, function(err, registro) {	
+			if (err) return handleError(err,req,res);
+			if (registro){
+				
+				var cadastros = [];
+				
+				//console.log(registro);
+				
+				Leito.find({}, function(err, leitos) {
+					if (err) return handleError(err,req,res);
+					if (leitos){
+						for (var i = 0; i < leitos.length; i++){
+							if (registro.estado[i] == 'reservado'){
+								cadastros[cadastros.length] = registro.ocupante[i];
+							}
+						}
+						res.render('home_recepcao_checkin', {cadastros: cadastros});
+						
+					}
+					else {
+						req.flash('message', 'É necessário criar os Leitos');
+						res.redirect('/home');
+					}
+				});
+				
+			}
+			else {
+				req.flash('message', 'É necessário criar o Registro Geral');
+				res.redirect('/home');
+			}
 		});
 	});
 	
-	// /HOME/RESERVA
+	router.post('/home/recepcao/checkin', isAuthenticated, isRecepcao, function(req,res){
+		
+		Registro.find({data: {"$gte": req.param('dateIn'), "$lte": req.param('dateOut')}}
+		, null, {sort: 'data'}, function(err, registros) {
+			
+			if (err) return handleError(err,req,res);
+			if (registros){
+				
+				Leito.find({}, function(err, leitos) {
+					if (err) return handleError(err,req,res);
+					if (leitos){
+				
+						for (var i = 0; i < registros.length; ++i){
+							for (var j = 0; j < leitos.length; ++j){
+								if (registros[i].ocupante[j]._id == req.param('_id')){
+									registros[i].estado.splice(j, 1, 'ocupado');
+								}
+							}
+						}
+						
+						for (var i = 0; i < registros.length; ++i){
+							registros[i].save(function (err, updatedRegistros) {
+								if (err) return handleError(err,req,res);
+							});
+						}
+						
+						res.redirect('/home/recepcao/checkin');
+					}
+					else {
+						req.flash('message', 'É necessário criar os Leitos');
+						res.redirect('/home');
+					}
+				});
+			}
+			else {
+				req.flash('message', 'É necessário criar o Registro Geral');
+				res.redirect('/home');
+			}
+		});
+		
+		
+		
+		
+		
+	});
 	
+	// /HOME/RECEPCAO/CHECKOUT *
+	
+	// /HOME/RESERVA * Adicionar reserva com acompanhantes.
 	router.get('/home/reserva', isAuthenticated, isReserva, function(req, res){
 		Cadastro.find({}, function(err, cadastros) {
-			res.render('home_reserva', {cadastros: cadastros});
+			if (err) return handleError(err,req,res);
+			if (cadastros){
+				res.render('home_reserva', {cadastros: cadastros});
+			}
+			else {
+				req.flash('message', "Não existem reservas");
+				res.redirect('/home');
+			}
 		});
 	});
 	
 	router.post('/home/reserva', isAuthenticated, isReserva, function(req, res){
 		
 		Cadastro.findOne({_id: req.param('_id')},function(err, cadastro) {
-			req.session.cadastro = cadastro;
-		
-		
-			Registro.find({data: {"$gte": cadastro.dateIn, "$lte": cadastro.dateOut}}, 
-			null, {sort: 'data'}, function(err, registros) {
+			if (err) return handleError(err,req,res);
+			if (cadastro){
+				
+				req.session.cadastro = cadastro;
 			
-				var livre = [];
-				for (var i = 0; i < leito.length; ++i){
-					livre[i] = true;
-				}
-				
-				for (var i = 0; i < registros.length; ++i){
-					for (var j = 0; j < leito.length; ++j){
-						if (registros[i].estado[j] != 'livre'){
-							livre[j] = false;
-						}
-					}
-				}
-				
-				var leitos = [];
-				var j = 0;
-				for (var i = 0; i < leito.length; ++i){
-					if (livre[i]){
-						leitos[i-j] = leito[i];
+				Registro.find({data: {"$gte": cadastro.dateIn, "$lte": cadastro.dateOut}}, 
+				null, {sort: 'data'}, function(err, registros) {
+					if (err) return handleError(err,req,res);
+					if (registros) {
+						Leito.find({}, function(err, leitos) {
+							if (err) return handleError(err,req,res);
+							if (leitos){
+								
+								var livre = [];
+								for (var i = 0; i < leitos.length; i++){
+									livre[i] = true;
+								}
+								
+								for (var i = 0; i < registros.length; i++){
+									for (var j = 0; j < leitos.length; j++){
+										if (registros[i].estado[j] != 'livre'){
+											livre[j] = false;
+										}
+									}
+								}
+								
+								var leitos_ = [];
+								var j = 0;
+								for (var i = 0; i < leitos.length; i++){
+									if (livre[i]){
+										leitos_[i-j] = leitos[i].cod_leito;
+									}
+									else {
+										j++;
+									}
+								}
+								
+								res.render('home_reserva_alocacao', {leitos: leitos_});
+							}
+							else {
+								req.flash('message', "É necessário criar os Leitos");
+								res.redirect('/home');;
+							}
+						});
 					}
 					else {
-						j++;
+						req.flash('message', "É necessário criar o Registro Geral");
+						res.redirect('/home');
 					}
-				}
-				
-				res.render('home_reserva_alocacao', {leitos: leitos});
-			});
-		
+				});
+			}
+			else {
+				req.flash('message', "Cadastro não existente");
+				res.redirect('/home');
+			}
 		
 		});
 	});
 	
-	// /HOME/RESERVA/ALOCACAO
-	
+	// /HOME/RESERVA/ALOCACAO * Adicionar reserva com acompanhantes. **
 	router.get('/home/reserva/alocacao', isAuthenticated, isReserva, function(req, res){
 		res.redirect('/home/reserva');
 	});
@@ -144,111 +232,104 @@ module.exports = function(passport){
 		
 		Registro.find({data: {"$gte": req.session.cadastro.dateIn, "$lte": req.session.cadastro.dateOut}}
 		, null, {sort: 'data'}, function(err, registros) {
-			
-			var leito_ = req.body.bizu;
-			
-			for (var i = 0; i < registros.length; ++i){
-				for (var j = 0; j < leito.length; ++j){
-					if (leito[j] == leito_){
-						registros[i].estado.splice(j, 1, 'reservado');
-						registros[i].ocupante.splice(j, 1, req.session.cadastro);
+			if (err) return handleError(err,req,res); 
+			if (registros){
+				
+				Leito.find({}, function(err, leitos) {
+					if (err) return handleError(err,req,res);
+					if (leitos){
+						var leito_ = req.body.bizu;
+						
+						for (var i = 0; i < registros.length; ++i){
+							for (var j = 0; j < leitos.length; ++j){
+								if (leitos[j].cod_leito == leito_){
+									registros[i].estado.splice(j, 1, 'reservado');
+									registros[i].ocupante.splice(j, 1, req.session.cadastro);
+								}
+							}
+						}
+						
+						for (var i = 0; i < registros.length; ++i){
+							registros[i].save(function (err, updatedRegistros) {
+								if (err) return handleError(err,req,res);
+							});
+						}
+						
+						Cadastro.remove({'_id': req.session.cadastro._id}, function(err) {
+							if (err) return handleError(err,req,res);
+						});
+						
+						res.redirect('/home/reserva');
 					}
-				}
-			}
-			
-			for (var i = 0; i < registros.length; ++i){
-				registros[i].save(function (err, updatedRegistros) {
-					if (err) return handleError(err);
+					else{
+						req.flash('message', "É necessário criar os Leitos");
+						res.redirect('/home');;
+					}
 				});
 			}
-			
-			Cadastro.remove({'_id': req.session.cadastro._id}, function(err) {
-				if (err) return handleError(err);
-			});
-			
-			res.redirect('/home/reserva');
+			else {
+				req.flash('message', "É necessário criar o Registro Geral");
+				res.redirect('/home');;
+			}
 		});
 	});
 	
-
+	
 	// /HOME /LAVANDERIA
 	router.get('/home/lavanderia/folha', isAuthenticated, function(req, res){
 		res.render('home_lavanderia_folha');
 	});
+	
 	router.get('/home/lavanderia/gerencia', isAuthenticated, function(req, res){
 		res.render('home_lavanderia_gerencia');
 	});
 
 	
-	
-	// /HOME/RECEPCAO
-	
-	router.get('/home/recepcao', isAuthenticated, isRecepcao, function(req,res){
-		var today = new Date();
-		var tomorrow = new Date(today);
-		tomorrow.setDate(tomorrow.getDate()+1);
-		
-		Registro.findOne({data: {"$gte": today, "$lte": tomorrow}}, null, {sort: '-data'}, function(err, registro) {	
-			
-			
-			var cadastros = [];
-			
-			console.log(registro);
-			
-			
-			for (var i = 0; i < leito.length; i++){
-				if (registro.estado[i] == 'reservado'){
-					cadastros[cadastros.length] = registro.ocupante[i];
-				}
+	// /HOME/MANUTENCAO/QUADRO
+	router.get('/home/manutencao/quadro', isAuthenticated, isManutencao, function(req, res){
+		Leito.find({}, function(err, leitos) {
+			if (err) return handleError(err,req,res);
+			if (leitos){
+				res.render('home_manutencao_quadro', {leitos: leitos});
 			}
-			
-			res.render('home_recepcao', {cadastros: cadastros});
+			else {
+				req.flash('message', "Os Leitos ainda não foram criados");
+				res.redirect('/home');
+			}
 		});
-		
-		
-		//res.send(new Date());
+	});
+
+	// /HOME/MANUTENCAO/LIMPEZA
+	router.get('/home/manutencao/limpeza', isAuthenticated, isManutencao, function(req, res){
+		Leito.find({}, function(err, leitos) {
+			if (err) return handleError(err,req,res);
+			if (leitos){
+				res.render('home_manutencao_limpeza', {leitos: leitos});
+			}
+			else {
+				req.flash('message', "Os Leitos ainda não foram criados");
+				res.redirect('/home');
+			}
+		});
 	});
 	
-	router.post('/home/recepcao', isAuthenticated, isRecepcao, function(req,res){
-		
-		Registro.find({data: {"$gte": req.param('dateIn'), "$lte": req.param('dateOut')}}
-		, null, {sort: 'data'}, function(err, registros) {
-			
-			
-			for (var i = 0; i < registros.length; ++i){
-				for (var j = 0; j < leito.length; ++j){
-					if (registros[i].ocupante[j]._id == req.param('_id')){
-						registros[i].estado.splice(j, 1, 'ocupado');
-					}
-				}
-			}
-			
-			for (var i = 0; i < registros.length; ++i){
-				registros[i].save(function (err, updatedRegistros) {
-					if (err) return handleError(err);
-				});
-			}
-			
-			res.redirect('/home/recepcao');
-		});
-		
-		
-		
-		
-		
-	});
-	
+
 	// /HOME/GERENTE
-	
 	router.get('/home/gerente', isAuthenticated, isGerente, function(req, res){
 		res.render('home_gerente', {message: req.flash('message')});
 	});
 	
 	// /HOME/GERENTE/PERMISSAO
-	
 	router.get('/home/gerente/permissao', isAuthenticated, isGerente, function(req, res){
-		User.find({username: {$ne: 'admin'}}, function(err, users) {	
-			res.render('home_gerente_permissao', {users: users, dic: dicionario});
+		User.find({username: {$ne: 'admin'}}, function(err, users) {
+			if (err) return handleError(err,req,res);
+			if (users){
+				res.render('home_gerente_permissao', {users: users, dic: dicionario});
+			}
+			else {
+				req.flash('message', "Nenhum usuário existente");
+				res.redirect('/home');
+			}
 		});
 	});
 	
@@ -257,26 +338,28 @@ module.exports = function(passport){
 		
 		User.findOne({ 'username' :  req.body.bizu }, function(err, user) {
             // In case of any error, return using the done method
-			if (err){
-				return handleError(err);
+			if (err) return handleError(err,req,res);
+			
+			if (user) {
+				user.permissao = [req.body.Recepcao, req.body.Reserva, req.body.Lavanderia, req.body.Manutencao, req.body.Financeiro, req.body.Gerente]
+				console.log(user);
+				
+				
+				user.save(function (err, updatedUser) {
+					if (err) return handleError(err,req,res);
+					//res.send(updatedUser);
+				});
 			}
-			
-			user.permissao = [req.body.Recepcao, req.body.Reserva, req.body.Lavanderia, req.body.Manutencao, req.body.Financeiro, req.body.Gerente]
-			console.log(user);
-			
-			
-			user.save(function (err, updatedUser) {
-				if (err) return handleError(err);
-				//res.send(updatedUser);
-			});
+			else {
+				req.flash('message', "O usuário não existe");
+				res.redirect('/home');
+			}
         });
 		
 		res.redirect('/home/gerente/permissao');
 	});
 	
-	
 	// /HOME/GERENTE/SIGNUP
-	
 	router.get('/home/gerente/signup', isAuthenticated, isGerente, function(req, res){
 		res.render('home_gerente_signup',{message: req.flash('message')});
 	});
@@ -285,7 +368,7 @@ module.exports = function(passport){
 		User.findOne({ 'username' :  req.param('username') }, function(err, user) {
             // In case of any error, return using the done method
 			if (err){
-				return handleError(err);
+				return handleError(err,req,res);
 			}
 			if (user){
 				res.send("Já existe usuário com esse nome");
@@ -300,7 +383,7 @@ module.exports = function(passport){
 			newUser.permissao = [true, true, true, true, true, false];
 			
 			newUser.save(function (err, updatedUser) {
-				if (err) return handleError(err);
+				if (err) return handleError(err,req,res);
 				
 			});
 			res.redirect('/home/gerente');
@@ -308,14 +391,31 @@ module.exports = function(passport){
 		
 	});
 	
-	
 	// /HOME/GERENTE/REGISTRO
-	
 	router.get('/home/gerente/registro', isAuthenticated, isGerente, function(req,res){
-		Registro.find({data: {"$gte": new Date(req.param('dataIn')), "$lte": new Date(req.param('dataOut'))}}, null, {sort: '-data'}, function(err, registros) {	
-			res.render('home_gerente_registro', {registros: registros, leito: leito});
+		Registro.find({data: {"$gte": new Date(req.param('dataIn')), "$lte": new Date(req.param('dataOut'))}}
+		, null, {sort: 'data'}, function(err, registros) {
+			if (err) return handleError(err, req, res);
+			if (registros){
+				
+				Leito.find({}, function(err, leitos) {
+					if (err) return handleError(err,req,res);
+					if (leitos){
+						res.render('home_gerente_registro', {registros: registros, leito: leitos});
+					}
+					else {
+						req.flash('message', 'É necessário criar os Leitos');
+						res.redirect('/home');
+					}
+				});
+			}
+			else {
+				req.flash('message', 'É necessário criar o Registro Geral');
+				res.redirect('/home');
+			}
 		});
 	});
+	
 	
 	// TUDO DAQUI PARA BAIXO É PARA DEBUGAR
 	// ADMIN
@@ -324,14 +424,14 @@ module.exports = function(passport){
 		User.findOneAndRemove({ 'username' :  'admin' }, function(err, user) {
             // In case of any error, return using the done method
 			if (err){
-				return handleError(err);
+				return handleError(err,req,res);
 			}
         });
 		
 		User.findOne({ 'username' :  'admin' }, function(err, user) {
             // In case of any error, return using the done method
 			if (err){
-				return handleError(err);
+				return handleError(err,req,res);
 			}
 			if (user){
 				
@@ -344,7 +444,7 @@ module.exports = function(passport){
 			newUser.permissao = [true, true, true, true, true, true];
 			
 			newUser.save(function (err, updatedUser) {
-				if (err) return handleError(err);
+				if (err) return handleError(err,req,res);
 			});
         });
 		res.redirect('/');
@@ -362,202 +462,216 @@ module.exports = function(passport){
 		Registro.remove({}, function(err) { 
 			console.log('Registros removed')
 		});
-		res.redirect('/');
-	});
-	router.get('/delete/estado_leitos', function(req, res){
-		Estado_leitos.remove({}, function(err) { 
-			console.log('Estado_leitos removed')
+		Leito.remove({}, function(err) { 
+			console.log('Leito removed')
 		});
+		
 		res.redirect('/');
 	});
 	
 	// CRIAR
 	router.get('/criar', function(req,res){
-		res.render('criar');
+		res.redirect('/criar/leitos');
 	});
 
-
-	router.get('/criar/estado_leitos', function(req,res){
-		var newEstado;
+	router.get('/criar/leitos', function(req,res){
+		var newLeito;
 		//A
 		for(var i = 1; i <= 18; i++){
-			newEstado = createEstado_leitos(("A" + i + "a"));
-			newEstado.save(function(err, updatedEstado_leito){
-				if(err) return handleError(err);
+			newLeito = createLeito(("A" + i + "a"));
+			newLeito.save(function(err, updatedLeito){
+				if(err) return handleError(err,req,res);
 			});
-			newEstado = createEstado_leitos(("A" + i + "b"));
-			newEstado.save(function(err, updatedEstado_leito){
-				if(err) return handleError(err);
+			newLeito = createLeito(("A" + i + "b"));
+			newLeito.save(function(err, updatedLeito){
+				if(err) return handleError(err,req,res);
 			});
 		}
-		newEstado = createEstado_leitos("A19a");
-		newEstado.save(function(err, updatedEstado_leito){
-			if(err) return handleError(err);
+		newLeito = createLeito("A19a");
+		newLeito.save(function(err, updatedLeito){
+			if(err) return handleError(err,req,res);
 		});
-		newEstado = createEstado_leitos("A19b");
-		newEstado.save(function(err, updatedEstado_leito){
-			if(err) return handleError(err);
+		newLeito = createLeito("A19b");
+		newLeito.save(function(err, updatedLeito){
+			if(err) return handleError(err,req,res);
 		});
-		newEstado = createEstado_leitos("A19c");
-		newEstado.save(function(err, updatedEstado_leito){
-			if(err) return handleError(err);
+		newLeito = createLeito("A19c");
+		newLeito.save(function(err, updatedLeito){
+			if(err) return handleError(err,req,res);
 		});
-		newEstado = createEstado_leitos("A20a");
-		newEstado.save(function(err, updatedEstado_leito){
-			if(err) return handleError(err);
+		newLeito = createLeito("A20a");
+		newLeito.save(function(err, updatedLeito){
+			if(err) return handleError(err,req,res);
 		});		
-		newEstado = createEstado_leitos("A21a");
-		newEstado.save(function(err, updatedEstado_leito){
-			if(err) return handleError(err);
+		newLeito = createLeito("A21a");
+		newLeito.save(function(err, updatedLeito){
+			if(err) return handleError(err,req,res);
 		});		
 
 
 		//B
-		newEstado = createEstado_leitos("B1a");
-		newEstado.save(function(err, updatedEstado_leito){
-			if(err) return handleError(err);
+		newLeito = createLeito("B1a");
+		newLeito.save(function(err, updatedLeito){
+			if(err) return handleError(err,req,res);
 		});
 		for(var i = 2; i <= 19; i++){
-			newEstado = createEstado_leitos(("B" + i + "a"));
-			newEstado.save(function(err, updatedEstado_leito){
-				if(err) return handleError(err);
+			newLeito = createLeito(("B" + i + "a"));
+			newLeito.save(function(err, updatedLeito){
+				if(err) return handleError(err,req,res);
 			});
-			newEstado = createEstado_leitos(("B" + i + "b"));
-			newEstado.save(function(err, updatedEstado_leito){
-				if(err) return handleError(err);
+			newLeito = createLeito(("B" + i + "b"));
+			newLeito.save(function(err, updatedLeito){
+				if(err) return handleError(err,req,res);
 			});
 		}
 
 		//C
 		for(var i = 1; i <= 25; i++){
-			newEstado = createEstado_leitos(("C" + i + "a"));
-			newEstado.save(function(err, updatedEstado_leito){
-				if(err) return handleError(err);
+			newLeito = createLeito(("C" + i + "a"));
+			newLeito.save(function(err, updatedLeito){
+				if(err) return handleError(err,req,res);
 			});
-			newEstado = createEstado_leitos(("C" + i + "b"));
-			newEstado.save(function(err, updatedEstado_leito){
-				if(err) return handleError(err);
+			newLeito = createLeito(("C" + i + "b"));
+			newLeito.save(function(err, updatedLeito){
+				if(err) return handleError(err,req,res);
 			});
-			newEstado = createEstado_leitos(("C" + i + "c"));
-			newEstado.save(function(err, updatedEstado_leito){
-				if(err) return handleError(err);
+			newLeito = createLeito(("C" + i + "c"));
+			newLeito.save(function(err, updatedLeito){
+				if(err) return handleError(err,req,res);
 			});
 		}
 		for(var i = 26; i <= 35; i++){
-			newEstado = createEstado_leitos(("C" + i + "a"));
-			newEstado.save(function(err, updatedEstado_leito){
-				if(err) return handleError(err);
+			newLeito = createLeito(("C" + i + "a"));
+			newLeito.save(function(err, updatedLeito){
+				if(err) return handleError(err,req,res);
 			});
-			newEstado = createEstado_leitos(("C" + i + "b"));
-			newEstado.save(function(err, updatedEstado_leito){
-				if(err) return handleError(err);
+			newLeito = createLeito(("C" + i + "b"));
+			newLeito.save(function(err, updatedLeito){
+				if(err) return handleError(err,req,res);
 			});
 		}
 
 		//D
 		for(var i = 101; i <= 119; i++){
-			newEstado = createEstado_leitos(("D" + i + "a"));
-			newEstado.save(function(err, updatedEstado_leito){
-				if(err) return handleError(err);
+			newLeito = createLeito(("D" + i + "a"));
+			newLeito.save(function(err, updatedLeito){
+				if(err) return handleError(err,req,res);
 			});
-			newEstado = createEstado_leitos(("D" + i + "b"));
-			newEstado.save(function(err, updatedEstado_leito){
-				if(err) return handleError(err);
+			newLeito = createLeito(("D" + i + "b"));
+			newLeito.save(function(err, updatedLeito){
+				if(err) return handleError(err,req,res);
 			});
-			newEstado = createEstado_leitos(("D" + i + "c"));
-			newEstado.save(function(err, updatedEstado_leito){
-				if(err) return handleError(err);
+			newLeito = createLeito(("D" + i + "c"));
+			newLeito.save(function(err, updatedLeito){
+				if(err) return handleError(err,req,res);
 			});
-			newEstado = createEstado_leitos(("D" + i + "d"));
-			newEstado.save(function(err, updatedEstado_leito){
-				if(err) return handleError(err);
+			newLeito = createLeito(("D" + i + "d"));
+			newLeito.save(function(err, updatedLeito){
+				if(err) return handleError(err,req,res);
 			});
 		}
-		newEstado = createEstado_leitos(("D200a"));
-		newEstado.save(function(err, updatedEstado_leito){
-			if(err) return handleError(err);
+		newLeito = createLeito(("D200a"));
+		newLeito.save(function(err, updatedLeito){
+			if(err) return handleError(err,req,res);
 		});
-		newEstado = createEstado_leitos(("D200b"));
-		newEstado.save(function(err, updatedEstado_leito){
-			if(err) return handleError(err);
+		newLeito = createLeito(("D200b"));
+		newLeito.save(function(err, updatedLeito){
+			if(err) return handleError(err,req,res);
 		});
-		newEstado = createEstado_leitos(("D200c"));
-		newEstado.save(function(err, updatedEstado_leito){
-			if(err) return handleError(err);
+		newLeito = createLeito(("D200c"));
+		newLeito.save(function(err, updatedLeito){
+			if(err) return handleError(err,req,res);
 		});
-		newEstado = createEstado_leitos(("D200d"));
-		newEstado.save(function(err, updatedEstado_leito){
+		newLeito = createLeito(("D200d"));
+		newLeito.save(function(err, updatedLeito){
 			if(err) return handleErr200		});
 		for(var i = 202; i <= 221; i++){
-			newEstado = createEstado_leitos(("D" + i + "a"));
-			newEstado.save(function(err, updatedEstado_leito){
-				if(err) return handleError(err);
+			newLeito = createLeito(("D" + i + "a"));
+			newLeito.save(function(err, updatedLeito){
+				if(err) return handleError(err,req,res);
 			});
-			newEstado = createEstado_leitos(("D" + i + "b"));
-			newEstado.save(function(err, updatedEstado_leito){
-				if(err) return handleError(err);
+			newLeito = createLeito(("D" + i + "b"));
+			newLeito.save(function(err, updatedLeito){
+				if(err) return handleError(err,req,res);
 			});
-			newEstado = createEstado_leitos(("D" + i + "c"));
-			newEstado.save(function(err, updatedEstado_leito){
-				if(err) return handleError(err);
+			newLeito = createLeito(("D" + i + "c"));
+			newLeito.save(function(err, updatedLeito){
+				if(err) return handleError(err,req,res);
 			});
-			newEstado = createEstado_leitos(("D" + i + "d"));
-			newEstado.save(function(err, updatedEstado_leito){
-				if(err) return handleError(err);
+			newLeito = createLeito(("D" + i + "d"));
+			newLeito.save(function(err, updatedLeito){
+				if(err) return handleError(err,req,res);
 			});
 		}
 		for(var i = 222; i <= 223; i++){
-			newEstado = createEstado_leitos(("D" + i + "a"));
-			newEstado.save(function(err, updatedEstado_leito){
-				if(err) return handleError(err);
+			newLeito = createLeito(("D" + i + "a"));
+			newLeito.save(function(err, updatedLeito){
+				if(err) return handleError(err,req,res);
 			});
-			newEstado = createEstado_leitos(("D" + i + "b"));
-			newEstado.save(function(err, updatedEstado_leito){
-				if(err) return handleError(err);
+			newLeito = createLeito(("D" + i + "b"));
+			newLeito.save(function(err, updatedLeito){
+				if(err) return handleError(err,req,res);
 			});
-			newEstado = createEstado_leitos(("D" + i + "c"));
-			newEstado.save(function(err, updatedEstado_leito){
-				if(err) return handleError(err);
+			newLeito = createLeito(("D" + i + "c"));
+			newLeito.save(function(err, updatedLeito){
+				if(err) return handleError(err,req,res);
 			});
-			newEstado = createEstado_leitos(("D" + i + "d"));
-			newEstado.save(function(err, updatedEstado_leito){
-				if(err) return handleError(err);
+			newLeito = createLeito(("D" + i + "d"));
+			newLeito.save(function(err, updatedLeito){
+				if(err) return handleError(err,req,res);
 			});
-			newEstado = createEstado_leitos(("D" + i + "e"));
-			newEstado.save(function(err, updatedEstado_leito){
-				if(err) return handleError(err);
+			newLeito = createLeito(("D" + i + "e"));
+			newLeito.save(function(err, updatedLeito){
+				if(err) return handleError(err,req,res);
 			});
 		}
-		res.send('criados estados dos leitos');
+		setTimeout(function () {res.redirect('/criar/registro')}, 5000);
 	});
 	
-	router.post('/criar', function(req, res){
-		var dataInicial = new Date(req.param('dataIn'));
-		var dataFinal = new Date(req.param('dataOut'));
-		var proximoDia = new Date(dataInicial);
+	router.get('/criar/registro', function(req, res){
+		//var dataInicial = new Date(req.param('dataIn'));
+		//var dataFinal = new Date(req.param('dataOut'));
 		
-		while (proximoDia < dataFinal){
-			var newRegistro = new Registro();
-			newRegistro.data = new Date(proximoDia);
-			newRegistro.estado = [];
-			newRegistro.ocupante = [];
-			for (var i = 0; i < leito.length; i++){
-				newRegistro.estado[newRegistro.estado.length] = "livre";
-				newRegistro.ocupante[newRegistro.ocupante.length] = "";
+		Leito.find({}, function(err, leitos) {
+			if (err) return handleError(err,req,res);
+			if (leitos){
+				var dataInicial = new Date('2017-01-01');
+				var dataFinal = new Date('2050-01-01');
+				var proximoDia = new Date(dataInicial);
+				
+				while (proximoDia < dataFinal){
+					var newRegistro = new Registro();
+					newRegistro.data = new Date(proximoDia);
+					newRegistro.estado = [];
+					newRegistro.ocupante = [];
+					for (var i = 0; i < leitos.length; i++){
+						newRegistro.estado[newRegistro.estado.length] = "livre";
+						newRegistro.ocupante[newRegistro.ocupante.length] = "";
+					}
+					newRegistro.save(function (err, updatedRegistro) {
+						if (err) return handleError(err,req,res);	
+					});
+					proximoDia.setDate(proximoDia.getDate()+1);
+				}
+				res.redirect('/');
 			}
-			newRegistro.save(function (err, updatedRegistro) {
-				if (err) return handleError(err);	
-			});
-			proximoDia.setDate(proximoDia.getDate()+1);
-		}
-		res.redirect('/');
+			else {
+				req.flash('message', "Os Leitos ainda não foram criados");
+				res.redirect('/home');
+			}
+		});
 	});
 	
 	return router;
 }
 
-function createEstado_leitos(cod_leito){
-	var ret = new Estado_leitos();
+function handleError(err,req,res){
+	console.log(err);
+	res.send(err);
+}
+
+function createLeito(cod_leito){
+	var ret = new Leito();
 	ret.cod_leito = cod_leito;
 	ret.limpeza = "limpo";
 	ret.ocupabilidade = "normal";
@@ -566,10 +680,13 @@ function createEstado_leitos(cod_leito){
 	return ret;
 }
 
+// Está sem nenhum autenticação para poder debugar mais fácil.
+
 var isAuthenticated = function (req, res, next) {
 	// if user is authenticated in the session, call the next() to call the next request handler 
 	// Passport adds this method to request object. A middleware is allowed to add properties to
 	// request and response objects
+	return next();
 	if (req.isAuthenticated())
 		return next();
 	// if the user is not authenticated then redirect him to the login page
@@ -577,6 +694,7 @@ var isAuthenticated = function (req, res, next) {
 }
 
 var isRecepcao = function (req, res, next) {
+	return next();
 	if (req.user.permissao[0] == true){
 		return next();
 	}
@@ -584,12 +702,15 @@ var isRecepcao = function (req, res, next) {
 }
 
 var isReserva = function (req, res, next) {
+	return next();
 	if (req.user.permissao[1] == true){
 		return next();
 	}
 	res.redirect('/home');
 }
+
 var isManutencao = function (req, res, next) {
+	return next();
 	if (req.user.permissao[3] == true){
 		return next();
 	}
@@ -597,6 +718,7 @@ var isManutencao = function (req, res, next) {
 }
 
 var isFinanceiro = function (req, res, next) {
+	return next();
 	if (req.user.permissao[4] == true){
 		return next();
 	}
@@ -604,6 +726,7 @@ var isFinanceiro = function (req, res, next) {
 }
 
 var isGerente = function (req, res, next) {
+	return next();
 	if (req.user.permissao[5] == true){
 		return next();
 	}
@@ -615,5 +738,3 @@ var createHash = function(password){
 }
 
 var dicionario = {0: "Recepcao", 1: "Reserva", 2: "Lavanderia", 3:"Manutencao",4: "Financeiro",5: "Gerente"};
-
-
