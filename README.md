@@ -15,9 +15,7 @@
 5) Debugar:
 - /delete para deletar todos os dados do BD.
 - /admin para criar o admin.
-- /criar para criar todos os registros entre duas datas.
-- /criar/estado_leitos para criar estados para todos os leitos, com valores default (limpo/ocupavel/sem manutencao)
-- /delete/estado_leitos para deletar apenas os estados de manutencao e limpeza dos leitos 
+- /criar para criar todos os Leitos e Registro Geral (entre 01-01-2017 até 01-01-2050)
 
 6) Shortcuts úteis. (Criar um shortcut, ir em properties e mudar os campos TARGET e START).
 - inicializar o DB 
