@@ -1,0 +1,49 @@
+extends layout
+
+block content
+	div.container
+		div.row
+			div.col-sm-6.col-md-4.col-md-offset-4
+				div.home-wall-2
+					h1 Folha de coleta e entrega
+
+
+	div.container#folha-ce-table-wrapper
+		center
+			table#folha-ce-table.table-striped.table-bordered
+				thead
+					tr
+						th(style='width:10%') Item
+						th(style='width:40%') Descrição
+						th(style='width:15%') Quantidade de coleta
+						th(style='width:10%') Alterar
+						th(style='width:15%') Quantidade de entrega
+						th(style='width:10%') Alterar
+				tbody
+					-for(var i = 1; i <= 10; i++){
+						tr
+							td(style='width:10%') #{i}
+							td(style='width:40%') Item #{i}
+							td(style='width:15%') 0
+							td(style='width:10%')
+								form(action='/home/lavanderia/folha', method='POST')
+									input(type='number', name='adc_folha_col',style='width:50px')
+									input(type='submit', value='+',style='width:22px')
+									input(type='number', name='rem_folha_col',style='width:50px')
+									input(type='submit', value='-',style='width:22px')
+							td(style='width:15%') 0
+							td(style='width:10%')
+								form(action='/home/lavanderia/folha', method='POST')   
+									input(type='number', name='adc_folha_col',style='width:50px')
+									input(type='submit', value='+',style='width:22px')
+									input(type='number', name='rem_folha_col',style='width:50px')
+									input(type='submit', value='-',style='width:22px')
+									span.clearfix
+
+					-}
+					tr
+						td(colspan='6', style='text-align:center') Data de coleta: xx/xx/xxxx
+					tr
+						td(colspan='6', style='text-align:center') Data de entrega: xx/xx/xxxx
+
+		

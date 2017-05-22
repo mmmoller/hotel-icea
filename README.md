@@ -16,6 +16,8 @@
 - /delete para deletar todos os dados do BD.
 - /admin para criar o admin.
 - /criar para criar todos os registros entre duas datas.
+- /criar/estado_leitos para criar estados para todos os leitos, com valores default (limpo/ocupavel/sem manutencao)
+- /delete/estado_leitos para deletar apenas os estados de manutencao e limpeza dos leitos 
 
 6) Shortcuts úteis. (Criar um shortcut, ir em properties e mudar os campos TARGET e START).
 - inicializar o DB 

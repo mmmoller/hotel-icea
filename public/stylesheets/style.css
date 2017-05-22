@@ -51,6 +51,7 @@ body header {
 
 
 #register-table{
+    margin-bottom: 68px; 
 }
     #register-table-wrapper{
         border: 3px solid #3333ff;
@@ -84,6 +85,50 @@ body header {
         text-align: center;
         padding: 20px 20px 20px 20px;
     }
+
+#manutencao-table{
+}
+    #manutencao-table-wrapper{
+        border: 3px solid #3333ff;
+        position: relative;
+        margin-top: 30px;
+        margin-bottom: 30px;
+        border-radius: 5px;
+        width: 80%;
+        height: 700px;
+        left: 0%;
+        padding: 20px 0px 20px 0px;
+        background-color: #f7f7f7;
+        -moz-box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.3);
+        -webkit-box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.3);
+        box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.3); 
+        overflow: auto;
+    }
+    #manutencao-table thead{
+    }
+    #manutencao-table tbody{
+
+    }
+    #manutencao-table tr{
+        text-align: center;
+    }
+    #manutencao-table th{
+        border-bottom: 3px solid #000066;
+        font-size: 25px;
+    }
+
+    #manutencao-table th, #manutencao-table td{
+        text-align: center;
+        font-size: 25px;
+        padding: 20px 20px 20px 20px;
+    }
+
+#manutencao-dropdown{
+    font-size: 22px;
+    padding: 20px 20px 20px 20px;
+    font-color: black;
+}
+
 #reservas-table{
 
 }
@@ -120,6 +165,35 @@ body header {
         padding: 20px 20px 20px 20px;
     }
 
+#folha-ce-table{
+
+}
+    #folha-ce-table-wrapper{
+        position: relative;
+        margin-top: 30px;
+        margin-bottom: 130px;
+        border-radius: 5px;
+        left: 0%;
+        padding: 20px 0px 20px 0px;
+        background-color: #f7f7f7;
+        -moz-box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.3);
+        -webkit-box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.3);
+        box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.3); 
+        overflow: auto;
+    }
+    #folha-ce-table thead{
+    }
+    #folha-ce-table tbody{
+
+    }
+    #folha-ce-table tr{
+        text-align: center;
+    }
+    #folha-ce-table th, #folha-ce-table td{
+        text-align: center;
+        padding: 5px 5px 5px 5px;
+        font-size: 15px;
+    }
 
 
 .botoes-wrapper {

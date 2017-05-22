@@ -1,0 +1,39 @@
+extends layout
+
+block content
+	div.container
+		div.row
+			div.col-sm-6.col-md-4.col-md-offset-4
+				div.home-wall-1
+					h1 Quadro de limpeza
+
+	div.container#manutencao-table-wrapper
+		center
+			table#manutencao-table
+				thead
+					tr
+						th Prédio
+						th Quartos
+						th(colspan='50') 
+				tbody
+					each predio in ['A', 'B', 'C', 'D']
+						tr
+							td #{predio}
+							-for(var idx = 0; idx < estado_leitos.length; idx++){
+								if(estado_leitos[idx].cod_leito.charAt(0) == predio)
+									if(idx == (estado_leitos.length-1) || estado_leitos[idx+1].cod_leito.slice(-1) == "a")
+										//isso significa q estamos iterando pelo ultimo leito do quarto
+										-var nleitos = estado_leitos[idx].cod_leito.slice(-1).charCodeAt(0)-"a".charCodeAt(0)+1;
+										-var limpo = estado_leitos[idx].limpeza;
+										td
+											.dropdown
+												button.btn.btn-link.dropdown-toggle.test#manutencao-dropdown(type='button', data-toggle='dropdown')
+													| #{estado_leitos[idx].cod_leito.slice(0,-1)}
+												ul.dropdown-menu
+													li
+														a(href='#') Marcar como ...
+											| #{limpo}
+									
+							-}
+
+		
