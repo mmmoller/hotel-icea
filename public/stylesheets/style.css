@@ -87,6 +87,7 @@ body header {
     }
 
 #manutencao-table{
+    margin-top: 30px;
 }
     #manutencao-table-wrapper{
         border: 3px solid #3333ff;
@@ -122,12 +123,40 @@ body header {
         font-size: 25px;
         padding: 20px 20px 20px 20px;
     }
-
-#manutencao-dropdown{
-    font-size: 22px;
-    padding: 20px 20px 20px 20px;
-    font-color: black;
+#manutencao-dropdown a{
+    color: black;
 }
+
+#table-alterar-manutencao{
+    width: 80%;
+}
+    #table-alterar-manutencao-wrapper{
+        position: relative;
+        margin-top: 30px;
+        margin-bottom: 130px;
+        border-radius: 5px;
+        left: 0%;
+        padding: 20px 0px 20px 0px;
+        background-color: #f7f7f7;
+        -moz-box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.3);
+        -webkit-box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.3);
+        box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.3); 
+        overflow: auto;
+    }
+    #table-alterar-manutencao thead{
+    }
+    #table-alterar-manutencao tbody{
+
+    }
+    #table-alterar-manutencao tr{
+        text-align: center;
+    }
+    #table-alterar-manutencao th, #table-alterar-manutencao td{
+        text-align: center;
+        padding: 5px 5px 5px 5px;
+        font-size: 15px;
+    }
+
 
 #reservas-table{
 
@@ -390,21 +419,52 @@ ul.user-details{
 
 
 /* drop down menu*/
-a {color: white;margin: 5px; text-decoration: none;}
 
-.dropdown-menu li:hover .sub-menu {
-    visibility: visible;
+
+.dropdown-submenu {
+    position: relative;
 }
 
-.dropdown:hover .dropdown-menu {
-    display: block;
-    margin-top: 0;
-}
-
-.dropdown-menu .sub-menu {
-    left: 100%;
-    position: absolute;
+.dropdown-submenu>.dropdown-menu {
     top: 0;
-    visibility: hidden;
-    margin-top: -1px;
+    left: 100%;
+    margin-top: -6px;
+    margin-left: -1px;
+    -webkit-border-radius: 0 6px 6px 6px;
+    -moz-border-radius: 0 6px 6px;
+    border-radius: 0 6px 6px 6px;
+}
+
+.dropdown-submenu:hover>.dropdown-menu {
+    display: block;
+}
+
+.dropdown-submenu>a:after {
+    display: block;
+    content: " ";
+    float: right;
+    width: 0;
+    height: 0;
+    border-color: transparent;
+    border-style: solid;
+    border-width: 5px 0 5px 5px;
+    border-left-color: #ccc;
+    margin-top: 5px;
+    margin-right: -10px;
+}
+
+.dropdown-submenu:hover>a:after {
+    border-left-color: #fff;
+}
+
+.dropdown-submenu.pull-left {
+    float: none;
+}
+
+.dropdown-submenu.pull-left>.dropdown-menu {
+    left: -100%;
+    margin-left: 10px;
+    -webkit-border-radius: 6px 0 6px 6px;
+    -moz-border-radius: 6px 0 6px 6px;
+    border-radius: 6px 0 6px 6px;
 }

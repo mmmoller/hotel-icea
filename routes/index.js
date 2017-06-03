@@ -277,7 +277,7 @@ module.exports = function(passport){
 	
 	// /HOME /LAVANDERIA
 	router.get('/home/lavanderia/folha', isAuthenticated, function(req, res){
-		res.render('home_lavanderia_folha');
+		res.render('home_lavanderia_folha', {descricoes: desc_itens_lavanderia});
 	});
 	
 	router.get('/home/lavanderia/gerencia', isAuthenticated, function(req, res){
@@ -298,6 +298,56 @@ module.exports = function(passport){
 			}
 		});
 	});
+	// /HOME/MANUTENCAO/QUADRO/ALTERAR
+	router.get('/home/manutencao/quadro/alterar', isAuthenticated, isManutencao, function(req, res){
+		console.log("get /HOME/MANUTENCAO/QUADRO/ALTERAR");
+		Leito.find({cod_leito: req.param('leito_alterado')}, function(err, leito) {
+			if (err) return handleError(err,req,res);
+			if (leito){
+				res.render('home_manutencao_quadro_alterar', {leito: leito});
+			}
+			else {
+				req.flash('message', "Os Leito procurado não foi encontrado");
+				res.redirect('/home/manutencao/quadro');
+			}
+		});
+	});
+	// /HOME/MANUTENCAO/QUADRO/ALTERAR
+	router.post('/home/manutencao/quadro/alterar', isAuthenticated, isManutencao, function(req, res){
+		console.log("post /HOME/MANUTENCAO/QUADRO/ALTERAR");
+
+
+		Leito.findOne({cod_leito: req.param('leito_alterado')}, function(err, leito) {
+			if (err) return handleError(err,req,res);
+			if (leito){
+				if(req.param('desc_pane_adc') != undefined){
+					leito.manutencao.push(req.param('desc_pane_adc'));
+					leito.save();
+					res.redirect('/home/manutencao/quadro/alterar?leito_alterado='+req.param('leito_alterado'));
+					return;
+				}
+				var newManutencao = [];
+				var ok = true;
+				for(var i = 0; i < leito.manutencao.length; i++){
+					if(req.param('idx_pane_rem_'+i) != '1'){ //manter essa pane
+						newManutencao.push(leito.manutencao[i]);
+					}
+				}
+				if(ok){
+					leito.manutencao = newManutencao.slice(0); //clonando array
+					leito.save();
+					res.redirect('/home/manutencao/quadro/alterar?leito_alterado='+req.param('leito_alterado'));
+					return;
+				}
+				
+			}
+			else {
+				req.flash('message', "Os Leito procurado não foi encontrado");
+				res.redirect('/home/manutencao/quadro');
+			}
+		});
+	});
+
 
 	// /HOME/MANUTENCAO/LIMPEZA
 	router.get('/home/manutencao/limpeza', isAuthenticated, isManutencao, function(req, res){
@@ -675,7 +725,7 @@ function createLeito(cod_leito){
 	ret.cod_leito = cod_leito;
 	ret.limpeza = "limpo";
 	ret.ocupabilidade = "normal";
-	ret.manutencao = "normal";
+	ret.manutencao = [];
 	ret.ocupante = [];
 	return ret;
 }
@@ -738,3 +788,18 @@ var createHash = function(password){
 }
 
 var dicionario = {0: "Recepcao", 1: "Reserva", 2: "Lavanderia", 3:"Manutencao",4: "Financeiro",5: "Gerente"};
+var desc_itens_lavanderia = [
+	"",
+	"Lençol",
+	"Fronha",
+	"Colcha",
+	"Cobertor",
+	"Toalha de banho",
+	"Toalha de rosto",
+	"Toalha de mesa",
+	"Toalha de piso",
+	"Travesseiro",
+	"Cortina",
+	"Capa de travesseiro",
+	"Saia cama box solteiro",
+	"Capa para união cama box solteiro"];
