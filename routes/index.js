@@ -64,14 +64,17 @@ module.exports = function(passport){
 	// /HOME/RECEPCAO/CHECKIN
 	router.get('/home/recepcao/checkin', isAuthenticated, isRecepcao, function(req,res){
 		var today = new Date();
-		var tomorrow = new Date(today);
-		tomorrow.setDate(tomorrow.getDate()+1);
+		var tomorrow = new Date();
+		today.setDate(today.getDate()-1);
+		tomorrow.setDate(tomorrow.getDate());
+		//* essas datas estão meio gambiarras...
 		
 		Registro.findOne({data: {"$gte": today, "$lte": tomorrow}}, function(err, registro) {	
 			if (err) return handleError(err,req,res);
 			if (registro){
 				
 				var cadastros = [];
+				var leitos_reservados = [];
 				
 				//console.log(registro);
 				
@@ -80,10 +83,12 @@ module.exports = function(passport){
 					if (leitos){
 						for (var i = 0; i < leitos.length; i++){
 							if (registro.estado[i] == 'reservado'){
+								//console.log("teste");
 								cadastros[cadastros.length] = registro.ocupante[i];
+								leitos_reservados[leitos_reservados.length] = leitos[i].cod_leito;
 							}
 						}
-						res.render('home_recepcao_checkin', {cadastros: cadastros});
+						res.render('home_recepcao_checkin', {cadastros: cadastros, leitos: leitos_reservados});
 						
 					}
 					else {
@@ -111,10 +116,11 @@ module.exports = function(passport){
 				Leito.find({}, function(err, leitos) {
 					if (err) return handleError(err,req,res);
 					if (leitos){
-				
+						
 						for (var i = 0; i < registros.length; ++i){
 							for (var j = 0; j < leitos.length; ++j){
-								if (registros[i].ocupante[j]._id == req.param('_id')){
+								//if (registros[i].ocupante[j]._id == req.param('_id')){
+								if (leitos[j].cod_leito == req.param('cod_leito')){
 									registros[i].estado.splice(j, 1, 'ocupado');
 								}
 							}
