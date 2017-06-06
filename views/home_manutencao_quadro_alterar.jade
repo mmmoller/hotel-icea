@@ -1,0 +1,53 @@
+extends layout
+
+block content
+
+	div.container
+		div.row
+			div.col-sm-6.col-md-4.col-md-offset-4
+				div.home-wall-1
+					h1 Alterando estado de manutenção do leito: #{leito[0].cod_leito}
+
+	div.container#table-alterar-manutencao-wrapper
+		center
+			form(action='/home/manutencao/quadro/alterar?leito_alterado=#{leito[0].cod_leito}', method='POST')
+				table#table-alterar-manutencao.table-striped.table-bordered
+					thead
+						tr
+							th(style='width:90%')
+								| Panes atuais
+							th Remover
+
+					tbody
+						-for(var i = 0; i < leito[0].manutencao.length; i++){
+							tr
+								td
+									| #{leito[0].manutencao[i]}
+								td
+									input(type="checkbox", value="1", name='idx_pane_rem_#{i}')
+						-}
+						-if(leito[0].manutencao.length == 0){
+							tr
+								td(colspan='2')
+									| Não há panes relatadas
+						-}else{
+						tr
+							td(colspan='2')
+								button(class='btn btn-primary', type='submit',style='text-align:center;', onsubmit='setTimeout(function(){window.location.reload();},1000)') Remover panes selecionadas
+								span.clearfix
+						-}
+
+			form(action='/home/manutencao/quadro/alterar?leito_alterado=#{leito[0].cod_leito}', method='POST', style='margin-top:40px')
+				table#table-alterar-manutencao.table-striped.table-bordered
+					thead
+						tr
+							th
+								| Inserir pane
+					tbody
+						tr
+							td
+								input(type='text', name='desc_pane_adc', placeholder='Descrição da pane',required, style='width:80%')
+						tr
+							td
+								button(class='btn btn-primary', type='submit',style='text-align:center;margin-top:30px', onsubmit='setTimeout(function(){window.location.reload();},1000)') Inserir
+								span.clearfix

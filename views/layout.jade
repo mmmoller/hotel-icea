@@ -2,14 +2,20 @@ doctype html
 html
 	head
 		title= title
+		script(src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js")
+		script(src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js")
 		link(rel='stylesheet', href='/stylesheets/style.css')
-		link(rel='stylesheet', href='http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css')
-	body.body-background
+		link(rel='stylesheet', href='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css')
+		script.
+			$(document).ready(function(){
+				$('.dropdown-toggle').dropdown();
+			});
+	body.body-background				
 		img(src="/img/logo.png", style='width:100%')
 		.botoes-wrapper
 			.botao-header
 				.botao-box.pos-botao-1
-					.dropdown
+					.dropdown#dropdown-layout
 						button.btn.btn-link.dropdown-toggle.test(type='button', data-toggle='dropdown', style='color:white')
 							| Recepção
 							span.caret
@@ -33,9 +39,9 @@ html
 							span.caret
 						ul.dropdown-menu
 							li
-								a(href='/home/lavanderia/folha') Acessar relatório de coleta e entrega
+								a(href='/home/lavanderia/folha') Preencher folha de coleta e entrega
 							li
-								a(href='/home/lavanderia/gerencia') Gerenciar itens da lavanderia
+								a(href='/home/lavanderia/gerencia') Visualizar relatórios entregues
 				.botao-box.pos-botao-4
 					.dropdown
 						button.btn.btn-link.dropdown-toggle.test(type='button', data-toggle='dropdown', style='color:white')
