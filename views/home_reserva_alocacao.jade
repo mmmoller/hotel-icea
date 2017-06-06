@@ -2,11 +2,11 @@ extends layout
 
 block content
 	h1.
-		Quartos disponiveis
-	ul
-		each leito, j in leitos
-			li
-				form(name="permissao",method="post",action="/home/reserva/alocacao" )
-					input(type="checkbox", name='leito')
-					button(type="submit", value=leito, name='bizu') #{leito}
-					br
+		Selecione #{pessoas} leitos
+	form(name="permissao",method="post",action="/home/reserva/alocacao" )
+		button(type="submit", name='leitos') Alocar
+		ul
+			each leito, j in leitos
+				input(type="checkbox", name=leito) 
+				Tick #{leito}
+				br

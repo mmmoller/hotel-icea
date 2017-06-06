@@ -14,6 +14,9 @@ block content
 						input(type='text', name='cpf', class='form-control', placeholder='CPF')
 						input(type='date', name='checkin', class='form-control', placeholder='Data de entrada',required)
 						input(type='date', name='checkout', class='form-control', placeholder='Data de saida',required)
+						select(name = 'acompanhante', class = 'form-control')
+							option(value = 0) Sem acompanhante
+							option(value = 1) 1
 						button(class='btn btn-lg btn-primary btn-block', type='submit') Solicitar Reserva
 						span.clearfix
 				#message

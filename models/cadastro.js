@@ -6,5 +6,6 @@ module.exports = mongoose.model('Cadastro',{
 	email: String,
 	cpf: String,
 	dateIn: String,
-	dateOut: String
+	dateOut: String,
+	acompanhante: Number,
 });
