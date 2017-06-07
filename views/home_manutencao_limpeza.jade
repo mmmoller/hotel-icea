@@ -26,8 +26,8 @@ block content
 										-var nleitos = leitos[idx].cod_leito.slice(-1).charCodeAt(0)-"a".charCodeAt(0)+1;
 										-var limpo = leitos[idx].limpeza;
 										td
-											.dropdown
-												button.btn.btn-link.dropdown-toggle.test#manutencao-dropdown(type='button', data-toggle='dropdown')
+											.dropdown#manutencao-dropdown
+												button.btn.btn-link.dropdown-toggle.test(type='button', data-toggle='dropdown')
 													| #{leitos[idx].cod_leito.slice(0,-1)}
 												ul.dropdown-menu
 													li

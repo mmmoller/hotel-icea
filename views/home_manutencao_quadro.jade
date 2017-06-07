@@ -2,20 +2,36 @@ extends layout
 
 block content
 
-	- function chooseQuartoColor(leito_idx, num_leitos){
-	-   if(leitos[leito_idx].manutencao.length == 0){
+	-function chooseQuartoColor(leito_idx, num_leitos){
+	- 	var ult_leito = leito_idx;
+	-	var pri_leito = ult_leito-num_leitos+1;
+	-	var todosocupaveis = true;
+	-	var nenhumocupavel = true;
+	- 	for(var i = pri_leito; i <= ult_leito; i++){
+	-		if(leitos[i].ocupabilidade != 'inocupavel'){
+	-			nenhumocupavel = false;
+	-		}
+	-		if(leitos[i].ocupabilidade == 'inocupavel'){
+	-			todosocupaveis = false;
+	-		}
+	-	}
+	-	if(todosocupaveis){
 	-		return '#b3ffb3';
 	-	}
-	-	else{
-	-		return 'ffb3b3';
+	-	if(nenhumocupavel){
+	-		return '#ff1a1a';
 	-	}
+	-	return '#ffff00';
 	-}
-	- function chooseLeitoColor(leito_idx, num_leitos){
-	-   if(leitos[leito_idx].manutencao.length == 0){
+	-function chooseLeitoColor(leito_idx){
+	-   if(leitos[leito_idx].ocupabilidade == "normal"){
 	-		return '#267326';
 	-	}
-	-	else{
+	-	else if(leitos[leito_idx].ocupabilidade == "semi_ocupavel"){
 	-		return '#ff9900';
+	-	}
+	-	else{
+	-		return '#ff1a1a';
 	-	}
 	-}
 
@@ -55,7 +71,7 @@ block content
 														-var leito_idx = idx - nleitos + leito_num +1;
 														li.dropdown-submenu
 															-var nome_leito = leitos[idx].cod_leito.slice(0,-1)+letras[leito_num]
-															a(tabindex='-1' href='#' style='color:#{chooseLeitoColor(idx)};font-weight: bold;') #{nome_leito}
+															a(tabindex='-1' href='#' style='color:#{chooseLeitoColor(leito_idx)};font-weight: bold;') #{nome_leito}
 															ul.dropdown-menu
 																-for(var pane_idx = 0; pane_idx < leitos[leito_idx].manutencao.length; pane_idx++){
 																	li

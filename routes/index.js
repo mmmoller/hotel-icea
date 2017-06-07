@@ -326,19 +326,22 @@ module.exports = function(passport){
 					res.redirect('/home/manutencao/quadro/alterar?leito_alterado='+req.param('leito_alterado'));
 					return;
 				}
+				if(req.param('ocup') != undefined){
+					leito.ocupabilidade = req.param('ocup');
+					leito.save();
+					res.redirect('/home/manutencao/quadro/alterar?leito_alterado='+req.param('leito_alterado'));
+					return;
+				}
 				var newManutencao = [];
-				var ok = true;
 				for(var i = 0; i < leito.manutencao.length; i++){
 					if(req.param('idx_pane_rem_'+i) != '1'){ //manter essa pane
 						newManutencao.push(leito.manutencao[i]);
 					}
 				}
-				if(ok){
-					leito.manutencao = newManutencao.slice(0); //clonando array
-					leito.save();
-					res.redirect('/home/manutencao/quadro/alterar?leito_alterado='+req.param('leito_alterado'));
-					return;
-				}
+				leito.manutencao = newManutencao.slice(0); //clonando array
+				leito.save();
+				res.redirect('/home/manutencao/quadro/alterar?leito_alterado='+req.param('leito_alterado'));
+				return;
 				
 			}
 			else {
