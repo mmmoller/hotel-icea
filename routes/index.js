@@ -21,6 +21,7 @@ module.exports = function(passport){
 		newCadastro.cpf = req.param('cpf');
 		newCadastro.dateIn = req.param('checkin');
 		newCadastro.dateOut = req.param('checkout');
+		newCadastro.acompanhante = req.param('acompanhante');
 		
 		newCadastro.save(function (err, updatedCadastro) {
 			if (err) return handleError(err,req,res);
@@ -63,14 +64,17 @@ module.exports = function(passport){
 	// /HOME/RECEPCAO/CHECKIN
 	router.get('/home/recepcao/checkin', isAuthenticated, isRecepcao, function(req,res){
 		var today = new Date();
-		var tomorrow = new Date(today);
-		tomorrow.setDate(tomorrow.getDate()+1);
+		var tomorrow = new Date();
+		today.setDate(today.getDate()-1);
+		tomorrow.setDate(tomorrow.getDate());
+		//* essas datas estão meio gambiarras...
 		
 		Registro.findOne({data: {"$gte": today, "$lte": tomorrow}}, function(err, registro) {	
 			if (err) return handleError(err,req,res);
 			if (registro){
 				
 				var cadastros = [];
+				var leitos_reservados = [];
 				
 				//console.log(registro);
 				
@@ -79,10 +83,12 @@ module.exports = function(passport){
 					if (leitos){
 						for (var i = 0; i < leitos.length; i++){
 							if (registro.estado[i] == 'reservado'){
+								//console.log("teste");
 								cadastros[cadastros.length] = registro.ocupante[i];
+								leitos_reservados[leitos_reservados.length] = leitos[i].cod_leito;
 							}
 						}
-						res.render('home_recepcao_checkin', {cadastros: cadastros});
+						res.render('home_recepcao_checkin', {cadastros: cadastros, leitos: leitos_reservados});
 						
 					}
 					else {
@@ -110,10 +116,11 @@ module.exports = function(passport){
 				Leito.find({}, function(err, leitos) {
 					if (err) return handleError(err,req,res);
 					if (leitos){
-				
+						
 						for (var i = 0; i < registros.length; ++i){
 							for (var j = 0; j < leitos.length; ++j){
-								if (registros[i].ocupante[j]._id == req.param('_id')){
+								//if (registros[i].ocupante[j]._id == req.param('_id')){
+								if (leitos[j].cod_leito == req.param('cod_leito')){
 									registros[i].estado.splice(j, 1, 'ocupado');
 								}
 							}
@@ -201,7 +208,7 @@ module.exports = function(passport){
 									}
 								}
 								
-								res.render('home_reserva_alocacao', {leitos: leitos_});
+								res.render('home_reserva_alocacao', {leitos: leitos_, pessoas: (cadastro.acompanhante+1)});
 							}
 							else {
 								req.flash('message', "É necessário criar os Leitos");
@@ -238,28 +245,42 @@ module.exports = function(passport){
 				Leito.find({}, function(err, leitos) {
 					if (err) return handleError(err,req,res);
 					if (leitos){
-						var leito_ = req.body.bizu;
 						
-						for (var i = 0; i < registros.length; ++i){
-							for (var j = 0; j < leitos.length; ++j){
-								if (leitos[j].cod_leito == leito_){
-									registros[i].estado.splice(j, 1, 'reservado');
-									registros[i].ocupante.splice(j, 1, req.session.cadastro);
-								}
+						
+						var leitos_alocados = 0;
+						for (var j = 0; j < leitos.length; ++j){
+							if (req.param(leitos[j].cod_leito)){
+								leitos_alocados++;
 							}
 						}
 						
-						for (var i = 0; i < registros.length; ++i){
-							registros[i].save(function (err, updatedRegistros) {
+						
+						if (leitos_alocados != (req.session.cadastro.acompanhante+1)){
+							req.flash('message', "É necessário selecionar a quantidade correta de leitos");
+							res.redirect('/home');;
+						}
+						else {
+							for (var i = 0; i < registros.length; ++i){
+								for (var j = 0; j < leitos.length; ++j){
+									if (req.param(leitos[j].cod_leito)){
+										registros[i].estado.splice(j, 1, 'reservado');
+										registros[i].ocupante.splice(j, 1, req.session.cadastro);
+									}
+								}
+							}
+							
+							for (var i = 0; i < registros.length; ++i){
+								registros[i].save(function (err, updatedRegistros) {
+									if (err) return handleError(err,req,res);
+								});
+							}
+							
+							Cadastro.remove({'_id': req.session.cadastro._id}, function(err) {
 								if (err) return handleError(err,req,res);
 							});
+							
+							res.redirect('/home/reserva');
 						}
-						
-						Cadastro.remove({'_id': req.session.cadastro._id}, function(err) {
-							if (err) return handleError(err,req,res);
-						});
-						
-						res.redirect('/home/reserva');
 					}
 					else{
 						req.flash('message', "É necessário criar os Leitos");
@@ -472,14 +493,15 @@ module.exports = function(passport){
 	
 	// TUDO DAQUI PARA BAIXO É PARA DEBUGAR
 	// ADMIN
-	router.get('/admin', function(req, res){
+	router.get('/criar/admin', function(req, res){
 		
+		/*
 		User.findOneAndRemove({ 'username' :  'admin' }, function(err, user) {
             // In case of any error, return using the done method
 			if (err){
 				return handleError(err,req,res);
 			}
-        });
+        });*/
 		
 		User.findOne({ 'username' :  'admin' }, function(err, user) {
             // In case of any error, return using the done method
@@ -487,13 +509,16 @@ module.exports = function(passport){
 				return handleError(err,req,res);
 			}
 			if (user){
-				
+				user.password = createHash('admin');
+				user.save(function(err, updatedUser){
+					if (err) return handleError(err,req,res);
+				});
 				return;
 			}
 			var newUser = new User();
 			
 			newUser.username = 'admin';
-			newUser.password = createHash('admin');;
+			newUser.password = createHash('admin');
 			newUser.permissao = [true, true, true, true, true, true];
 			
 			newUser.save(function (err, updatedUser) {
@@ -706,7 +731,7 @@ module.exports = function(passport){
 					});
 					proximoDia.setDate(proximoDia.getDate()+1);
 				}
-				res.redirect('/');
+				res.redirect('/criar/admin');
 			}
 			else {
 				req.flash('message', "Os Leitos ainda não foram criados");
@@ -714,6 +739,7 @@ module.exports = function(passport){
 			}
 		});
 	});
+	
 	
 	return router;
 }
