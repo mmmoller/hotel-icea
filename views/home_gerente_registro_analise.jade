@@ -6,7 +6,7 @@ block content
 			div.col-sm-6.col-md-4.col-md-offset-4
 				div.home-wall-1
 					h1 Escolha o intervalo para exibir os registros
-					form(class='form-signin', action='/home/gerente/registro', method='GET')
+					form(class='form-signin', action='/home/gerente/registro/analise', method='GET')
 						input(type='date', name='dataIn' class='form-control', placeholder='Data',required, autofocus)
 						input(type='date', name='dataOut' class='form-control', placeholder='Data',required, autofocus)
 						input(type='hidden', name='recente', class='form-control')
@@ -18,25 +18,24 @@ block content
 				table#register-table
 					thead
 						tr
-							th Leitos
+							th Dados
 							each registro in registros
 								th #{registro.data.toUTCString()}
 					tbody
-						-for (var i = 0; i < leito.length; ++i){
-							tr
-								td Leito #{leito[i].cod_leito}
-								each registro in registros
-									td
-										.dropdown
-											button.btn.btn-link.dropdown-toggle.test(type='button', data-toggle='dropdown')
-												| #{registro.estado[i]} 
-											ul.dropdown-menu
-												li
-													a(href='#' style='color:black') #{registro.ocupante[i].name}
-												li
-													a(href='#') #{registro.ocupante[i].acompanhante}
-												li
-													a(href='#') Ação 3
-						-}
+						tr
+							td Vagas disponíveis
+							each vaga in vagas
+								td #{vaga}
+								
+						tr
+							td Ganho
+							each registro in registros
+								td #{registro.ganho}
+						tr
+							td Gastos
+							each registro in registros
+								td #{registro.gasto}
+						
+						
 
 	

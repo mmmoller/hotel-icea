@@ -2,7 +2,7 @@ extends layout
 
 block content
 	h1.
-		Selecione #{pessoas} leitos
+		Selecione #{num_hospede} leitos
 	form(name="permissao",method="post",action="/home/reserva/alocacao" )
 		button(type="submit", name='leitos') Alocar
 		ul

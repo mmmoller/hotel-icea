@@ -23,6 +23,8 @@ html
 							li
 								a(href='/home/recepcao/checkin') Realizar Check-in de cliente
 							li
+								a(href='/home/recepcao/checkin/cancelar') Cancelar Check-in de cliente
+							li
 								a(href='/home/recepcao/checkout') Realizar Check-out de cliente
 				.botao-box.pos-botao-2
 					.dropdown
@@ -59,7 +61,7 @@ html
 							span.caret
 						ul.dropdown-menu
 							li
-								a(href='#') Gerar relatório financeiro
+								a(href='/home/financeiro') Gerar relatório financeiro
 				.botao-box.pos-botao-6
 					.dropdown
 						button.btn.btn-link.dropdown-toggle.test(type='button', data-toggle='dropdown', style='color:white')
@@ -69,13 +71,21 @@ html
 							li
 								a(href='/home/gerente/permissao') Gerenciar permissões de usuários
 							li
-								a(href='/home/gerente/registro') Gerenciar leitos
+								a(href='/home/gerente/registro/estado') Registro do estado dos leitos
+							li 
+								a(href='/home/gerente/registro/analise') Analise geral do sistema
 							li
 								a(href='/home/gerente/signup') Criar usuários
 				.botao-box.pos-botao-7
 					.dropdown
 						button.btn.btn-link.dropdown-toggle.test(type='button', data-toggle='dropdown', style='color:white')
-							a(href='/home' style='color:white') Início
+							| Inicio
+							span.caret
+						ul.dropdown-menu
+							li
+								a(href='/home') Home
+							li
+								a(href='/') Cadastrar
 
 
 
