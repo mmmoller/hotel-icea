@@ -14,8 +14,7 @@
 
 5) Debugar:
 - /delete para deletar todos os dados do BD.
-- /admin para criar o admin.
-- /criar para criar todos os Leitos e Registro Geral (entre 01-01-2017 até 01-01-2050)
+- /criar para criar todos os Leitos, Admin, Financeiro e Registro Geral (entre 01-01-2017 até 01-01-2050)
 
 6) Shortcuts úteis. (Criar um shortcut, ir em properties e mudar os campos TARGET e START).
 - inicializar o DB 

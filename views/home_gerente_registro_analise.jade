@@ -23,18 +23,21 @@ block content
 								th #{registro.data.toUTCString()}
 					tbody
 						tr
-							td Vagas disponíveis
+							td Leitos disponíveis
 							each vaga in vagas
 								td #{vaga}
-								
+						tr
+							td Leitos em manutenção
+							each vaga in vagas
+								td Batata
 						tr
 							td Ganho
 							each registro in registros
-								td #{registro.ganho}
+								td R$ #{registro.ganho},00
 						tr
 							td Gastos
 							each registro in registros
-								td #{registro.gasto}
+								td R$ #{registro.gasto},00
 						
 						
 
