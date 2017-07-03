@@ -8,8 +8,7 @@ block content
 	//		input(type='hidden', name='dateIn', value=cadastro.dateIn)
 	//		button(class='btn btn-lg btn-primary btn-block', type='submit') #{cadastro.name}
 	//		span.clearfix
-	h1.
-		Realizar Check-In
+	h1 Realizar Check-In
 	- for (var i = 0; i < cadastros.length; ++i){
 		form(class='form-signin', action='/home/recepcao/checkin', method='POST')
 			input(type='hidden', name='cod_leito', value=leitos[i])

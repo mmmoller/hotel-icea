@@ -92,8 +92,8 @@ module.exports = function(passport){
 						for (var i = 0; i < leitos.length; i++){
 							if (registro.estado[i] == 'reservado'){
 								//console.log("teste");
-								cadastros[cadastros.length] = registro.ocupante[i];
-								leitos_reservados[leitos_reservados.length] = leitos[i].cod_leito;
+								cadastros.push(registro.ocupante[i]);
+								leitos_reservados.push(leitos[i].cod_leito);
 							}
 						}
 						res.render('home_recepcao_checkin', {cadastros: cadastros, leitos: leitos_reservados});
@@ -578,7 +578,6 @@ module.exports = function(passport){
 	router.post('/home/manutencao/quadro/alterar', isAuthenticated, isManutencao, function(req, res){
 		console.log("post /HOME/MANUTENCAO/QUADRO/ALTERAR");
 
-
 		Leito.findOne({cod_leito: req.param('leito_alterado')}, function(err, leito) {
 			if (err) return handleError(err,req,res);
 			if (leito){
@@ -616,6 +615,7 @@ module.exports = function(passport){
 
 	// /HOME/MANUTENCAO/LIMPEZA
 	router.get('/home/manutencao/limpeza', isAuthenticated, isManutencao, function(req, res){
+
 		Leito.find({}, function(err, leitos) {
 			if (err) return handleError(err,req,res);
 			if (leitos){
@@ -625,6 +625,22 @@ module.exports = function(passport){
 				req.flash('message', "Os Leitos ainda não foram criados");
 				res.redirect('/home');
 			}
+		});
+	});
+
+	router.post('/home/manutencao/limpeza', isAuthenticated, isManutencao, function(req, res){
+		Leito.findOne({cod_leito: req.param('leito_alterado')}, function(err, leito) {
+			if (err) return handleError(err,req,res);
+			if (leito){
+				if(req.param('new_value') != undefined){
+					leito.limpeza = req.param('new_value');
+					leito.save();
+				}
+			}
+			else {
+				req.flash('message', "Os Leito procurado não foi encontrado");
+			}
+			res.redirect('/home/manutencao/limpeza');
 		});
 	});
 	

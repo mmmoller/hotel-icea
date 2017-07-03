@@ -2,10 +2,13 @@ doctype html
 html
 	head
 		title= title
-		script(src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js")
-		script(src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js")
+		//script(src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js")
+		script(src="/scripts/jquery.2.1.1.query.min.js")
+		//script(src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js")
+		script(src="/scripts/3.3.7.js.bootstrap.min.js")
 		link(rel='stylesheet', href='/stylesheets/style.css')
-		link(rel='stylesheet', href='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css')
+		//link(rel='stylesheet', href='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css')
+		link(rel='stylesheet', href='/stylesheets/3.3.7.css.bootstrap.min.css')
 		script.
 			$(document).ready(function(){
 				$('.dropdown-toggle').dropdown();
@@ -42,8 +45,6 @@ html
 						ul.dropdown-menu
 							li
 								a(href='/home/lavanderia/folha') Preencher folha de coleta e entrega
-							li
-								a(href='/home/lavanderia/gerencia') Visualizar relatórios entregues
 				.botao-box.pos-botao-4
 					.dropdown
 						button.btn.btn-link.dropdown-toggle.test(type='button', data-toggle='dropdown', style='color:white')
