@@ -3,4 +3,33 @@ extends layout
 block content
 	h1.
 		Dados para efetuar cobrança
+	div.container#register-table-wrapper
+		center
+			table#register-table
+				thead
+					tr
+						th //
+						th //
+				tbody
+					tr
+						td Nome
+						td #{cadastro.name}
+					tr
+						td Data de entrada
+						td #{cadastro.dateIn}
+					tr
+						td Data de saida
+						td #{cadastro.dateOut}
+					tr
+						td Data de entrada efetiva
+						td #{cadastro.checkIn}
+					tr
+						td Data de saida efetiva
+						td #{cadastro.checkOut}
+					tr
+						td Tempo de estadia
+						td #{days} dias e #{hours} horas
+					tr
+						td Custo da estadia
+						td R$ #{custo.toFixed(2)}
 		

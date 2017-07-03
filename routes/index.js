@@ -25,13 +25,13 @@ module.exports = function(passport){
 		newCadastro.dateOut = req.param('checkout');
 		newCadastro.acompanhante = req.param('acompanhante');
 		newCadastro.posto = req.param('posto');
-		if (new Date(newCadastro.dateIn) < new Date(newCadastro.dateOut)){
-			console.log("deu certo");
-			
+		if (moment(newCadastro.dateIn) < moment(newCadastro.dateOut)){
+
 			newCadastro.save(function (err, updatedCadastro) {
 				if (err) return handleError(err,req,res);
 			});
 			req.flash('message', "Solicitação de reserva realizado com sucesso, aguarde confirmação por e-mail");
+			//res.redirect('/');
 			res.redirect('/home');
 			
 		}
@@ -39,9 +39,8 @@ module.exports = function(passport){
 			req.flash('message', "Data de saida deve ser maior que data de entrada");
 			res.redirect('/');
 		}
-		
-		
 	});
+		
 		
 	// /LOGIN
 	router.get('/login', function(req,res){
@@ -57,10 +56,15 @@ module.exports = function(passport){
 		failureFlash : true
 	})); 
 
+	
 	// /HOME
 	router.get('/home', isAuthenticated, function(req, res){
+		//console.log(moment('2017-07-02T12'));
+		//console.log(moment());
+		
 		res.render('home', { user: req.user, message: req.flash('message')});
 	});
+	
 	
 	// /HOME/LOGOUT
 	router.get('/home/signout', function(req, res) {
@@ -71,11 +75,8 @@ module.exports = function(passport){
 	
 	// /HOME/RECEPCAO/CHECKIN
 	router.get('/home/recepcao/checkin', isAuthenticated, isRecepcao, function(req,res){
-		var yesterday = new Date();
-		var today = new Date();
-		yesterday.setDate(yesterday.getDate()-1);
-		today.setDate(today.getDate());
-		//* essas datas estão meio gambiarras...
+		var today = moment();
+		var yesterday = moment().subtract(1, 'days');
 		
 		Registro.findOne({data: {"$gte": yesterday, "$lte": today}}, function(err, registro) {	
 			if (err) return handleError(err,req,res);
@@ -83,21 +84,18 @@ module.exports = function(passport){
 				
 				var cadastros = [];
 				var leitos_reservados = [];
-				
-				//console.log(registro);
+
 				
 				Leito.find({}, function(err, leitos) {
 					if (err) return handleError(err,req,res);
 					if (leitos){
 						for (var i = 0; i < leitos.length; i++){
 							if (registro.estado[i] == 'reservado'){
-								//console.log("teste");
 								cadastros[cadastros.length] = registro.ocupante[i];
 								leitos_reservados[leitos_reservados.length] = leitos[i].cod_leito;
 							}
 						}
 						res.render('home_recepcao_checkin', {cadastros: cadastros, leitos: leitos_reservados});
-						
 					}
 					else {
 						req.flash('message', 'É necessário criar os Leitos');
@@ -114,10 +112,9 @@ module.exports = function(passport){
 	});
 	
 	router.post('/home/recepcao/checkin', isAuthenticated, isRecepcao, function(req,res){
-		
-		Registro.find({data: {"$gte": req.param('dateIn'), "$lte": req.param('dateOut')}}
+
+		Registro.find({data: {"$gte": moment(req.param('dateIn')), "$lt": moment(req.param('dateOut'))}}
 		, null, {sort: 'data'}, function(err, registros) {
-			
 			if (err) return handleError(err,req,res);
 			if (registros){
 				
@@ -127,9 +124,11 @@ module.exports = function(passport){
 						
 						for (var i = 0; i < registros.length; ++i){
 							for (var j = 0; j < leitos.length; ++j){
-								//if (registros[i].ocupante[j]._id == req.param('_id')){
 								if (leitos[j].cod_leito == req.param('cod_leito')){
 									registros[i].estado.splice(j, 1, 'ocupado');
+									var cadastro = registros[i].ocupante[j];
+									cadastro.checkIn = moment().format();
+									registros[i].ocupante.splice(j, 1, cadastro);
 								}
 							}
 						}
@@ -163,11 +162,9 @@ module.exports = function(passport){
 	// /HOME/RECEPCAO/CHECKIN/CANCELAR
 	
 	router.get('/home/recepcao/checkin/cancelar', isAuthenticated, isRecepcao, function(req,res){
-		var yesterday = new Date();
-		var today = new Date();
-		yesterday.setDate(yesterday.getDate()-1);
-		today.setDate(today.getDate());
-		//* essas datas estão meio gambiarras...
+		
+		var today = moment();
+		var yesterday = moment().subtract(1, 'days');
 		
 		Registro.findOne({data: {"$gte": yesterday, "$lte": today}}, function(err, registro) {	
 			if (err) return handleError(err,req,res);
@@ -176,22 +173,15 @@ module.exports = function(passport){
 				var cadastros = [];
 				var leitos_reservados = [];
 				
-				//console.log(registro);
-				
 				Leito.find({}, function(err, leitos) {
 					if (err) return handleError(err,req,res);
 					if (leitos){
 						for (var i = 0; i < leitos.length; i++){
 							if (registro.estado[i] == 'reservado'){
-								//console.log("teste");
 								
-								var dateIn = new Date(registro.ocupante[i].dateIn);
-								//console.log(dateIn);
-								//console.log(yesterday);
-								//console.log(tomorrow);
+								var dateIn = moment(registro.ocupante[i].dateIn);
 								
 								if (dateIn < yesterday){
-								//console.log("teste");
 									cadastros[cadastros.length] = registro.ocupante[i];
 									leitos_reservados[leitos_reservados.length] = leitos[i].cod_leito;
 								}
@@ -217,7 +207,7 @@ module.exports = function(passport){
 	
 	router.post('/home/recepcao/checkin/cancelar', isAuthenticated, isRecepcao, function(req,res){
 		
-		Registro.find({data: {"$gte": req.param('dateIn'), "$lte": req.param('dateOut')}}
+		Registro.find({data: {"$gte": moment(req.param('dateIn')), "$lt": moment(req.param('dateOut'))}}
 		, null, {sort: 'data'}, function(err, registros) {
 			
 			if (err) return handleError(err,req,res);
@@ -229,7 +219,6 @@ module.exports = function(passport){
 						
 						for (var i = 0; i < registros.length; ++i){
 							for (var j = 0; j < leitos.length; ++j){
-								//if (registros[i].ocupante[j]._id == req.param('_id')){
 								if (leitos[j].cod_leito == req.param('cod_leito')){
 									registros[i].estado.splice(j, 1, 'livre');
 								}
@@ -265,37 +254,29 @@ module.exports = function(passport){
 	// /HOME/RECEPCAO/CHECKOUT *
 	
 	router.get('/home/recepcao/checkout', isAuthenticated, isRecepcao, function(req,res){
-		var before_yesterday = new Date();
-		var yesterday = new Date();
-		var today = new Date();
-		before_yesterday.setDate(before_yesterday.getDate()-1);
-		before_yesterday.setDate(before_yesterday.getDate()-1);
-		yesterday.setDate(yesterday.getDate()-1);
-		today.setDate(today.getDate());
 		
-		Registro.findOne({data: {"$gte": before_yesterday, "$lte": yesterday}}, function(err, registro) {	
+		var today = moment();
+		var yesterday = moment().subtract(1, 'days');
+		var before_yesterday = moment().subtract(2, 'days');
+		
+		Registro.findOne({data: {"$gte": before_yesterday, "$lte": yesterday}}, function(err, registro) {
+
 			if (err) return handleError(err,req,res);
 			if (registro){
 				
 				var cadastros = [];
 				var leitos_reservados = [];
 				
-				//console.log(registro);
-				
 				Leito.find({}, function(err, leitos) {
 					if (err) return handleError(err,req,res);
 					if (leitos){
 						for (var i = 0; i < leitos.length; i++){
 							// *
-							if (registro.estado[i] == 'ocupado' || registro.estado[i] == 'reservado'){
-								//dateOut não é Date é String, então tem que transformar em Date.
-								var dateOut = new Date(registro.ocupante[i].dateOut);
-								//console.log(dateOut);
-								//console.log(today);
-								//console.log(tomorrow);
+							if (registro.estado[i] == 'ocupado' /*|| registro.estado[i] == 'reservado'*/){
+								
+								var dateOut = moment(registro.ocupante[i].dateOut);
 								
 								if (dateOut < today && dateOut > yesterday){
-								//console.log("teste");
 									cadastros[cadastros.length] = registro.ocupante[i];
 									leitos_reservados[leitos_reservados.length] = leitos[i].cod_leito;
 								}
@@ -320,13 +301,11 @@ module.exports = function(passport){
 	
 	router.post('/home/recepcao/checkout', isAuthenticated, isRecepcao, function(req,res){
 		
-		var before_yesterday = new Date();
-		var yesterday = new Date();
-		before_yesterday.setDate(before_yesterday.getDate()-1);
-		before_yesterday.setDate(before_yesterday.getDate()-1);
-		yesterday.setDate(yesterday.getDate()-1);
+		var today = moment();
+		var yesterday = moment().subtract(1, 'days');
+		var before_yesterday = moment().subtract(2, 'days');
 		
-		Registro.findOne({data: {"$gte": before_yesterday, "$lte": yesterday}}
+		Registro.find({data: {"$gte": before_yesterday, "$lte": today}}
 		, null, {sort: 'data'}, function(err, registro) {
 			
 			if (err) return handleError(err,req,res);
@@ -342,22 +321,35 @@ module.exports = function(passport){
 								var index = 0;
 								for (var j = 0; j < leitos.length; ++j){
 									if (leitos[j].cod_leito == req.param('cod_leito')){
-										registro.estado.splice(j, 1, 'checkout');
+										leitos[j].limpeza = "sujo";
+										registro[0].estado.splice(j, 1, 'checkout');
 										index = j;
 									}
 								}
 								
+								var ocupante = registro[0].ocupante[index];
+								ocupante.checkOut = moment().format();
+								registro[0].ocupante.splice(index, 1, ocupante);
 								
-								//efetuar cobrança
-								var dateIn = moment(registro.ocupante[index].dateIn);
-								var dateOut = moment(registro.ocupante[index].dateOut);
-								var days = dateOut.diff(dateIn, "days");
-								console.log(days);
+								//console.log("CheckIn : " + registro[0].ocupante[index].checkIn);
+								//console.log("CheckOut :" + registro[0].ocupante[index].checkOut);
 								
-								registro.ganho += days*registro.ocupante[index].posto;
-								financeiro.ganho += days*registro.ocupante[index].posto;
+								var dateIn = moment(registro[0].ocupante[index].checkIn);
+								var dateOut = moment(registro[0].ocupante[index].checkOut);
+								var hours = dateOut.diff(dateIn,"hours");
+								custo = hours*registro[0].ocupante[index].posto/24;
 								
-								registro.save(function (err, updatedRegistros) {
+								
+								registro[1].ganho += custo;
+								financeiro.ganho += custo;
+								
+								for (var i = 0; i < registro.length; i++){
+									registro[i].save(function (err, updatedRegistros) {
+										if (err) return handleError(err,req,res);
+									});
+								}
+								
+								leitos[index].save(function (err, updatedLeitos) {
 									if (err) return handleError(err,req,res);
 								});
 								
@@ -365,9 +357,7 @@ module.exports = function(passport){
 									if (err) return handleError(err,req,res);
 								});
 								
-								
-								
-								res.render('home_recepcao_checkout_dados', {cadastro: registro.ocupante[index]});
+								res.render('home_recepcao_checkout_dados', {cadastro: registro[0].ocupante[index], custo: custo, hours: hours%24, days: parseInt(hours/24)});
 							}
 							else {
 								req.flash('message', 'É necessário criar o Financeiro');
@@ -392,6 +382,134 @@ module.exports = function(passport){
 	
 	// /HOME/RECEPCAO/CHECKOUT/ANTECIPADO *
 	
+	router.get('/home/recepcao/checkout/antecipado', isAuthenticated, isRecepcao, function(req,res){
+		
+		var today = moment();
+		var yesterday = moment().subtract(1, 'days');
+		var before_yesterday = moment().subtract(2, 'days');
+		
+		Registro.findOne({data: {"$gte": yesterday, "$lte": today}}, function(err, registro) {
+
+			if (err) return handleError(err,req,res);
+			if (registro){
+				
+				var cadastros = [];
+				var leitos_reservados = [];
+				
+				Leito.find({}, function(err, leitos) {
+					if (err) return handleError(err,req,res);
+					if (leitos){
+						for (var i = 0; i < leitos.length; i++){
+							if (registro.estado[i] == 'ocupado'){
+								cadastros[cadastros.length] = registro.ocupante[i];
+								leitos_reservados[leitos_reservados.length] = leitos[i].cod_leito;
+							}
+						}
+						res.render('home_recepcao_checkout_antecipado', {cadastros: cadastros, leitos: leitos_reservados});
+					}
+					else {
+						req.flash('message', 'É necessário criar os Leitos');
+						res.redirect('/home');
+					}
+				});
+			}
+			else {
+				req.flash('message', 'É necessário criar o Registro Geral');
+				res.redirect('/home');
+			}
+		});
+	});
+	
+	router.post('/home/recepcao/checkout/antecipado', isAuthenticated, isRecepcao, function(req,res){
+		
+		var today = moment();
+		var yesterday = moment().subtract(1, 'days');
+		var before_yesterday = moment().subtract(2, 'days');
+		
+		Registro.find({data: {"$gte": before_yesterday, "$lt": moment(req.param('dateOut'))}}
+		, null, {sort: 'data'}, function(err, registro) {
+			
+			if (err) return handleError(err,req,res);
+			if (registro){
+				
+				Leito.find({}, function(err, leitos) {
+					if (err) return handleError(err,req,res);
+					if (leitos){
+						
+						Financeiro.findOne({}, function(err, financeiro) {
+							if (err) return handleError(err,req,res);
+							if (financeiro){
+								var index = 0;
+								for (var i = 0; i < registro.length; i++){
+									for (var j = 0; j < leitos.length; ++j){
+										if (leitos[j].cod_leito == req.param('cod_leito')){
+											if (i == 0){
+												if (registro[i].estado[j] == 'ocupado'){
+													registro[i].estado.splice(j, 1, 'checkout');
+												}
+												leitos[j].limpeza = "sujo";
+												index = j;
+											}
+											else {
+												registro[i].estado.splice(j, 1, 'livre');
+											}
+										}
+									}
+								}
+								
+								var ocupante = registro[1].ocupante[index];
+								ocupante.checkOut = moment().format();
+								registro[1].ocupante.splice(index, 1, ocupante);
+								
+								//console.log("CheckIn : " + registro[1].ocupante[index].checkIn);
+								//console.log("CheckOut :" + registro[1].ocupante[index].checkOut);
+								
+								var dateIn = moment(registro[1].ocupante[index].checkIn);
+								var dateOut = moment(registro[1].ocupante[index].checkOut);
+								var hours = dateOut.diff(dateIn,"hours");
+								custo = hours*registro[1].ocupante[index].posto/24;
+								
+								
+								registro[1].ganho += custo;
+								financeiro.ganho += custo;
+								
+								for (var i = 0; i < registro.length; i++){
+									registro[i].save(function (err, updatedRegistros) {
+										if (err) return handleError(err,req,res);
+									});
+								}
+								
+								leitos[index].save(function (err, updatedLeitos) {
+									if (err) return handleError(err,req,res);
+								});
+								
+								financeiro.save(function (err, updatedFinanceiro) {
+									if (err) return handleError(err,req,res);
+								});
+								
+								res.render('home_recepcao_checkout_dados', {cadastro: registro[1].ocupante[index], custo: custo, hours: hours%24, days: parseInt(hours/24)});
+							}
+							else {
+								req.flash('message', 'É necessário criar o Financeiro');
+								res.redirect('/home');
+							}
+						});
+							
+					}
+					
+					else {
+						req.flash('message', 'É necessário criar os Leitos');
+						res.redirect('/home');
+					}
+				});
+			} 
+			else {
+				req.flash('message', 'É necessário criar o Registro Geral');
+				res.redirect('/home');
+			}
+		});
+	});
+	
 	// /HOME/RESERVA
 	router.get('/home/reserva', isAuthenticated, isReserva, function(req, res){
 		Cadastro.find({}, function(err, cadastros) {
@@ -414,10 +532,9 @@ module.exports = function(passport){
 				
 				req.session.cadastro = cadastro;
 			
-				Registro.find({data: {"$gte": new Date(cadastro.dateIn), "$lte": new Date(cadastro.dateOut)}}, 
+				Registro.find({data: {"$gte": moment(cadastro.dateIn), "$lt": moment(cadastro.dateOut)}}, 
 				null, {sort: 'data'}, function(err, registros) {
 					if (err) return handleError(err,req,res);
-					console.log(registros);
 					if (registros) {
 						Leito.find({}, function(err, leitos) {
 							if (err) return handleError(err,req,res);
@@ -476,7 +593,7 @@ module.exports = function(passport){
 	
 	router.post('/home/reserva/alocacao', isAuthenticated, isReserva, function(req, res){
 		
-		Registro.find({data: {"$gte": new Date(req.session.cadastro.dateIn), "$lte": new Date(req.session.cadastro.dateOut)}}
+		Registro.find({data: {"$gte": moment(req.session.cadastro.dateIn), "$lt": moment(req.session.cadastro.dateOut)}}
 		, null, {sort: 'data'}, function(err, registros) {
 			if (err) return handleError(err,req,res); 
 			if (registros){
@@ -504,7 +621,6 @@ module.exports = function(passport){
 									if (req.param(leitos[j].cod_leito)){
 										registros[i].estado.splice(j, 1, 'reservado');
 										req.session.cadastro.tipo = "acompanhante"
-										console.log(req.session.cadastro);
 										registros[i].ocupante.splice(j, 1, req.session.cadastro);
 									}
 								}
@@ -667,18 +783,15 @@ module.exports = function(passport){
 		
 		
 		User.findOne({ 'username' :  req.body.bizu }, function(err, user) {
-            // In case of any error, return using the done method
 			if (err) return handleError(err,req,res);
 			
 			if (user) {
-				user.permissao = [req.body.Recepcao, req.body.Reserva, req.body.Lavanderia, req.body.Manutencao, req.body.Financeiro, req.body.Gerente]
-				console.log(user);
-				
-				
+				user.permissao = [req.body.Recepcao, req.body.Reserva, req.body.Lavanderia, req.body.Manutencao, req.body.Financeiro, req.body.Gerente];
 				user.save(function (err, updatedUser) {
 					if (err) return handleError(err,req,res);
-					//res.send(updatedUser);
 				});
+				req.flash('message', "Permissão alterada com sucesso");
+				res.redirect('/home');
 			}
 			else {
 				req.flash('message', "O usuário não existe");
@@ -686,7 +799,7 @@ module.exports = function(passport){
 			}
         });
 		
-		res.redirect('/home/gerente/permissao');
+		
 	});
 	
 	// /HOME/GERENTE/SIGNUP
@@ -696,7 +809,6 @@ module.exports = function(passport){
 
 	router.post('/home/gerente/signup', isAuthenticated, isGerente, function(req, res){
 		User.findOne({ 'username' :  req.param('username') }, function(err, user) {
-            // In case of any error, return using the done method
 			if (err){
 				return handleError(err,req,res);
 			}
@@ -716,25 +828,24 @@ module.exports = function(passport){
 				if (err) return handleError(err,req,res);
 				
 			});
-			res.redirect('/home/gerente');
+			req.flash('message', "Usuário criado com sucesso.");
+			res.redirect('/home');
         });
 		
 	});
 	
 	// /HOME/GERENTE/REGISTRO/ESTADO
 	router.get('/home/gerente/registro/estado', isAuthenticated, isGerente, function(req,res){
-		var dataIn = new Date();
+		
+		var dataIn = moment().subtract(1, 'days');
+		var dataOut = moment(dataIn).add(1, 'days');
 		if (req.param('dataIn') != undefined){
-			dataIn = new Date(req.param('dataIn'));
+			dataIn = moment(req.param('dataIn'));
+			dataOut = moment(dataIn);
 		}
-		
-		var dataOut = new Date(dataIn);
-		dataOut.setDate(dataOut.getDate()+1);
-		
 		if (req.param('dataOut') != undefined && req.param('dataOut')){
-			dataOut = new Date(req.param('dataOut'));
+			dataOut = moment(req.param('dataOut'));
 		}
-		
 		
 		Registro.find({data: {"$gte": dataIn, "$lte": dataOut}}
 		, null, {sort: 'data'}, function(err, registros) {
@@ -761,16 +872,14 @@ module.exports = function(passport){
 	
 	// /HOME/GERENTE/REGISTRO/ANALISE
 	router.get('/home/gerente/registro/analise', isAuthenticated, isGerente, function(req,res){
-		var dataIn = new Date();
+		var dataIn = moment().subtract(1, 'days');
+		var dataOut = moment(dataIn).add(1, 'days');
 		if (req.param('dataIn') != undefined){
-			dataIn = new Date(req.param('dataIn'));
+			dataIn = moment(req.param('dataIn'));
+			dataOut = moment(dataIn);
 		}
-		
-		var dataOut = new Date(dataIn);
-		dataOut.setDate(dataOut.getDate()+1);
-		
 		if (req.param('dataOut') != undefined && req.param('dataOut')){
-			dataOut = new Date(req.param('dataOut'));
+			dataOut = moment(req.param('dataOut'));
 		}
 		
 		Registro.find({data: {"$gte": dataIn, "$lte": dataOut}}
@@ -795,8 +904,6 @@ module.exports = function(passport){
 							}
 						}
 						
-						console.log(vagas);
-						
 						res.render('home_gerente_registro_analise', {registros: registros, vagas: vagas});
 						
 					}
@@ -812,8 +919,6 @@ module.exports = function(passport){
 			}
 		});
 	});
-	
-	
 	
 	
 	// TUDO DAQUI PARA BAIXO É PARA DEBUGAR
@@ -1039,19 +1144,16 @@ module.exports = function(passport){
 	});
 	
 	router.get('/criar/registro', function(req, res){
-		//var dataInicial = new Date(req.param('dataIn'));
-		//var dataFinal = new Date(req.param('dataOut'));
-		
 		Leito.find({}, function(err, leitos) {
 			if (err) return handleError(err,req,res);
 			if (leitos){
-				var dataInicial = new Date('2017-01-01');
-				var dataFinal = new Date('2050-01-01');
-				var proximoDia = new Date(dataInicial);
+				var dataInicial = moment('2017-01-01');
+				var dataFinal = moment('2050-01-01');
+				var proximoDia = moment(dataInicial);
 				
 				while (proximoDia < dataFinal){
 					var newRegistro = new Registro();
-					newRegistro.data = new Date(proximoDia);
+					newRegistro.data = moment(proximoDia);
 					newRegistro.estado = [];
 					newRegistro.ocupante = [];
 					newRegistro.ganho = 0;
@@ -1063,7 +1165,7 @@ module.exports = function(passport){
 					newRegistro.save(function (err, updatedRegistro) {
 						if (err) return handleError(err,req,res);	
 					});
-					proximoDia.setDate(proximoDia.getDate()+1);
+					proximoDia.add(1, 'days')
 				}
 				res.redirect('/');
 			}
@@ -1073,7 +1175,6 @@ module.exports = function(passport){
 			}
 		});
 	});
-	
 	
 	return router;
 }
