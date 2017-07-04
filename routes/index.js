@@ -63,11 +63,9 @@ module.exports = function(passport){
 		//console.log(moment());
 		if (req.user){
 			if (req.user.username == 'visitante'){
-				//redirecionar para a página lá que vê coisas
-				res.redirect('/home/gerente/registro/estado');
+				res.redirect('/home/registro');
 			}
 			else{
-				console.log('batata');
 			}
 		}
 		
@@ -870,6 +868,7 @@ module.exports = function(passport){
 		
 	});
 	
+	/*
 	// /HOME/GERENTE/REGISTRO/ESTADO
 	router.get('/home/gerente/registro/estado', isAuthenticated, isGerente, function(req,res){
 		
@@ -955,6 +954,82 @@ module.exports = function(passport){
 			}
 		});
 	});
+	*/
+	
+	
+	// /HOME/REGISTRO
+	
+	router.get('/home/registro', isAuthenticated, function(req,res){
+		var dataIn = moment().subtract(1, 'days');
+		var dataOut = moment(dataIn).add(1, 'days');
+		if (req.param('dataIn') != undefined){
+			dataIn = moment(req.param('dataIn'));
+			dataOut = moment(dataIn);
+		}
+		if (req.param('dataOut') != undefined && req.param('dataOut')){
+			dataOut = moment(req.param('dataOut'));
+		}
+		
+		Registro.find({data: {"$gte": dataIn, "$lte": dataOut}}
+		, null, {sort: 'data'}, function(err, registros) {
+			if (err) return handleError(err, req, res);
+			if (registros){
+				
+				Leito.find({}, function(err, leitos) {
+					if (err) return handleError(err,req,res);
+					if (leitos){
+						
+						var leitos_livres = [];
+						var leitos_ocupados = [];
+						var leitos_reservados = [];
+						var leitos_manutencao = 0;
+						var leitos_total = leitos.length;
+						
+						for (var i = 0; i < registros.length; i++){
+							leitos_livres[i] = 0;
+							leitos_reservados[i] = 0;
+							leitos_ocupados[i] = 0;
+						}
+						
+						for (var i = 0; i < registros.length; i++){
+							for (var j = 0; j < leitos.length; j++){
+								if (registros[i].estado[j] == 'livre' 
+								&& leitos[j].ocupabilidade != 'inocupavel'){
+									leitos_livres[i]++;
+								}
+								if (registros[i].estado[j] == 'ocupado'){
+									leitos_ocupados[i]++;
+								}
+								if (registros[i].estado[j] == 'reservado'){
+									leitos_reservados[i]++;
+								}
+							}
+						}
+						
+						for (var j = 0; j < leitos.length; j++){
+							if (leitos[j].ocupabilidade != 'normal'){
+								leitos_manutencao++;
+							}
+						}
+						
+						res.render('home_registro', 
+						{user: req.user, leitos: leitos, manutencao: leitos_manutencao, total: leitos_total,
+						registros: registros, livres: leitos_livres, ocupados: leitos_ocupados,
+						reservados: leitos_reservados});
+						
+					}
+					else {
+						req.flash('message', 'É necessário criar os Leitos');
+						res.redirect('/home');
+					}
+				});
+			}
+			else {
+				req.flash('message', 'É necessário criar o Registro Geral');
+				res.redirect('/home');
+			}
+		});
+	});
 	
 	
 	// TUDO DAQUI PARA BAIXO É PARA DEBUGAR
@@ -1010,9 +1085,38 @@ module.exports = function(passport){
 				if (err) return handleError(err,req,res);
 			});
         });
+		res.redirect('/criar/visitante');
+		
+	});
+	
+	router.get('/criar/visitante', function(req, res){
+		
+		User.findOne({ 'username' :  'visitante' }, function(err, user) {
+            // In case of any error, return using the done method
+			if (err){
+				return handleError(err,req,res);
+			}
+			if (user){
+				user.password = createHash('visitante');
+				user.save(function(err, updatedUser){
+					if (err) return handleError(err,req,res);
+				});
+				return;
+			}
+			var newUser = new User();
+			
+			newUser.username = 'visitante';
+			newUser.password = createHash('visitante');
+			newUser.permissao = [false, false, false, false, false, false];
+			
+			newUser.save(function (err, updatedUser) {
+				if (err) return handleError(err,req,res);
+			});
+        });
 		res.redirect('/criar/financeiro');
 		
 	});
+	
 	
 	router.get('/criar/financeiro', function(req, res){
 		var newFinanceiro = new Financeiro();
