@@ -61,6 +61,15 @@ module.exports = function(passport){
 	router.get('/home', isAuthenticated, function(req, res){
 		//console.log(moment('2017-07-02T12'));
 		//console.log(moment());
+		if (req.user){
+			if (req.user.username == 'visitante'){
+				//redirecionar para a página lá que vê coisas
+				res.redirect('/home/gerente/registro/estado');
+			}
+			else{
+				console.log('batata');
+			}
+		}
 		
 		res.render('home', { user: req.user, message: req.flash('message')});
 	});
@@ -84,6 +93,7 @@ module.exports = function(passport){
 				
 				var cadastros = [];
 				var leitos_reservados = [];
+				var leitos_limpeza = [];
 
 				
 				Leito.find({}, function(err, leitos) {
@@ -93,9 +103,16 @@ module.exports = function(passport){
 							if (registro.estado[i] == 'reservado'){
 								cadastros[cadastros.length] = registro.ocupante[i];
 								leitos_reservados[leitos_reservados.length] = leitos[i].cod_leito;
-							}
+								leitos_limpeza[leitos_limpeza.length] = leitos[i].limpeza;
+							} 
 						}
-						res.render('home_recepcao_checkin', {cadastros: cadastros, leitos: leitos_reservados});
+						/*
+						res.render('home_recepcao_geral', {cadastros: cadastros, leitos: leitos_reservados
+						, titulo: "Realizar Check-In", endereco: "checkin", botao: "Check-in"});
+						*/
+						res.render('home_recepcao_geral', {cadastros: cadastros, leitos: leitos_reservados
+						, titulo: "Realizar Check-In", endereco: "checkin", botao: "Check-in", limpeza: leitos_limpeza});
+						
 					}
 					else {
 						req.flash('message', 'É necessário criar os Leitos');
@@ -188,7 +205,8 @@ module.exports = function(passport){
 								
 							}
 						}
-						res.render('home_recepcao_checkin_cancelar', {cadastros: cadastros, leitos: leitos_reservados});
+						res.render('home_recepcao_geral', {cadastros: cadastros, leitos: leitos_reservados,
+						titulo: "Cancelar Check-In", endereco: "checkin/cancelar", botao: "Cancelar"});
 						
 					}
 					else {
@@ -282,7 +300,8 @@ module.exports = function(passport){
 								}
 							}
 						}
-						res.render('home_recepcao_checkout', {cadastros: cadastros, leitos: leitos_reservados});
+						res.render('home_recepcao_geral', {cadastros: cadastros, leitos: leitos_reservados,
+						titulo: "Realizar Check-Out", endereco: "checkout", botao: "Check-out"});
 						
 					}
 					else {
@@ -405,7 +424,8 @@ module.exports = function(passport){
 								leitos_reservados[leitos_reservados.length] = leitos[i].cod_leito;
 							}
 						}
-						res.render('home_recepcao_checkout_antecipado', {cadastros: cadastros, leitos: leitos_reservados});
+						res.render('home_recepcao_geral', {cadastros: cadastros, leitos: leitos_reservados,
+						titulo: "Realizar Check-Out Antecipado", endereco: "checkout/antecipado", botao: "Check-out antecipado"});
 					}
 					else {
 						req.flash('message', 'É necessário criar os Leitos');
