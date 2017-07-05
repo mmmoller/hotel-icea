@@ -1,16 +1,30 @@
 extends layout
 
 block content
-	h1.
-		Permissões
-	ul
-		each user, j in users
-			li
-				form(name="permissao",method="post",action="/home/gerente/permissao" )
-					- for (var i = 0; i < user.permissao.length; ++i){
-						input(type="checkbox", checked=user.permissao[i], name=dic[i])
-						Tick   #{dic[i]}  
-					-}
-					button(type="submit", value=user.username, name="bizu") #{user.username}
-					br
-					br
+	div.container
+		div.row
+			div.col-sm-6.col-md-4.col-md-offset-4
+				div.home-wall-1
+					h1 Permissoes
+					
+	div.container#permissoes-table-wrapper
+		center
+			form(name="permissao",method="post",action="/home/gerente/permissao" )
+				table#permissoes-table.table-striped.table-bordered
+					thead
+						tr
+							th(style='width:25%') Usuario
+							th(colspan='6') Permissoes
+							th Alterar
+					tbody
+						each user, j in users
+							tr
+								td(style="bold") #{user.username}
+								-for(var i = 0; i < user.permissao.length; ++i){
+									td
+										input(type="checkbox", checked="#{user.permissao[i]}", name="#{dic[i]}")
+										| #{dic[i]}  
+								-}
+								td 
+									button.btn.btn-primary(type="submit", value=user.username, name="bizu") Alterar
+

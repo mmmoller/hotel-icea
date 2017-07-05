@@ -2,12 +2,8 @@ extends layout
 
 block content
 
-	div.container
-		div.row
-			div.col-sm-6.col-md-4.col-md-offset-4
-				div.home-wall-1
-					h1 Alterando estado de manutenção do leito: #{leito[0].cod_leito}
-
+	h1.
+		Alterando estado de manutenção do leito: #{leito[0].cod_leito}
 	div.container#table-alterar-manutencao-wrapper
 		center
 			form(action='/home/manutencao/quadro/alterar?leito_alterado=#{leito[0].cod_leito}', method='POST', style='margin:25px 0px 25px 0px')

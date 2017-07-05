@@ -86,6 +86,44 @@ body header {
         padding: 20px 20px 20px 20px;
     }
 
+#register2-table{
+    margin-bottom: 10px; 
+}
+    #register2-table-wrapper{
+        border: 3px solid #3333ff;
+        position: relative;
+        margin-top: 20px;
+        margin-bottom: 20px;
+        border-radius: 5px;
+        width: 80%;
+        height: 450px;
+        left: 0%;
+        padding: 20px 0px 20px 0px;
+        background-color: #f7f7f7;
+        -moz-box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.3);
+        -webkit-box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.3);
+        box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.3); 
+        overflow: auto;
+    }
+    #register2-table thead{
+    }
+    #register2-table tbody{
+
+    }
+    #register2-table tr{
+        text-align: center;W
+    }
+    #register2-table th{
+        border-bottom: 3px solid #000066;
+    }
+
+    #register2-table th, #register2-table td{
+        text-align: center;
+        padding: 20px 20px 20px 20px;
+    }	
+	
+	
+	
 #manutencao-table{
     margin-top: 30px;
 }
@@ -157,6 +195,38 @@ body header {
         font-size: 15px;
     }
 
+
+#permissoes-table{
+
+}
+    #permissoes-table-wrapper{
+        position: relative;
+        margin-top: 30px;
+        margin-bottom: 130px;
+        border-radius: 5px;
+        left: 0%;
+        padding: 20px 0px 20px 0px;
+        background-color: #f7f7f7;
+        width: 50%;
+        -moz-box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.3);
+        -webkit-box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.3);
+        box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.3); 
+        overflow: auto;
+    }
+    #permissoes-table thead{
+    }
+    #permissoes-table tbody{
+
+    }
+    #permissoes-table tr{
+        text-align: center;
+    }
+    #permissoes-table th, #permissoes-table td{
+        text-align: center;
+        padding: 5px 5px 5px 5px;
+        font-size: 15px;
+    }
+	
 
 #reservas-table{
 
