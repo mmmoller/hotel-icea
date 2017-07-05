@@ -821,6 +821,7 @@ module.exports = function(passport){
 			
 			if (user) {
 				user.permissao = [req.body.Recepcao, req.body.Reserva, req.body.Lavanderia, req.body.Manutencao, req.body.Financeiro, req.body.Gerente];
+				//console.log(user.permissao);
 				user.save(function (err, updatedUser) {
 					if (err) return handleError(err,req,res);
 				});
@@ -955,7 +956,6 @@ module.exports = function(passport){
 		});
 	});
 	*/
-	
 	
 	// /HOME/REGISTRO
 	
