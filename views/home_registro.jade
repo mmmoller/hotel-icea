@@ -69,15 +69,15 @@ block content
 										.dropdown
 											button.btn.btn-link.dropdown-toggle.test(type='button', data-toggle='dropdown')
 												| #{registro.estado[i]} 
-											if (user)
-												if (user.permissao[5])
-													ul.dropdown-menu
-														li
-															a(href='#' style='color:black') #{registro.ocupante[i].name}
-														li
-															a(href='#') #{registro.ocupante[i].acompanhante}
-														li
-															a(href='#') Ação 3
+											//if (user)
+											//	if (user.permissao[5])
+											ul.dropdown-menu
+												li
+													a(href='#' style='color:black') #{registro.ocupante[i].name}
+												li
+													a(href='#') #{registro.ocupante[i].acompanhante}
+												li
+													a(href='#') Ação 3
 						-}
 						
 

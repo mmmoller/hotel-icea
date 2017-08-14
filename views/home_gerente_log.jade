@@ -1,0 +1,12 @@
+extends layout
+
+block content
+	h1.
+		Log	
+	-for (var i = 0; i < log.length; i++){
+		pre.
+			#{log[i]}
+	-}
+		
+	
+	
