@@ -1,8 +1,11 @@
 extends layout
 
 block content
-	h1.
-		Inserir folha de coleta e entrega
+	div.container
+		div.row
+			center
+				div.section-wall
+					h1.section-title Inserir folha de coleta e entrega
 	div.container#folha-ce-table-wrapper
 		center
 			form(action='/home/lavanderia/folha', method='POST')

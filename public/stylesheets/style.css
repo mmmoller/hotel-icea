@@ -128,7 +128,7 @@ body header {
     margin-top: 30px;
 }
     #manutencao-table-wrapper{
-        border: 3px solid #3333ff;
+        border: 1.5px solid #3333ff;
         position: relative;
         margin-top: 30px;
         margin-bottom: 30px;
@@ -199,6 +199,7 @@ body header {
 
 }
     #permissoes-table-wrapper{
+        border: 1.5px solid #3333ff;
         position: relative;
         margin-top: 30px;
         margin-bottom: 130px;
@@ -229,7 +230,7 @@ body header {
 
 }
     #reservas-table-wrapper{
-        border: 3px solid #3333ff;
+        border: 1.5px solid #3333ff;
         position: relative;
         margin-top: 20px;
         margin-bottom: 50px;
@@ -265,6 +266,7 @@ body header {
 
 }
     #folha-ce-table-wrapper{
+        border: 1.5px solid #3333ff;
         position: relative;
         margin-top: 30px;
         margin-bottom: 130px;
@@ -434,6 +436,26 @@ body header {
     -moz-box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.3);
     -webkit-box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.3);
     box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.3); 
+}
+
+.section-wall{
+    border: 1.5px solid #3333ff;
+    width: 50%;
+    position: relative;
+    margin-top: 0px;
+    border-radius: 5px;
+    left: 0%;
+    padding: 10px 0px 10px 0px;
+    background-color: #f7f7f7;
+    -moz-box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.3);
+    -webkit-box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.3);
+    box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.3); 
+    overflow: auto;
+    font-weight: bold;
+}
+.section-title{
+    font-weight: 400;
+    font-size: 32px;
 }
 
 .home-wall-1{
