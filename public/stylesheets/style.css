@@ -405,8 +405,15 @@ body header {
 .cadastro-title{
     color: #555;
     font-size: 32px;
-    font-weight: 400;
+    font-weight: bold;
     display: block;
+}
+.cadastro-sections{
+    color: #555;
+    font-size: 20px;
+    font-weight: bold;
+    display: block;
+    margin-top: 15px;
 }
 
 .login-title{

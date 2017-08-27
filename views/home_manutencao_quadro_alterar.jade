@@ -10,9 +10,9 @@ block content
 				table#table-alterar-manutencao.table-striped.table-bordered
 					thead
 						tr
-							th(style='width:90%')
+							th
 								| Panes atuais
-							th Remover
+							th(style='width:12%') Remover
 
 					tbody
 						-for(var i = 0; i < leito[0].manutencao.length; i++){
@@ -39,15 +39,17 @@ block content
 					thead
 						tr
 							th
-								| Inserir pane
+								| Nome da pane a ser inserida
+							th(style='width:12%')
+								| Inserir
 					tbody
 						tr
 							td
 								input(type='text', name='desc_pane_adc', placeholder='Descrição da pane',required, style='width:80%')
-						tr
 							td
-								button.btn.btn-primary(type='submit',style='text-align:center;margin-top:30px', onsubmit='setTimeout(function(){window.location.reload();},1000)') Inserir
+								button.btn.btn-primary(type='submit',style='text-align:center;', onsubmit='setTimeout(function(){window.location.reload();},1000)') Inserir
 								span.clearfix
+								
 
 			hr
 			form(action='/home/manutencao/quadro/alterar?leito_alterado=#{leito[0].cod_leito}', method='POST', style='margin:25px 0px 25px 0px')
@@ -56,6 +58,8 @@ block content
 						tr
 							th
 								| O leito ainda está ocupável, mesmo na existência de panes?
+							th(style='width:12%')
+								| Alterar
 					tbody
 						tr
 							td
@@ -80,11 +84,10 @@ block content
 										input(type='radio', name='ocup', value='inocupavel')
 									-}
 									| Inocupável
-	
-						tr
 							td
-								button(class='btn btn-primary', type='submit',style='text-align:center;margin-top:30px', onsubmit='setTimeout(function(){window.location.reload();},1000)') Alterar
+								button(class='btn btn-primary', type='submit',style='text-align:center', onsubmit='setTimeout(function(){window.location.reload();},1000)') Alterar
 								span.clearfix
+								
 			hr
 			form(action='/home/manutencao/quadro', method='GET', style='margin:25px 0px 25px 0px')
 					button.btn.btn-primary(type='submit', value='submit', style='text-align:center;margin-top:30px;') Voltar
