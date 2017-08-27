@@ -1,12 +1,51 @@
 extends layout
 
 block content
-	h1.
-		Selecione #{num_hospede} leitos
-	form(class='form-signin', action='/home/' + '#{endereco}', method='POST')
-		button(type="submit", name='leitos') Alocar
-		ul
-			each leito, j in leitos
-				input(type="checkbox", name=leito) 
-				Tick #{leito}
-				br
+	div.container
+		div.row
+			div.col-sm-6.col-md-4.col-md-offset-4
+				div.home-wall-1
+					h1 Escolha #{num_hospede} leito(s)
+
+	div.container#manutencao-table-wrapper
+		center
+			table#manutencao-table.table-bordered
+				form(class='form-signin', action='/home/' + '#{endereco}', method='POST')
+					thead
+						tr
+							th Prédio
+							th Quartos
+							th(colspan='3')
+								button(class='btn btn-lg btn-primary btn-block', type='submit',style='text-align:center;') Alocar
+								span.clearfix
+							th(colspan='50') 
+					tbody
+						-var LeitosPorQuarto = new Map();
+						-for(var idx = 0; idx < leitos.length; idx++){
+						-	var quarto = leitos[idx].slice(0,-1); //codigo do quarto, sem a letra que identifica o leito
+						-	var listaQuartos = LeitosPorQuarto.get(quarto);
+						-	if(listaQuartos == undefined){
+						-		listaQuartos = new Map();
+						-	}
+						-	listaQuartos.set(leitos[idx], idx); //indica o indice do leito no vetor principal
+						-	LeitosPorQuarto.set(quarto, listaQuartos);
+						-}
+						each predio in ['A', 'B', 'C', 'D']
+							tr
+								td #{predio}
+
+								-LeitosPorQuarto.forEach(function(map_leitos, quarto){
+									-if(predio == quarto.charAt(0)){
+										td(style='background-color: #b3ffb3')
+											.dropdown#manutencao-dropdown
+												a.dropdown-toggle(role='button', data-target='#', href='#', data-toggle='dropdown', aria-haspopup="true", aria-expanded="false")
+													| #{quarto}
+												ul.dropdown-menu
+													-map_leitos.forEach(function(indice, leito){
+														li
+															a(tabindex='-1' href='#' style='color:#267326;font-weight: bold;') #{leito + "	"}
+																input(type="checkbox", name=leito) 
+													-})
+								-	}
+								-});
+				

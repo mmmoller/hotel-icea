@@ -15,60 +15,7 @@ module.exports = function(passport){
 	// /'TESTE'
 	
 	router.get('/teste', function(req,res){
-		
-		var today = moment();
-		var yesterday = moment().subtract(1, 'days');
-		
-		Log.findOne({data: {"$gte": yesterday, "$lte": today}}, function(err, log) {
-			console.log(log.log);
-			res.render("home_gerente_log", {log : log.log});
-		});
-		
-		/*
-		var today = moment();
-		var yesterday = moment().subtract(1, 'days');
-		
-		Registro.findOne({data: {"$gte": yesterday, "$lte": today}}, function(err, registro) {
-			console.log(registro.log);
-			console.log(registro.ganho);
-			//registro.log.push("Esse deve estar antes");
-			registro.ganho = 50;
-			//registro.gasto = -50;
-			
-			setTimeout(function(){
-			Registro.findOne({data: {"$gte": yesterday, "$lte": today}}, function(err, registros) {
-				console.log(registros.log);
-				console.log(registros.ganho);
-				registros.gasto = 20;
-				
-				registros.log.push("Esse deve estar depois");
-				registros.save(function (err, updatedRegistross) {
-					if (err) return handleError(err,req,res);
-				});
-			});
-			}, 1000);
-			
-			
-			setTimeout(function (){
-			registro.save(function (err, updatedRegistros) {
-				if (err) return handleError(err,req,res);
-			});
-			}, 2000);
-			
-			setTimeout(function () {
-			Registro.findOne({data: {"$gte": yesterday, "$lte": today}}, function(err, registros) {
-				console.log(registros.log);
-				console.log(registros.ganho);
-				console.log(registros.gasto);
-				res.send(registros);
-			});
-			}, 3000);
-		});
-		
-		
-		
-		//res.send("batata");
-		*/
+		res.send("teste");
 	});		
 
 { // Index/Login/Logout/Home
@@ -92,7 +39,7 @@ module.exports = function(passport){
 		// Ou renderizar a página com os dados já preenchidos
 		if (moment(newCadastro.dateIn) < moment(newCadastro.dateOut)){
 
-			newCadastro.save(function (err, updatedCadastro) {
+			newCadastro.save(function (err) {
 				if (err) return handleError(err,req,res);
 			});
 			
@@ -104,7 +51,7 @@ module.exports = function(passport){
 					"realizado a SOLITICAÇÃO DE RESERVA do hospede " + newCadastro.name +
 					", do dia " + moment(newCadastro.dateIn).format("DD/MM/YY") +
 					" ao dia " + moment(newCadastro.dateOut).format("DD/MM/YY"));
-					log.save(function (err, updatedLog) {
+					log.save(function (err) {
 					if (err) return handleError(err,req,res);
 				});
 				}
@@ -192,7 +139,7 @@ module.exports = function(passport){
 				var leitos_limpeza = [];
 
 				
-				Leito.find({}, function(err, leitos) {
+				Leito.find({}, null, {sort: 'cod_leito'}, function(err, leitos) {
 					if (err) return handleError(err,req,res);
 					if (leitos){
 						for (var i = 0; i < leitos.length; i++){
@@ -253,7 +200,7 @@ module.exports = function(passport){
 						}
 						
 						for (var i = 0; i < registros.length; ++i){
-							registros[i].save(function (err, updatedRegistros) {
+							registros[i].save(function (err) {
 								if (err) return handleError(err,req,res);
 							});
 						}
@@ -268,7 +215,7 @@ module.exports = function(passport){
 								" ao dia " + moment(registros[0].ocupante[index].dateOut).format("DD/MM/YY") +
 								" no leito " + leitos[index].cod_leito +
 								". Usuário: " + req.user.username);
-								log.save(function (err, updatedLog) {
+								log.save(function (err) {
 								if (err) return handleError(err,req,res);
 							});
 							}
@@ -314,7 +261,7 @@ module.exports = function(passport){
 				var cadastros = [];
 				var leitos_reservados = [];
 				
-				Leito.find({}, function(err, leitos) {
+				Leito.find({}, null, {sort: 'cod_leito'}, function(err, leitos) {
 					if (err) return handleError(err,req,res);
 					if (leitos){
 						for (var i = 0; i < leitos.length; i++){
@@ -355,7 +302,7 @@ module.exports = function(passport){
 			if (err) return handleError(err,req,res);
 			if (registros){
 				
-				Leito.find({}, function(err, leitos) {
+				Leito.find({}, null, {sort: 'cod_leito'}, function(err, leitos) {
 					if (err) return handleError(err,req,res);
 					if (leitos){
 						
@@ -375,7 +322,7 @@ module.exports = function(passport){
 						}
 						
 						for (var i = 0; i < registros.length; ++i){
-							registros[i].save(function (err, updatedRegistros) {
+							registros[i].save(function (err) {
 								if (err) return handleError(err,req,res);
 							});
 						}
@@ -390,7 +337,7 @@ module.exports = function(passport){
 								" ao dia " + moment(registros[0].ocupante[index].dateOut).format("DD/MM/YY") +
 								" no leito " + leitos[index].cod_leito +
 								". Usuário: " + req.user.username);
-								log.save(function (err, updatedLog) {
+								log.save(function (err) {
 									if (err) return handleError(err,req,res);
 								});
 							}
@@ -438,7 +385,7 @@ module.exports = function(passport){
 				var cadastros = [];
 				var leitos_reservados = [];
 				
-				Leito.find({}, function(err, leitos) {
+				Leito.find({}, null, {sort: 'cod_leito'}, function(err, leitos) {
 					if (err) return handleError(err,req,res);
 					if (leitos){
 						for (var i = 0; i < leitos.length; i++){
@@ -485,7 +432,7 @@ module.exports = function(passport){
 			if (err) return handleError(err,req,res);
 			if (registro){
 				
-				Leito.find({}, function(err, leitos) {
+				Leito.find({}, null, {sort: 'cod_leito'}, function(err, leitos) {
 					if (err) return handleError(err,req,res);
 					if (leitos){
 				
@@ -511,12 +458,12 @@ module.exports = function(passport){
 						var hours = dateOut.diff(dateIn,"hours");
 						custo = hours*registro.ocupante[index].posto/24;
 						
-						registro.save(function (err, updatedRegistros) {
+						registro.save(function (err) {
 							if (err) return handleError(err,req,res);
 						});
 						
 						
-						leitos[index].save(function (err, updatedLeitos) {
+						leitos[index].save(function (err) {
 							if (err) return handleError(err,req,res);
 						});
 						
@@ -524,7 +471,7 @@ module.exports = function(passport){
 							if (err) return handleError(err,req,res);
 							if (financeiro){
 								financeiro.ganho += custo;
-								financeiro.save(function (err, updatedFinanceiro) {
+								financeiro.save(function (err) {
 									if (err) return handleError(err,req,res);
 								});
 							}
@@ -545,7 +492,7 @@ module.exports = function(passport){
 								" ao dia " + moment(registro.ocupante[index].dateOut).format("DD/MM/YY") +
 								" no leito " + leitos[index].cod_leito +
 								". Usuário: " + req.user.username);
-								log.save(function (err, updatedLog) {
+								log.save(function (err) {
 									if (err) return handleError(err,req,res);
 								});
 							}
@@ -587,7 +534,7 @@ module.exports = function(passport){
 				var cadastros = [];
 				var leitos_reservados = [];
 				
-				Leito.find({}, function(err, leitos) {
+				Leito.find({}, null, {sort: 'cod_leito'}, function(err, leitos) {
 					if (err) return handleError(err,req,res);
 					if (leitos){
 						for (var i = 0; i < leitos.length; i++){
@@ -624,7 +571,7 @@ module.exports = function(passport){
 			if (err) return handleError(err,req,res);
 			if (registro){
 				
-				Leito.find({}, function(err, leitos) {
+				Leito.find({}, null, {sort: 'cod_leito'}, function(err, leitos) {
 					if (err) return handleError(err,req,res);
 					if (leitos){
 				
@@ -657,12 +604,12 @@ module.exports = function(passport){
 						custo = hours*registro[1].ocupante[index].posto/24;
 						
 						for (var i = 0; i < registro.length; i++){
-							registro[i].save(function (err, updatedRegistros) {
+							registro[i].save(function (err) {
 								if (err) return handleError(err,req,res);
 							});
 						}
 						
-						leitos[index].save(function (err, updatedLeitos) {
+						leitos[index].save(function (err) {
 							if (err) return handleError(err,req,res);
 						});
 						
@@ -670,7 +617,7 @@ module.exports = function(passport){
 							if (err) return handleError(err,req,res);
 							if (financeiro){
 								financeiro.ganho += custo;
-								financeiro.save(function (err, updatedFinanceiro) {
+								financeiro.save(function (err) {
 									if (err) return handleError(err,req,res);
 								});
 							}
@@ -691,7 +638,7 @@ module.exports = function(passport){
 								" ao dia " + moment(registro[1].ocupante[index].dateOut).format("DD/MM/YY") +
 								" no leito " + leitos[index].cod_leito +
 								". Usuário: " + req.user.username);
-								log.save(function (err, updatedLog) {
+								log.save(function (err) {
 									if (err) return handleError(err,req,res);
 								});
 							}
@@ -742,7 +689,7 @@ module.exports = function(passport){
 				var cadastros = [];
 				var leitos_reservados = [];
 				
-				Leito.find({}, function(err, leitos) {
+				Leito.find({}, null, {sort: 'cod_leito'}, function(err, leitos) {
 					if (err) return handleError(err,req,res);
 					if (leitos){
 						for (var i = 0; i < leitos.length; i++){
@@ -776,7 +723,7 @@ module.exports = function(passport){
 		null, {sort: 'data'}, function(err, registros) {
 			if (err) return handleError(err,req,res);
 			if (registros) {
-				Leito.find({}, function(err, leitos) {
+				Leito.find({}, null, {sort: 'cod_leito'}, function(err, leitos) {
 					if (err) return handleError(err,req,res);
 					if (leitos){
 						
@@ -840,7 +787,7 @@ module.exports = function(passport){
 			if (err) return handleError(err,req,res);
 			if (registros){
 				
-				Leito.find({}, function(err, leitos) {
+				Leito.find({}, null, {sort: 'cod_leito'}, function(err, leitos) {
 					if (err) return handleError(err,req,res);
 					if (leitos){
 						
@@ -879,12 +826,12 @@ module.exports = function(passport){
 							}
 							
 							for (var i = 0; i < registros.length; ++i){
-								registros[i].save(function (err, updatedRegistros) {
+								registros[i].save(function (err) {
 									if (err) return handleError(err,req,res);
 								});
 							}
 							
-							leitos[index_leito_antigo].save(function (err, updatedLeitos) {
+							leitos[index_leito_antigo].save(function (err) {
 								if (err) return handleError(err,req,res);
 							});
 							
@@ -894,7 +841,7 @@ module.exports = function(passport){
 								if (registro){
 									if (registro.estado[index_leito_antigo] == 'ocupado'){
 										registro.estado.splice(index_leito_antigo, 1, "mudança");
-										registro.save(function (err, updatedRegistro) {
+										registro.save(function (err) {
 											if (err) return handleError(err,req,res);
 										});
 									}
@@ -916,7 +863,7 @@ module.exports = function(passport){
 									", do dia " + moment().format("DD/MM/YY") +
 									" ao dia " + moment(registros[0].ocupante[index_leito_novo].dateOut).format("DD/MM/YY") +
 									". Usuário: " + req.user.username);
-									log.save(function (err, updatedLog) {
+									log.save(function (err) {
 									if (err) return handleError(err,req,res);
 								});
 								}
@@ -974,7 +921,7 @@ module.exports = function(passport){
 				null, {sort: 'data'}, function(err, registros) {
 					if (err) return handleError(err,req,res);
 					if (registros) {
-						Leito.find({}, function(err, leitos) {
+						Leito.find({}, null, {sort: 'cod_leito'}, function(err, leitos) {
 							if (err) return handleError(err,req,res);
 							if (leitos){
 								
@@ -1037,7 +984,7 @@ module.exports = function(passport){
 			if (err) return handleError(err,req,res); 
 			if (registros){
 				
-				Leito.find({}, function(err, leitos) {
+				Leito.find({}, null, {sort: 'cod_leito'}, function(err, leitos) {
 					if (err) return handleError(err,req,res);
 					if (leitos){
 						
@@ -1083,7 +1030,7 @@ module.exports = function(passport){
 									}
 				
 				
-									log.save(function (err, updatedLog) {
+									log.save(function (err) {
 										if (err) return handleError(err,req,res);
 									});
 								}
@@ -1096,7 +1043,7 @@ module.exports = function(passport){
 							
 							
 							for (var i = 0; i < registros.length; ++i){
-								registros[i].save(function (err, updatedRegistros) {
+								registros[i].save(function (err) {
 									if (err) return handleError(err,req,res);
 								});
 							}
@@ -1137,7 +1084,7 @@ module.exports = function(passport){
 { // MANUTENCAO Adicionar LOG
 	// /HOME/MANUTENCAO/QUADRO
 	router.get('/home/manutencao/quadro', isAuthenticated, isManutencao, function(req, res){
-		Leito.find({}, function(err, leitos) {
+		Leito.find({}, null, {sort: 'cod_leito'}, function(err, leitos) {
 			if (err) return handleError(err,req,res);
 			if (leitos){
 				res.render('home_manutencao_quadro', {leitos: leitos});
@@ -1204,7 +1151,7 @@ module.exports = function(passport){
 	// /HOME/MANUTENCAO/LIMPEZA
 	router.get('/home/manutencao/limpeza', isAuthenticated, isManutencao, function(req, res){
 
-		Leito.find({}, function(err, leitos) {
+		Leito.find({}, null, {sort: 'cod_leito'}, function(err, leitos) {
 			if (err) return handleError(err,req,res);
 			if (leitos){
 				res.render('home_manutencao_limpeza', {leitos: leitos});
@@ -1294,7 +1241,7 @@ module.exports = function(passport){
 			if (user) {
 				user.permissao = [req.body.Recepcao, req.body.Reserva, req.body.Lavanderia, req.body.Manutencao, req.body.Financeiro, req.body.Gerente];
 				//console.log(user.permissao);
-				user.save(function (err, updatedUser) {
+				user.save(function (err) {
 					if (err) return handleError(err,req,res);
 				});
 				req.flash('message', "Permissão alterada com sucesso");
@@ -1331,7 +1278,7 @@ module.exports = function(passport){
             newUser.lastName = req.param('lastName');
 			newUser.permissao = [true, true, true, true, true, false];
 			
-			newUser.save(function (err, updatedUser) {
+			newUser.save(function (err) {
 				if (err) return handleError(err,req,res);
 				
 			});
@@ -1359,7 +1306,7 @@ module.exports = function(passport){
 			if (err) return handleError(err, req, res);
 			if (registros){
 				
-				Leito.find({}, function(err, leitos) {
+				Leito.find({}, null, {sort: 'cod_leito'}, function(err, leitos) {
 					if (err) return handleError(err,req,res);
 					if (leitos){
 						
@@ -1457,7 +1404,7 @@ module.exports = function(passport){
 			}
 			if (user){
 				user.password = createHash('admin');
-				user.save(function(err, updatedUser){
+				user.save(function(err){
 					if (err) return handleError(err,req,res);
 				});
 				return;
@@ -1468,7 +1415,7 @@ module.exports = function(passport){
 			newUser.password = createHash('admin');
 			newUser.permissao = [true, true, true, true, true, true];
 			
-			newUser.save(function (err, updatedUser) {
+			newUser.save(function (err) {
 				if (err) return handleError(err,req,res);
 			});
         });
@@ -1485,7 +1432,7 @@ module.exports = function(passport){
 			}
 			if (user){
 				user.password = createHash('visitante');
-				user.save(function(err, updatedUser){
+				user.save(function(err){
 					if (err) return handleError(err,req,res);
 				});
 				return;
@@ -1496,7 +1443,7 @@ module.exports = function(passport){
 			newUser.password = createHash('visitante');
 			newUser.permissao = [false, false, false, false, false, false];
 			
-			newUser.save(function (err, updatedUser) {
+			newUser.save(function (err) {
 				if (err) return handleError(err,req,res);
 			});
         });
@@ -1508,7 +1455,7 @@ module.exports = function(passport){
 		var newFinanceiro = new Financeiro();
 		newFinanceiro.gasto = 0;
 		newFinanceiro.ganho = 0;
-		newFinanceiro.save(function (err, updatedFinanceiro) {
+		newFinanceiro.save(function (err) {
 			if (err) return handleError(err,req,res);
 		});
 		res.redirect('/criar/leitos');
@@ -1518,100 +1465,74 @@ module.exports = function(passport){
 	router.get('/criar/leitos', function(req,res){
 		var newLeito;
 		//A
-		/*
-		for(var i = 1; i <= 18; i++){
-			newLeito = createLeito(("A" + i + "a"));
-			newLeito.save(function(err, updatedLeito){
-				if(err) return handleError(err,req,res);
-			});
-			newLeito = createLeito(("A" + i + "b"));
-			newLeito.save(function(err, updatedLeito){
-				if(err) return handleError(err,req,res);
-			});
-		}*/
+		
 		for(var i = 1; i <= 9; i++){
 			newLeito = createLeito(("A" + '0' + i + "a"));
-			newLeito.save(function(err, updatedLeito){
+			newLeito.save(function(err){
 				if(err) return handleError(err,req,res);
 			});
 			newLeito = createLeito(("A" + '0'+ i + "b"));
-			newLeito.save(function(err, updatedLeito){
+			newLeito.save(function(err){
 				if(err) return handleError(err,req,res);
 			});
 		}
 		
 		for(var i = 10; i <= 18; i++){
 			newLeito = createLeito(("A" + i + "a"));
-			newLeito.save(function(err, updatedLeito){
+			newLeito.save(function(err){
 				if(err) return handleError(err,req,res);
 			});
 			newLeito = createLeito(("A" + i + "b"));
-			newLeito.save(function(err, updatedLeito){
+			newLeito.save(function(err){
 				if(err) return handleError(err,req,res);
 			});
 		}
 		
-		
 		newLeito = createLeito("A19a");
-		newLeito.save(function(err, updatedLeito){
+		newLeito.save(function(err){
 			if(err) return handleError(err,req,res);
 		});
 		newLeito = createLeito("A19b");
-		newLeito.save(function(err, updatedLeito){
+		newLeito.save(function(err){
 			if(err) return handleError(err,req,res);
 		});
 		newLeito = createLeito("A19c");
-		newLeito.save(function(err, updatedLeito){
+		newLeito.save(function(err){
 			if(err) return handleError(err,req,res);
 		});
 		newLeito = createLeito("A20a");
-		newLeito.save(function(err, updatedLeito){
+		newLeito.save(function(err){
 			if(err) return handleError(err,req,res);
 		});		
 		newLeito = createLeito("A21a");
-		newLeito.save(function(err, updatedLeito){
+		newLeito.save(function(err){
 			if(err) return handleError(err,req,res);
 		});		
 
 
 		//B
-		/*
-		newLeito = createLeito("B1a");
-		newLeito.save(function(err, updatedLeito){
-			if(err) return handleError(err,req,res);
-		});
-		for(var i = 2; i <= 19; i++){
-			newLeito = createLeito(("B" + i + "a"));
-			newLeito.save(function(err, updatedLeito){
-				if(err) return handleError(err,req,res);
-			});
-			newLeito = createLeito(("B" + i + "b"));
-			newLeito.save(function(err, updatedLeito){
-				if(err) return handleError(err,req,res);
-			});
-		}*/
-		
+
 		newLeito = createLeito("B01a");
-		newLeito.save(function(err, updatedLeito){
+		newLeito.save(function(err){
 			if(err) return handleError(err,req,res);
 		});
 		for(var i = 2; i <= 9; i++){
 			newLeito = createLeito(("B" + '0' + i + "a"));
-			newLeito.save(function(err, updatedLeito){
+			newLeito.save(function(err){
 				if(err) return handleError(err,req,res);
 			});
 			newLeito = createLeito(("B" + '0' + i + "b"));
-			newLeito.save(function(err, updatedLeito){
+			newLeito.save(function(err){
 				if(err) return handleError(err,req,res);
 			});
 		}
 		for(var i = 10; i <= 19; i++){
 			newLeito = createLeito(("B" + i + "a"));
-			newLeito.save(function(err, updatedLeito){
+			newLeito.save(function(err){
 				if(err) return handleError(err,req,res);
 			});
 			newLeito = createLeito(("B" + i + "b"));
-			newLeito.save(function(err, updatedLeito){
+			newLeito.save(function(err){
 				if(err) return handleError(err,req,res);
 			});
 		}
@@ -1619,47 +1540,32 @@ module.exports = function(passport){
 		
 
 		//C
-		/*
-		for(var i = 1; i <= 25; i++){
-			newLeito = createLeito(("C" + i + "a"));
-			newLeito.save(function(err, updatedLeito){
-				if(err) return handleError(err,req,res);
-			});
-			newLeito = createLeito(("C" + i + "b"));
-			newLeito.save(function(err, updatedLeito){
-				if(err) return handleError(err,req,res);
-			});
-			newLeito = createLeito(("C" + i + "c"));
-			newLeito.save(function(err, updatedLeito){
-				if(err) return handleError(err,req,res);
-			});
-		}
-		*/
+
 		for(var i = 1; i <= 9; i++){
 			newLeito = createLeito(("C" + '0' + i + "a"));
-			newLeito.save(function(err, updatedLeito){
+			newLeito.save(function(err){
 				if(err) return handleError(err,req,res);
 			});
 			newLeito = createLeito(("C" + '0' + i + "b"));
-			newLeito.save(function(err, updatedLeito){
+			newLeito.save(function(err){
 				if(err) return handleError(err,req,res);
 			});
 			newLeito = createLeito(("C" + '0' + i + "c"));
-			newLeito.save(function(err, updatedLeito){
+			newLeito.save(function(err){
 				if(err) return handleError(err,req,res);
 			});
 		}
 		for(var i = 10; i <= 25; i++){
 			newLeito = createLeito(("C" + i + "a"));
-			newLeito.save(function(err, updatedLeito){
+			newLeito.save(function(err){
 				if(err) return handleError(err,req,res);
 			});
 			newLeito = createLeito(("C" + i + "b"));
-			newLeito.save(function(err, updatedLeito){
+			newLeito.save(function(err){
 				if(err) return handleError(err,req,res);
 			});
 			newLeito = createLeito(("C" + i + "c"));
-			newLeito.save(function(err, updatedLeito){
+			newLeito.save(function(err){
 				if(err) return handleError(err,req,res);
 			});
 		}
@@ -1667,11 +1573,11 @@ module.exports = function(passport){
 		
 		for(var i = 26; i <= 35; i++){
 			newLeito = createLeito(("C" + i + "a"));
-			newLeito.save(function(err, updatedLeito){
+			newLeito.save(function(err){
 				if(err) return handleError(err,req,res);
 			});
 			newLeito = createLeito(("C" + i + "b"));
-			newLeito.save(function(err, updatedLeito){
+			newLeito.save(function(err){
 				if(err) return handleError(err,req,res);
 			});
 		}
@@ -1679,74 +1585,74 @@ module.exports = function(passport){
 		//D
 		for(var i = 101; i <= 119; i++){
 			newLeito = createLeito(("D" + i + "a"));
-			newLeito.save(function(err, updatedLeito){
+			newLeito.save(function(err){
 				if(err) return handleError(err,req,res);
 			});
 			newLeito = createLeito(("D" + i + "b"));
-			newLeito.save(function(err, updatedLeito){
+			newLeito.save(function(err){
 				if(err) return handleError(err,req,res);
 			});
 			newLeito = createLeito(("D" + i + "c"));
-			newLeito.save(function(err, updatedLeito){
+			newLeito.save(function(err){
 				if(err) return handleError(err,req,res);
 			});
 			newLeito = createLeito(("D" + i + "d"));
-			newLeito.save(function(err, updatedLeito){
+			newLeito.save(function(err){
 				if(err) return handleError(err,req,res);
 			});
 		}
 		newLeito = createLeito(("D200a"));
-		newLeito.save(function(err, updatedLeito){
+		newLeito.save(function(err){
 			if(err) return handleError(err,req,res);
 		});
 		newLeito = createLeito(("D200b"));
-		newLeito.save(function(err, updatedLeito){
+		newLeito.save(function(err){
 			if(err) return handleError(err,req,res);
 		});
 		newLeito = createLeito(("D200c"));
-		newLeito.save(function(err, updatedLeito){
+		newLeito.save(function(err){
 			if(err) return handleError(err,req,res);
 		});
 		newLeito = createLeito(("D200d"));
-		newLeito.save(function(err, updatedLeito){
+		newLeito.save(function(err){
 			if(err) return handleErr200		});
 		for(var i = 202; i <= 221; i++){
 			newLeito = createLeito(("D" + i + "a"));
-			newLeito.save(function(err, updatedLeito){
+			newLeito.save(function(err){
 				if(err) return handleError(err,req,res);
 			});
 			newLeito = createLeito(("D" + i + "b"));
-			newLeito.save(function(err, updatedLeito){
+			newLeito.save(function(err){
 				if(err) return handleError(err,req,res);
 			});
 			newLeito = createLeito(("D" + i + "c"));
-			newLeito.save(function(err, updatedLeito){
+			newLeito.save(function(err){
 				if(err) return handleError(err,req,res);
 			});
 			newLeito = createLeito(("D" + i + "d"));
-			newLeito.save(function(err, updatedLeito){
+			newLeito.save(function(err){
 				if(err) return handleError(err,req,res);
 			});
 		}
 		for(var i = 222; i <= 223; i++){
 			newLeito = createLeito(("D" + i + "a"));
-			newLeito.save(function(err, updatedLeito){
+			newLeito.save(function(err){
 				if(err) return handleError(err,req,res);
 			});
 			newLeito = createLeito(("D" + i + "b"));
-			newLeito.save(function(err, updatedLeito){
+			newLeito.save(function(err){
 				if(err) return handleError(err,req,res);
 			});
 			newLeito = createLeito(("D" + i + "c"));
-			newLeito.save(function(err, updatedLeito){
+			newLeito.save(function(err){
 				if(err) return handleError(err,req,res);
 			});
 			newLeito = createLeito(("D" + i + "d"));
-			newLeito.save(function(err, updatedLeito){
+			newLeito.save(function(err){
 				if(err) return handleError(err,req,res);
 			});
 			newLeito = createLeito(("D" + i + "e"));
-			newLeito.save(function(err, updatedLeito){
+			newLeito.save(function(err){
 				if(err) return handleError(err,req,res);
 			});
 		}
@@ -1754,7 +1660,7 @@ module.exports = function(passport){
 	});
 	
 	router.get('/criar/registro', function(req, res){
-		Leito.find({}, function(err, leitos) {
+		Leito.find({}, null, {sort: 'cod_leito'}, function(err, leitos) {
 			if (err) return handleError(err,req,res);
 			if (leitos){
 				var dataInicial = moment('2017-01-01');
@@ -1773,7 +1679,7 @@ module.exports = function(passport){
 						newRegistro.estado[newRegistro.estado.length] = "livre";
 						newRegistro.ocupante[newRegistro.ocupante.length] = "";
 					}
-					newRegistro.save(function (err, updatedRegistro) {
+					newRegistro.save(function (err) {
 						if (err) return handleError(err,req,res);	
 					});
 					proximoDia.add(1, 'days')
@@ -1788,7 +1694,7 @@ module.exports = function(passport){
 	});
 	
 	router.get('/criar/log', function(req, res){
-		Leito.find({}, function(err, leitos) {
+		Leito.find({}, null, {sort: 'cod_leito'}, function(err, leitos) {
 			if (err) return handleError(err,req,res);
 			if (leitos){
 				var dataInicial = moment('2017-01-01');
@@ -1801,7 +1707,7 @@ module.exports = function(passport){
 					newLog.log = [];
 					newLog.ganho = 0;
 					newLog.gasto = 0;
-					newLog.save(function (err, updatedLog) {
+					newLog.save(function (err) {
 						if (err) return handleError(err,req,res);	
 					});
 					proximoDia.add(1, 'days')
@@ -1819,10 +1725,7 @@ module.exports = function(passport){
 	return router;
 }
 
-function handleError(err,req,res){
-	console.log(err);
-	res.send(err);
-}
+{ // Functions
 
 function createLeito(cod_leito){
 	var ret = new Leito();
@@ -1834,7 +1737,16 @@ function createLeito(cod_leito){
 	return ret;
 }
 
+function handleError(err,req,res){
+	console.log(err);
+	res.send(err);
+}
+
+
+
 // Está sem nenhum autenticação para poder debugar mais fácil.
+
+
 
 var isAuthenticated = function (req, res, next) {
 	// if user is authenticated in the session, call the next() to call the next request handler 
@@ -1892,7 +1804,9 @@ var isGerente = function (req, res, next) {
 	}
 	res.redirect('/home');
 }
+}
 
+{ // Variables
 var createHash = function(password){
 	return bCrypt.hashSync(password, bCrypt.genSaltSync(10), null);
 }
@@ -1914,3 +1828,4 @@ var desc_itens_lavanderia = [
 	"Capa de travesseiro",
 	"Saia cama box solteiro",
 	"Capa para união cama box solteiro"];
+}
