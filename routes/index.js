@@ -14,65 +14,12 @@ module.exports = function(passport){
 
 	// /'TESTE'
 	
-	
-	
 	router.get('/teste', function(req,res){
-		
-		var today = moment();
-		var yesterday = moment().subtract(1, 'days');
-		
-		Log.findOne({data: {"$gte": yesterday, "$lte": today}}, function(err, log) {
-			console.log(log.log);
-			res.render("home_gerente_log", {log : log.log});
-		});
-		
-		/*
-		var today = moment();
-		var yesterday = moment().subtract(1, 'days');
-		
-		Registro.findOne({data: {"$gte": yesterday, "$lte": today}}, function(err, registro) {
-			console.log(registro.log);
-			console.log(registro.ganho);
-			//registro.log.push("Esse deve estar antes");
-			registro.ganho = 50;
-			//registro.gasto = -50;
-			
-			setTimeout(function(){
-			Registro.findOne({data: {"$gte": yesterday, "$lte": today}}, function(err, registros) {
-				console.log(registros.log);
-				console.log(registros.ganho);
-				registros.gasto = 20;
-				
-				registros.log.push("Esse deve estar depois");
-				registros.save(function (err, updatedRegistross) {
-					if (err) return handleError(err,req,res);
-				});
-			});
-			}, 1000);
-			
-			
-			setTimeout(function (){
-			registro.save(function (err, updatedRegistros) {
-				if (err) return handleError(err,req,res);
-			});
-			}, 2000);
-			
-			setTimeout(function () {
-			Registro.findOne({data: {"$gte": yesterday, "$lte": today}}, function(err, registros) {
-				console.log(registros.log);
-				console.log(registros.ganho);
-				console.log(registros.gasto);
-				res.send(registros);
-			});
-			}, 3000);
-		});
-		
-		
-		
-		//res.send("batata");
-		*/
+		res.send("teste");
 	});		
 
+{ // Index/Login/Logout/Home
+	
 	// /'INDEX'
 	router.get('/', function(req, res) {
 		res.render('index', { message: req.flash('message') });
@@ -89,9 +36,10 @@ module.exports = function(passport){
 		newCadastro.acompanhante = req.param('acompanhante');
 		newCadastro.posto = req.param('posto');
 		// Se a data de saida for maior que a data de entrada, é valido (essa validação deveria ser feita no front-end)
+		// Ou renderizar a página com os dados já preenchidos
 		if (moment(newCadastro.dateIn) < moment(newCadastro.dateOut)){
 
-			newCadastro.save(function (err, updatedCadastro) {
+			newCadastro.save(function (err) {
 				if (err) return handleError(err,req,res);
 			});
 			
@@ -100,10 +48,10 @@ module.exports = function(passport){
 				if (log){
 					log.log.push("[" + moment().format("HH:mm:ss") + "]" +
 					" CADASTRO: " +
-					"realizado a solicitação de reserva do hospede " + newCadastro.name +
+					"realizado a SOLITICAÇÃO DE RESERVA do hospede " + newCadastro.name +
 					", do dia " + moment(newCadastro.dateIn).format("DD/MM/YY") +
 					" ao dia " + moment(newCadastro.dateOut).format("DD/MM/YY"));
-					log.save(function (err, updatedLog) {
+					log.save(function (err) {
 					if (err) return handleError(err,req,res);
 				});
 				}
@@ -143,6 +91,11 @@ module.exports = function(passport){
 		failureFlash : true
 	})); 
 
+	// /HOME/LOGOUT
+	router.get('/home/signout', function(req, res) {
+		req.logout();
+		res.redirect('/');
+	});
 	
 	// /HOME
 	router.get('/home', isAuthenticated, function(req, res){
@@ -163,29 +116,30 @@ module.exports = function(passport){
 		
 	});
 	
+}
 	
-	// /HOME/LOGOUT
-	router.get('/home/signout', function(req, res) {
-		req.logout();
-		res.redirect('/');
-	});
-	
-	
+{ // RECEPCAO
+
 	// /HOME/RECEPCAO/CHECKIN
 	router.get('/home/recepcao/checkin', isAuthenticated, isRecepcao, function(req,res){
 		var today = moment();
 		var yesterday = moment().subtract(1, 'days');
 		
+		// Procura o registro do dia de hoje
 		Registro.findOne({data: {"$gte": yesterday, "$lte": today}}, function(err, registro) {	
 			if (err) return handleError(err,req,res);
 			if (registro){
 				
+				
+				// Para renderizar os dados do cadastros (nome, dataIn, dataOut) que podem fazer check-in hoje.
 				var cadastros = [];
+				// Para renderizar os leitos que estão reservados.
 				var leitos_reservados = [];
+				// Para dizer se o leito está sujo/limpo.
 				var leitos_limpeza = [];
 
 				
-				Leito.find({}, function(err, leitos) {
+				Leito.find({}, null, {sort: 'cod_leito'}, function(err, leitos) {
 					if (err) return handleError(err,req,res);
 					if (leitos){
 						for (var i = 0; i < leitos.length; i++){
@@ -218,7 +172,8 @@ module.exports = function(passport){
 	});
 	
 	router.post('/home/recepcao/checkin', isAuthenticated, isRecepcao, function(req,res){
-
+	
+		// Procura registros com as datas compreendidas no periodo da reserva dos hospedes.
 		Registro.find({data: {"$gte": moment(req.param('dateIn')), "$lt": moment(req.param('dateOut'))}}
 		, null, {sort: 'data'}, function(err, registros) {
 			if (err) return handleError(err,req,res);
@@ -228,6 +183,7 @@ module.exports = function(passport){
 					if (err) return handleError(err,req,res);
 					if (leitos){
 						
+						// index do leito que está sendo alterado no registro.
 						var index;
 						for (var j = 0; j < leitos.length; ++j){
 							if (leitos[j].cod_leito == req.param('cod_leito')){
@@ -235,6 +191,7 @@ module.exports = function(passport){
 							}
 						}
 						
+						// alterando o registro.
 						for (var i = 0; i < registros.length; ++i){
 							registros[i].estado.splice(index, 1, 'ocupado');
 							var cadastro = registros[i].ocupante[index];
@@ -242,19 +199,23 @@ module.exports = function(passport){
 							registros[i].ocupante.splice(index, 1, cadastro);
 						}
 						
+						for (var i = 0; i < registros.length; ++i){
+							registros[i].save(function (err) {
+								if (err) return handleError(err,req,res);
+							});
+						}
 		
 						Log.findOne({data: {"$gte": moment().subtract(1, 'days'), "$lte": moment()}}, function(err, log) {
 							if (err) return handleError(err,req,res);
 							if (log){
 								log.log.push("[" + moment().format("HH:mm:ss") + "]" +
 								" RECEPÇÃO: " +
-								"realizado o check-in do hospede " + registros[0].ocupante[index].name +
+								"realizado o CHECK-IN do hospede " + registros[0].ocupante[index].name +
 								", do dia " + moment(registros[0].ocupante[index].dateIn).format("DD/MM/YY") +
 								" ao dia " + moment(registros[0].ocupante[index].dateOut).format("DD/MM/YY") +
 								" no leito " + leitos[index].cod_leito +
 								". Usuário: " + req.user.username);
-								console.log("teste");
-								log.save(function (err, updatedLog) {
+								log.save(function (err) {
 								if (err) return handleError(err,req,res);
 							});
 							}
@@ -264,24 +225,6 @@ module.exports = function(passport){
 							}
 						});
 						
-						/*
-						for (var i = 0; i < registros.length; ++i){
-							if (registros[i].data > yesterday && registros[i].data < today){
-								registros[i].log.push("[Recepção] Foi realizado check-in do hospede "
-								+ registros[i].ocupante[index].name + " as " + moment().format("HH:mm:ss, DD/MM/YYYY") +
-								" pelo usuário " + req.user.username);
-								console.log("teste");
-							}
-						}*/
-						
-						
-						
-						
-						for (var i = 0; i < registros.length; ++i){
-							registros[i].save(function (err, updatedRegistros) {
-								if (err) return handleError(err,req,res);
-							});
-						}
 						
 						res.redirect('/home/recepcao/checkin');
 					}
@@ -304,12 +247,13 @@ module.exports = function(passport){
 	});
 	
 	// /HOME/RECEPCAO/CHECKIN/CANCELAR
-	
 	router.get('/home/recepcao/checkin/cancelar', isAuthenticated, isRecepcao, function(req,res){
 		
 		var today = moment();
 		var yesterday = moment().subtract(1, 'days');
 		
+		// Procura o registro do dia de hoje. Renderiza uma página com os cadastros/leitos que
+		// não fizeram check-in ontem ou antes.
 		Registro.findOne({data: {"$gte": yesterday, "$lte": today}}, function(err, registro) {	
 			if (err) return handleError(err,req,res);
 			if (registro){
@@ -317,7 +261,7 @@ module.exports = function(passport){
 				var cadastros = [];
 				var leitos_reservados = [];
 				
-				Leito.find({}, function(err, leitos) {
+				Leito.find({}, null, {sort: 'cod_leito'}, function(err, leitos) {
 					if (err) return handleError(err,req,res);
 					if (leitos){
 						for (var i = 0; i < leitos.length; i++){
@@ -358,7 +302,7 @@ module.exports = function(passport){
 			if (err) return handleError(err,req,res);
 			if (registros){
 				
-				Leito.find({}, function(err, leitos) {
+				Leito.find({}, null, {sort: 'cod_leito'}, function(err, leitos) {
 					if (err) return handleError(err,req,res);
 					if (leitos){
 						
@@ -373,11 +317,12 @@ module.exports = function(passport){
 						for (var i = 0; i < registros.length; ++i){
 							if (registros[i].estado[index] == 'reservado'){
 								registros[i].estado.splice(index, 1, 'livre');
+								registros[i].ocupante.splice(index, 1, '');
 							}
 						}
 						
 						for (var i = 0; i < registros.length; ++i){
-							registros[i].save(function (err, updatedRegistros) {
+							registros[i].save(function (err) {
 								if (err) return handleError(err,req,res);
 							});
 						}
@@ -386,16 +331,15 @@ module.exports = function(passport){
 							if (err) return handleError(err,req,res);
 							if (log){
 								log.log.push("[" + moment().format("HH:mm:ss") + "]" +
-								"Recepção: " +
-								"cancelado o check-in do hospede " + registros[0].ocupante[index].name +
+								"RECEPÇÃO: " +
+								"CANCELADO O CHECK-IN do hospede " + registros[0].ocupante[index].name +
 								", do dia " + moment(registros[0].ocupante[index].dateIn).format("DD/MM/YY") +
 								" ao dia " + moment(registros[0].ocupante[index].dateOut).format("DD/MM/YY") +
 								" no leito " + leitos[index].cod_leito +
 								". Usuário: " + req.user.username);
-								console.log("teste");
-								log.save(function (err, updatedLog) {
-								if (err) return handleError(err,req,res);
-							});
+								log.save(function (err) {
+									if (err) return handleError(err,req,res);
+								});
 							}
 							else{
 								req.flash('message', 'É necessário criar o Log');
@@ -425,14 +369,14 @@ module.exports = function(passport){
 		
 	});
 	
-	// /HOME/RECEPCAO/CHECKOUT *
-	
+	// /HOME/RECEPCAO/CHECKOUT
 	router.get('/home/recepcao/checkout', isAuthenticated, isRecepcao, function(req,res){
 		
 		var today = moment();
 		var yesterday = moment().subtract(1, 'days');
 		var before_yesterday = moment().subtract(2, 'days');
 		
+		// Procura no registro de ontem, todos os hospedes que devem fazer check-out hoje.
 		Registro.findOne({data: {"$gte": before_yesterday, "$lte": yesterday}}, function(err, registro) {
 
 			if (err) return handleError(err,req,res);
@@ -441,15 +385,16 @@ module.exports = function(passport){
 				var cadastros = [];
 				var leitos_reservados = [];
 				
-				Leito.find({}, function(err, leitos) {
+				Leito.find({}, null, {sort: 'cod_leito'}, function(err, leitos) {
 					if (err) return handleError(err,req,res);
 					if (leitos){
 						for (var i = 0; i < leitos.length; i++){
 							// *
-							if (registro.estado[i] == 'ocupado' /*|| registro.estado[i] == 'reservado'*/){
+							if (registro.estado[i] == 'ocupado' || registro.estado[i] == 'reservado'){
 								
 								var dateOut = moment(registro.ocupante[i].dateOut);
 								
+								// Apenas aqueles que o Check-out é no dia de hoje.
 								if (dateOut < today && dateOut > yesterday){
 									cadastros[cadastros.length] = registro.ocupante[i];
 									leitos_reservados[leitos_reservados.length] = leitos[i].cod_leito;
@@ -480,66 +425,85 @@ module.exports = function(passport){
 		var yesterday = moment().subtract(1, 'days');
 		var before_yesterday = moment().subtract(2, 'days');
 		
-		Registro.find({data: {"$gte": before_yesterday, "$lte": today}}
+		// Procura o registro de ontem
+		Registro.findOne({data: {"$gte": before_yesterday, "$lte": yesterday}}
 		, null, {sort: 'data'}, function(err, registro) {
 			
 			if (err) return handleError(err,req,res);
 			if (registro){
 				
-				Leito.find({}, function(err, leitos) {
+				Leito.find({}, null, {sort: 'cod_leito'}, function(err, leitos) {
 					if (err) return handleError(err,req,res);
 					if (leitos){
+				
+			
+						var index = 0;
+						for (var j = 0; j < leitos.length; ++j){
+							if (leitos[j].cod_leito == req.param('cod_leito')){
+								leitos[j].limpeza = "sujo";
+								registro.estado.splice(j, 1, 'checkout');
+								index = j;
+							}
+						}
+						
+						var ocupante = registro.ocupante[index];
+						ocupante.checkOut = moment().format();
+						registro.ocupante.splice(index, 1, ocupante);
+						
+						//console.log("CheckIn : " + registro[0].ocupante[index].checkIn);
+						//console.log("CheckOut :" + registro[0].ocupante[index].checkOut);
+						
+						var dateIn = moment(registro.ocupante[index].checkIn);
+						var dateOut = moment(registro.ocupante[index].checkOut);
+						var hours = dateOut.diff(dateIn,"hours");
+						custo = hours*registro.ocupante[index].posto/24;
+						
+						registro.save(function (err) {
+							if (err) return handleError(err,req,res);
+						});
+						
+						
+						leitos[index].save(function (err) {
+							if (err) return handleError(err,req,res);
+						});
 						
 						Financeiro.findOne({}, function(err, financeiro) {
 							if (err) return handleError(err,req,res);
 							if (financeiro){
-								var index = 0;
-								for (var j = 0; j < leitos.length; ++j){
-									if (leitos[j].cod_leito == req.param('cod_leito')){
-										leitos[j].limpeza = "sujo";
-										registro[0].estado.splice(j, 1, 'checkout');
-										index = j;
-									}
-								}
-								
-								var ocupante = registro[0].ocupante[index];
-								ocupante.checkOut = moment().format();
-								registro[0].ocupante.splice(index, 1, ocupante);
-								
-								//console.log("CheckIn : " + registro[0].ocupante[index].checkIn);
-								//console.log("CheckOut :" + registro[0].ocupante[index].checkOut);
-								
-								var dateIn = moment(registro[0].ocupante[index].checkIn);
-								var dateOut = moment(registro[0].ocupante[index].checkOut);
-								var hours = dateOut.diff(dateIn,"hours");
-								custo = hours*registro[0].ocupante[index].posto/24;
-								
-								
-								registro[1].ganho += custo;
 								financeiro.ganho += custo;
-								
-								for (var i = 0; i < registro.length; i++){
-									registro[i].save(function (err, updatedRegistros) {
-										if (err) return handleError(err,req,res);
-									});
-								}
-								
-								leitos[index].save(function (err, updatedLeitos) {
+								financeiro.save(function (err) {
 									if (err) return handleError(err,req,res);
 								});
-								
-								financeiro.save(function (err, updatedFinanceiro) {
-									if (err) return handleError(err,req,res);
-								});
-								
-								res.render('home_recepcao_checkout_dados', {cadastro: registro[0].ocupante[index], custo: custo, hours: hours%24, days: parseInt(hours/24)});
 							}
 							else {
 								req.flash('message', 'É necessário criar o Financeiro');
 								res.redirect('/home');
 							}
 						});
+						
+						Log.findOne({data: {"$gte": moment().subtract(1, 'days'), "$lte": moment()}}, function(err, log) {
+							if (err) return handleError(err,req,res);
+							if (log){
+								log.ganho += custo;
+								log.log.push("[" + moment().format("HH:mm:ss") + "]" +
+								"RECEPÇÃO: " +
+								"realizado o CHECK-OUT do hospede " + registro.ocupante[index].name +
+								", do dia " + moment(registro.ocupante[index].dateIn).format("DD/MM/YY") +
+								" ao dia " + moment(registro.ocupante[index].dateOut).format("DD/MM/YY") +
+								" no leito " + leitos[index].cod_leito +
+								". Usuário: " + req.user.username);
+								log.save(function (err) {
+									if (err) return handleError(err,req,res);
+								});
+							}
+							else{
+								req.flash('message', 'É necessário criar o Log');
+								res.redirect('/home');
+							}
+						});
 							
+						res.render('home_recepcao_checkout_dados', {cadastro: registro.ocupante[index], custo: custo, hours: hours%24, days: parseInt(hours/24)});
+						
 					}
 					
 					else {
@@ -555,8 +519,7 @@ module.exports = function(passport){
 		});
 	});
 	
-	// /HOME/RECEPCAO/CHECKOUT/ANTECIPADO *
-	
+	// /HOME/RECEPCAO/CHECKOUT/ANTECIPADO
 	router.get('/home/recepcao/checkout/antecipado', isAuthenticated, isRecepcao, function(req,res){
 		
 		var today = moment();
@@ -571,7 +534,7 @@ module.exports = function(passport){
 				var cadastros = [];
 				var leitos_reservados = [];
 				
-				Leito.find({}, function(err, leitos) {
+				Leito.find({}, null, {sort: 'cod_leito'}, function(err, leitos) {
 					if (err) return handleError(err,req,res);
 					if (leitos){
 						for (var i = 0; i < leitos.length; i++){
@@ -608,69 +571,84 @@ module.exports = function(passport){
 			if (err) return handleError(err,req,res);
 			if (registro){
 				
-				Leito.find({}, function(err, leitos) {
+				Leito.find({}, null, {sort: 'cod_leito'}, function(err, leitos) {
 					if (err) return handleError(err,req,res);
 					if (leitos){
+				
+						var index = 0;
+						for (var i = 0; i < registro.length; i++){
+							for (var j = 0; j < leitos.length; ++j){
+								if (leitos[j].cod_leito == req.param('cod_leito')){
+									if (i == 0){
+										if (registro[i].estado[j] == 'ocupado'){
+											registro[i].estado.splice(j, 1, 'checkout');
+										}
+										leitos[j].limpeza = "sujo";
+										index = j;
+									}
+									else {
+										registro[i].estado.splice(j, 1, 'livre');
+									}
+								}
+							}
+						}
+						
+						var ocupante = registro[1].ocupante[index];
+						ocupante.checkOut = moment().format();
+						registro[1].ocupante.splice(index, 1, ocupante);
+						
+						
+						var dateIn = moment(registro[1].ocupante[index].checkIn);
+						var dateOut = moment(registro[1].ocupante[index].checkOut);
+						var hours = dateOut.diff(dateIn,"hours");
+						custo = hours*registro[1].ocupante[index].posto/24;
+						
+						for (var i = 0; i < registro.length; i++){
+							registro[i].save(function (err) {
+								if (err) return handleError(err,req,res);
+							});
+						}
+						
+						leitos[index].save(function (err) {
+							if (err) return handleError(err,req,res);
+						});
 						
 						Financeiro.findOne({}, function(err, financeiro) {
 							if (err) return handleError(err,req,res);
 							if (financeiro){
-								var index = 0;
-								for (var i = 0; i < registro.length; i++){
-									for (var j = 0; j < leitos.length; ++j){
-										if (leitos[j].cod_leito == req.param('cod_leito')){
-											if (i == 0){
-												if (registro[i].estado[j] == 'ocupado'){
-													registro[i].estado.splice(j, 1, 'checkout');
-												}
-												leitos[j].limpeza = "sujo";
-												index = j;
-											}
-											else {
-												registro[i].estado.splice(j, 1, 'livre');
-											}
-										}
-									}
-								}
-								
-								var ocupante = registro[1].ocupante[index];
-								ocupante.checkOut = moment().format();
-								registro[1].ocupante.splice(index, 1, ocupante);
-								
-								//console.log("CheckIn : " + registro[1].ocupante[index].checkIn);
-								//console.log("CheckOut :" + registro[1].ocupante[index].checkOut);
-								
-								var dateIn = moment(registro[1].ocupante[index].checkIn);
-								var dateOut = moment(registro[1].ocupante[index].checkOut);
-								var hours = dateOut.diff(dateIn,"hours");
-								custo = hours*registro[1].ocupante[index].posto/24;
-								
-								
-								registro[1].ganho += custo;
 								financeiro.ganho += custo;
-								
-								for (var i = 0; i < registro.length; i++){
-									registro[i].save(function (err, updatedRegistros) {
-										if (err) return handleError(err,req,res);
-									});
-								}
-								
-								leitos[index].save(function (err, updatedLeitos) {
+								financeiro.save(function (err) {
 									if (err) return handleError(err,req,res);
 								});
-								
-								financeiro.save(function (err, updatedFinanceiro) {
-									if (err) return handleError(err,req,res);
-								});
-								
-								res.render('home_recepcao_checkout_dados', {cadastro: registro[1].ocupante[index], custo: custo, hours: hours%24, days: parseInt(hours/24)});
 							}
 							else {
 								req.flash('message', 'É necessário criar o Financeiro');
 								res.redirect('/home');
 							}
 						});
-							
+						
+						Log.findOne({data: {"$gte": moment().subtract(1, 'days'), "$lte": moment()}}, function(err, log) {
+							if (err) return handleError(err,req,res);
+							if (log){
+								log.ganho += custo;
+								log.log.push("[" + moment().format("HH:mm:ss") + "]" +
+								"RECEPÇÃO: " +
+								"realizado o CHECK-OUT ANTECIPADO do hospede " + registro[1].ocupante[index].name +
+								", do dia " + moment(registro[1].ocupante[index].dateIn).format("DD/MM/YY") +
+								" ao dia " + moment(registro[1].ocupante[index].dateOut).format("DD/MM/YY") +
+								" no leito " + leitos[index].cod_leito +
+								". Usuário: " + req.user.username);
+								log.save(function (err) {
+									if (err) return handleError(err,req,res);
+								});
+							}
+							else{
+								req.flash('message', 'É necessário criar o Log');
+								res.redirect('/home');
+							}
+						});
+						
+						res.render('home_recepcao_checkout_dados', {cadastro: registro[1].ocupante[index], custo: custo, hours: hours%24, days: parseInt(hours/24)});
 					}
 					
 					else {
@@ -686,9 +664,7 @@ module.exports = function(passport){
 		});
 	});
 	
-	// Colocar que o quarto antigo fica sujo
-	// /HOME/RECEPCAO/MUDANCA *
-	
+	// /HOME/RECEPCAO/MUDANCA
 	router.get('/home/recepcao/mudanca', isAuthenticated, isRecepcao, function(req,res){
 		// antes
 		//                         ontem   hoje
@@ -713,7 +689,7 @@ module.exports = function(passport){
 				var cadastros = [];
 				var leitos_reservados = [];
 				
-				Leito.find({}, function(err, leitos) {
+				Leito.find({}, null, {sort: 'cod_leito'}, function(err, leitos) {
 					if (err) return handleError(err,req,res);
 					if (leitos){
 						for (var i = 0; i < leitos.length; i++){
@@ -747,7 +723,7 @@ module.exports = function(passport){
 		null, {sort: 'data'}, function(err, registros) {
 			if (err) return handleError(err,req,res);
 			if (registros) {
-				Leito.find({}, function(err, leitos) {
+				Leito.find({}, null, {sort: 'cod_leito'}, function(err, leitos) {
 					if (err) return handleError(err,req,res);
 					if (leitos){
 						
@@ -794,8 +770,7 @@ module.exports = function(passport){
 		});
 	});
 	
-	// /HOME/RECEPCAO/MUDANCA/ALOCACAO *
-	
+	// /HOME/RECEPCAO/MUDANCA/ALOCACAO
 	router.get('/home/recepcao/mudanca/alocacao', isAuthenticated, isRecepcao, function(req,res){
 		res.redirect('/home/recepcao/mudanca');
 	});
@@ -812,79 +787,95 @@ module.exports = function(passport){
 			if (err) return handleError(err,req,res);
 			if (registros){
 				
-				Leito.find({}, function(err, leitos) {
+				Leito.find({}, null, {sort: 'cod_leito'}, function(err, leitos) {
 					if (err) return handleError(err,req,res);
 					if (leitos){
 						
-						var index_leito_antigo;
-						var index_leito_novo;
-						
+						var leitos_alocados = 0;
 						for (var j = 0; j < leitos.length; ++j){
 							if (req.param(leitos[j].cod_leito)){
-								index_leito_novo = j;
-							}
-							if (leitos[j].cod_leito == req.session.cod_leito){
-								index_leito_antigo = j;
-								leitos[j].limpeza = "sujo";
+								leitos_alocados++;
 							}
 						}
 						
-						for (var i = 0; i < registros.length; ++i){
-							registros[i].estado.splice(index_leito_novo, 1, 'ocupado');
-							registros[i].ocupante.splice(index_leito_novo, 1, registros[i].ocupante[index_leito_antigo]);
-							registros[i].estado.splice(index_leito_antigo, 1, 'livre');
-							registros[i].ocupante.splice(index_leito_antigo, 1, "");
+						if (leitos_alocados != 1){
+							req.flash('message', "É necessário selecionar a quantidade correta de leitos");
+							res.redirect('/home');;
 						}
 						
-						for (var i = 0; i < registros.length; ++i){
-							registros[i].save(function (err, updatedRegistros) {
-								if (err) return handleError(err,req,res);
-							});
-						}
-						
-						Registro.findOne({data: {"$gte": before_yesterday, "$lte": yesterday}}, function(err, registro) {
-
-							if (err) return handleError(err,req,res);
-							if (registro){
-								if (registro.estado[index_leito_antigo] == 'ocupado'){
-									registro.estado.splice(index_leito_antigo, 1, "mudança");
-									registro.save(function (err, updatedRegistro) {
-										if (err) return handleError(err,req,res);
-									});
+						else {
+							
+							var index_leito_antigo;
+							var index_leito_novo;
+							
+							for (var j = 0; j < leitos.length; ++j){
+								if (req.param(leitos[j].cod_leito)){
+									index_leito_novo = j;
+								}
+								if (leitos[j].cod_leito == req.session.cod_leito){
+									index_leito_antigo = j;
+									leitos[j].limpeza = "sujo";
 								}
 							}
-							else {
-								req.flash('message', 'É necessário criar o Registro Geral');
-								res.redirect('/home');
+							
+							for (var i = 0; i < registros.length; ++i){
+								registros[i].estado.splice(index_leito_novo, 1, 'ocupado');
+								registros[i].ocupante.splice(index_leito_novo, 1, registros[i].ocupante[index_leito_antigo]);
+								registros[i].estado.splice(index_leito_antigo, 1, 'livre');
+								registros[i].ocupante.splice(index_leito_antigo, 1, "");
 							}
-						});
-						
-						Log.findOne({data: {"$gte": moment().subtract(1, 'days'), "$lte": moment()}}, function(err, log) {
-							if (err) return handleError(err,req,res);
-							if (log){
-								log.log.push("[" + moment().format("HH:mm:ss") + "]" +
-								" RECEPÇÃO: " +
-								"realizada a mudança do hospede " + registros[0].ocupante[index_leito_novo].name +
-								", do leito " + leitos[index_leito_antigo].cod_leito +
-								" para o leito " + leitos[index_leito_novo].cod_leito +
-								", do dia " + moment().format("DD/MM/YY") +
-								" ao dia " + moment(registros[0].ocupante[index_leito_novo].dateOut).format("DD/MM/YY") +
-								". Usuário: " + req.user.username);
-								console.log("teste");
-								log.save(function (err, updatedLog) {
+							
+							for (var i = 0; i < registros.length; ++i){
+								registros[i].save(function (err) {
+									if (err) return handleError(err,req,res);
+								});
+							}
+							
+							leitos[index_leito_antigo].save(function (err) {
 								if (err) return handleError(err,req,res);
 							});
-							}
-							else{
-								req.flash('message', 'É necessário criar o Log');
-								res.redirect('/home');
-							}
-						});
-						
-						
-						
-						req.flash('message', 'Mudança efetuada com sucesso');
-						res.redirect('/home');
+							
+							Registro.findOne({data: {"$gte": before_yesterday, "$lte": yesterday}}, function(err, registro) {
+
+								if (err) return handleError(err,req,res);
+								if (registro){
+									if (registro.estado[index_leito_antigo] == 'ocupado'){
+										registro.estado.splice(index_leito_antigo, 1, "mudança");
+										registro.save(function (err) {
+											if (err) return handleError(err,req,res);
+										});
+									}
+								}
+								else {
+									req.flash('message', 'É necessário criar o Registro Geral');
+									res.redirect('/home');
+								}
+							});
+							
+							Log.findOne({data: {"$gte": moment().subtract(1, 'days'), "$lte": moment()}}, function(err, log) {
+								if (err) return handleError(err,req,res);
+								if (log){
+									log.log.push("[" + moment().format("HH:mm:ss") + "]" +
+									" RECEPÇÃO: " +
+									"realizada a MUDANÇA do hospede " + registros[0].ocupante[index_leito_novo].name +
+									", do leito " + leitos[index_leito_antigo].cod_leito +
+									" para o leito " + leitos[index_leito_novo].cod_leito +
+									", do dia " + moment().format("DD/MM/YY") +
+									" ao dia " + moment(registros[0].ocupante[index_leito_novo].dateOut).format("DD/MM/YY") +
+									". Usuário: " + req.user.username);
+									log.save(function (err) {
+									if (err) return handleError(err,req,res);
+								});
+								}
+								else{
+									req.flash('message', 'É necessário criar o Log');
+									res.redirect('/home');
+								}
+							});
+							
+							req.flash('message', 'Mudança efetuada com sucesso');
+							res.redirect('/home');
+						}
 						
 					}
 					
@@ -901,9 +892,9 @@ module.exports = function(passport){
 		});
 	});
 	
+}
 	
-	
-	
+{ // RESERVA
 	// /HOME/RESERVA
 	router.get('/home/reserva', isAuthenticated, isReserva, function(req, res){
 		Cadastro.find({}, function(err, cadastros) {
@@ -930,7 +921,7 @@ module.exports = function(passport){
 				null, {sort: 'data'}, function(err, registros) {
 					if (err) return handleError(err,req,res);
 					if (registros) {
-						Leito.find({}, function(err, leitos) {
+						Leito.find({}, null, {sort: 'cod_leito'}, function(err, leitos) {
 							if (err) return handleError(err,req,res);
 							if (leitos){
 								
@@ -993,7 +984,7 @@ module.exports = function(passport){
 			if (err) return handleError(err,req,res); 
 			if (registros){
 				
-				Leito.find({}, function(err, leitos) {
+				Leito.find({}, null, {sort: 'cod_leito'}, function(err, leitos) {
 					if (err) return handleError(err,req,res);
 					if (leitos){
 						
@@ -1030,19 +1021,16 @@ module.exports = function(passport){
 										if (req.param(leitos[j].cod_leito)){
 											log.log.push("[" + moment().format("HH:mm:ss") + "]" +
 											" RESERVA: " +
-											"realizada a reserva do hospede " + registros[0].ocupante[j].name +
+											"realizada a RESERVA do hospede " + registros[0].ocupante[j].name +
 											", do dia " + moment(registros[0].ocupante[j].dateIn).format("DD/MM/YY") +
 											" ao dia " + moment(registros[0].ocupante[j].dateOut).format("DD/MM/YY") +
 											" no leito " + leitos[j].cod_leito +
 											". Usuário: " + req.user.username);
 										}
 									}
-									
-									
-									
-									
-									console.log("teste");
-									log.save(function (err, updatedLog) {
+				
+				
+									log.save(function (err) {
 										if (err) return handleError(err,req,res);
 									});
 								}
@@ -1055,7 +1043,7 @@ module.exports = function(passport){
 							
 							
 							for (var i = 0; i < registros.length; ++i){
-								registros[i].save(function (err, updatedRegistros) {
+								registros[i].save(function (err) {
 									if (err) return handleError(err,req,res);
 								});
 							}
@@ -1079,8 +1067,9 @@ module.exports = function(passport){
 			}
 		});
 	});
+}
 	
-	
+{ // LAVANDERIA Adicionar LOG
 	// /HOME /LAVANDERIA
 	router.get('/home/lavanderia/folha', isAuthenticated, function(req, res){
 		res.render('home_lavanderia_folha', {descricoes: desc_itens_lavanderia});
@@ -1090,10 +1079,12 @@ module.exports = function(passport){
 		res.render('home_lavanderia_gerencia');
 	});
 
+}
 	
+{ // MANUTENCAO Adicionar LOG
 	// /HOME/MANUTENCAO/QUADRO
 	router.get('/home/manutencao/quadro', isAuthenticated, isManutencao, function(req, res){
-		Leito.find({}, function(err, leitos) {
+		Leito.find({}, null, {sort: 'cod_leito'}, function(err, leitos) {
 			if (err) return handleError(err,req,res);
 			if (leitos){
 				res.render('home_manutencao_quadro', {leitos: leitos});
@@ -1104,6 +1095,7 @@ module.exports = function(passport){
 			}
 		});
 	});
+	
 	// /HOME/MANUTENCAO/QUADRO/ALTERAR
 	router.get('/home/manutencao/quadro/alterar', isAuthenticated, isManutencao, function(req, res){
 		console.log("get /HOME/MANUTENCAO/QUADRO/ALTERAR");
@@ -1118,7 +1110,7 @@ module.exports = function(passport){
 			}
 		});
 	});
-	// /HOME/MANUTENCAO/QUADRO/ALTERAR
+	
 	router.post('/home/manutencao/quadro/alterar', isAuthenticated, isManutencao, function(req, res){
 		console.log("post /HOME/MANUTENCAO/QUADRO/ALTERAR");
 
@@ -1156,11 +1148,10 @@ module.exports = function(passport){
 		});
 	});
 
-
 	// /HOME/MANUTENCAO/LIMPEZA
 	router.get('/home/manutencao/limpeza', isAuthenticated, isManutencao, function(req, res){
 
-		Leito.find({}, function(err, leitos) {
+		Leito.find({}, null, {sort: 'cod_leito'}, function(err, leitos) {
 			if (err) return handleError(err,req,res);
 			if (leitos){
 				res.render('home_manutencao_limpeza', {leitos: leitos});
@@ -1187,8 +1178,9 @@ module.exports = function(passport){
 			res.redirect('/home/manutencao/limpeza');
 		});
 	});
-	
+}
 
+{ // FINANCEIRO
 	// /HOME/FINANCEIRO
 	router.get('/home/financeiro', isAuthenticated, isFinanceiro, function(req, res){
 		Financeiro.findOne({}, function(err, financeiro) {
@@ -1202,8 +1194,10 @@ module.exports = function(passport){
 			}
 		});
 	});
-	
-	
+}
+
+{ // GERENTE Adicionar LOG
+
 	// /HOME/GERENTE
 	router.get('/home/gerente', isAuthenticated, isGerente, function(req, res){
 		res.render('home_gerente', {message: req.flash('message')});
@@ -1211,15 +1205,18 @@ module.exports = function(passport){
 	
 	// /HOME/GERENTE/LOG
 	router.get('/home/gerente/log', isAuthenticated, isGerente, function(req, res){
-		var today = moment();
-		var yesterday = moment().subtract(1, 'days');
+		var date = moment();
+		var dateAux = moment(date).subtract(1, 'days');
 		
-		Log.findOne({data: {"$gte": yesterday, "$lte": today}}, function(err, log) {
+		if (req.param('date') != undefined){
+			date = moment(req.param('date'));
+			dateAux = moment(date);
+		}
+		
+		Log.findOne({data: {"$gte": dateAux, "$lte": date}}, function(err, log) {
 			res.render("home_gerente_log", {log : log.log});
 		});
 	});
-	
-	
 	
 	// /HOME/GERENTE/PERMISSAO
 	router.get('/home/gerente/permissao', isAuthenticated, isGerente, function(req, res){
@@ -1244,7 +1241,7 @@ module.exports = function(passport){
 			if (user) {
 				user.permissao = [req.body.Recepcao, req.body.Reserva, req.body.Lavanderia, req.body.Manutencao, req.body.Financeiro, req.body.Gerente];
 				//console.log(user.permissao);
-				user.save(function (err, updatedUser) {
+				user.save(function (err) {
 					if (err) return handleError(err,req,res);
 				});
 				req.flash('message', "Permissão alterada com sucesso");
@@ -1281,7 +1278,7 @@ module.exports = function(passport){
             newUser.lastName = req.param('lastName');
 			newUser.permissao = [true, true, true, true, true, false];
 			
-			newUser.save(function (err, updatedUser) {
+			newUser.save(function (err) {
 				if (err) return handleError(err,req,res);
 				
 			});
@@ -1290,94 +1287,6 @@ module.exports = function(passport){
         });
 		
 	});
-	
-	/*
-	// /HOME/GERENTE/REGISTRO/ESTADO
-	router.get('/home/gerente/registro/estado', isAuthenticated, isGerente, function(req,res){
-		
-		var dataIn = moment().subtract(1, 'days');
-		var dataOut = moment(dataIn).add(1, 'days');
-		if (req.param('dataIn') != undefined){
-			dataIn = moment(req.param('dataIn'));
-			dataOut = moment(dataIn);
-		}
-		if (req.param('dataOut') != undefined && req.param('dataOut')){
-			dataOut = moment(req.param('dataOut'));
-		}
-		
-		Registro.find({data: {"$gte": dataIn, "$lte": dataOut}}
-		, null, {sort: 'data'}, function(err, registros) {
-			if (err) return handleError(err, req, res);
-			if (registros){
-				
-				Leito.find({}, function(err, leitos) {
-					if (err) return handleError(err,req,res);
-					if (leitos){
-						res.render('home_gerente_registro_estado', {registros: registros, leito: leitos});
-					}
-					else {
-						req.flash('message', 'É necessário criar os Leitos');
-						res.redirect('/home');
-					}
-				});
-			}
-			else {
-				req.flash('message', 'É necessário criar o Registro Geral');
-				res.redirect('/home');
-			}
-		});
-	});
-	
-	// /HOME/GERENTE/REGISTRO/ANALISE
-	router.get('/home/gerente/registro/analise', isAuthenticated, isGerente, function(req,res){
-		var dataIn = moment().subtract(1, 'days');
-		var dataOut = moment(dataIn).add(1, 'days');
-		if (req.param('dataIn') != undefined){
-			dataIn = moment(req.param('dataIn'));
-			dataOut = moment(dataIn);
-		}
-		if (req.param('dataOut') != undefined && req.param('dataOut')){
-			dataOut = moment(req.param('dataOut'));
-		}
-		
-		Registro.find({data: {"$gte": dataIn, "$lte": dataOut}}
-		, null, {sort: 'data'}, function(err, registros) {
-			if (err) return handleError(err, req, res);
-			if (registros){
-				
-				Leito.find({}, function(err, leitos) {
-					if (err) return handleError(err,req,res);
-					if (leitos){
-						
-						var vagas = [];
-						for (var i = 0; i < registros.length; i++){
-							vagas[i] = 0;
-						}
-						
-						for (var i = 0; i < registros.length; i++){
-							for (var j = 0; j < leitos.length; j++){
-								if (registros[i].estado[j] == 'livre' && leitos[j].ocupabilidade != 'inocupavel'){
-									vagas[i]++;
-								}
-							}
-						}
-						
-						res.render('home_gerente_registro_analise', {registros: registros, vagas: vagas});
-						
-					}
-					else {
-						req.flash('message', 'É necessário criar os Leitos');
-						res.redirect('/home');
-					}
-				});
-			}
-			else {
-				req.flash('message', 'É necessário criar o Registro Geral');
-				res.redirect('/home');
-			}
-		});
-	});
-	*/
 	
 	// /HOME/REGISTRO
 	
@@ -1397,7 +1306,7 @@ module.exports = function(passport){
 			if (err) return handleError(err, req, res);
 			if (registros){
 				
-				Leito.find({}, function(err, leitos) {
+				Leito.find({}, null, {sort: 'cod_leito'}, function(err, leitos) {
 					if (err) return handleError(err,req,res);
 					if (leitos){
 						
@@ -1453,8 +1362,9 @@ module.exports = function(passport){
 		});
 	});
 	
-	
-	// TUDO DAQUI PARA BAIXO É PARA DEBUGAR
+}
+
+{ // DEBUG Delete/Criar
 	
 	// DELETE
 	router.get('/delete', function(req, res){
@@ -1494,7 +1404,7 @@ module.exports = function(passport){
 			}
 			if (user){
 				user.password = createHash('admin');
-				user.save(function(err, updatedUser){
+				user.save(function(err){
 					if (err) return handleError(err,req,res);
 				});
 				return;
@@ -1505,7 +1415,7 @@ module.exports = function(passport){
 			newUser.password = createHash('admin');
 			newUser.permissao = [true, true, true, true, true, true];
 			
-			newUser.save(function (err, updatedUser) {
+			newUser.save(function (err) {
 				if (err) return handleError(err,req,res);
 			});
         });
@@ -1522,7 +1432,7 @@ module.exports = function(passport){
 			}
 			if (user){
 				user.password = createHash('visitante');
-				user.save(function(err, updatedUser){
+				user.save(function(err){
 					if (err) return handleError(err,req,res);
 				});
 				return;
@@ -1533,7 +1443,7 @@ module.exports = function(passport){
 			newUser.password = createHash('visitante');
 			newUser.permissao = [false, false, false, false, false, false];
 			
-			newUser.save(function (err, updatedUser) {
+			newUser.save(function (err) {
 				if (err) return handleError(err,req,res);
 			});
         });
@@ -1545,7 +1455,7 @@ module.exports = function(passport){
 		var newFinanceiro = new Financeiro();
 		newFinanceiro.gasto = 0;
 		newFinanceiro.ganho = 0;
-		newFinanceiro.save(function (err, updatedFinanceiro) {
+		newFinanceiro.save(function (err) {
 			if (err) return handleError(err,req,res);
 		});
 		res.redirect('/criar/leitos');
@@ -1555,100 +1465,74 @@ module.exports = function(passport){
 	router.get('/criar/leitos', function(req,res){
 		var newLeito;
 		//A
-		/*
-		for(var i = 1; i <= 18; i++){
-			newLeito = createLeito(("A" + i + "a"));
-			newLeito.save(function(err, updatedLeito){
-				if(err) return handleError(err,req,res);
-			});
-			newLeito = createLeito(("A" + i + "b"));
-			newLeito.save(function(err, updatedLeito){
-				if(err) return handleError(err,req,res);
-			});
-		}*/
+		
 		for(var i = 1; i <= 9; i++){
 			newLeito = createLeito(("A" + '0' + i + "a"));
-			newLeito.save(function(err, updatedLeito){
+			newLeito.save(function(err){
 				if(err) return handleError(err,req,res);
 			});
 			newLeito = createLeito(("A" + '0'+ i + "b"));
-			newLeito.save(function(err, updatedLeito){
+			newLeito.save(function(err){
 				if(err) return handleError(err,req,res);
 			});
 		}
 		
 		for(var i = 10; i <= 18; i++){
 			newLeito = createLeito(("A" + i + "a"));
-			newLeito.save(function(err, updatedLeito){
+			newLeito.save(function(err){
 				if(err) return handleError(err,req,res);
 			});
 			newLeito = createLeito(("A" + i + "b"));
-			newLeito.save(function(err, updatedLeito){
+			newLeito.save(function(err){
 				if(err) return handleError(err,req,res);
 			});
 		}
 		
-		
 		newLeito = createLeito("A19a");
-		newLeito.save(function(err, updatedLeito){
+		newLeito.save(function(err){
 			if(err) return handleError(err,req,res);
 		});
 		newLeito = createLeito("A19b");
-		newLeito.save(function(err, updatedLeito){
+		newLeito.save(function(err){
 			if(err) return handleError(err,req,res);
 		});
 		newLeito = createLeito("A19c");
-		newLeito.save(function(err, updatedLeito){
+		newLeito.save(function(err){
 			if(err) return handleError(err,req,res);
 		});
 		newLeito = createLeito("A20a");
-		newLeito.save(function(err, updatedLeito){
+		newLeito.save(function(err){
 			if(err) return handleError(err,req,res);
 		});		
 		newLeito = createLeito("A21a");
-		newLeito.save(function(err, updatedLeito){
+		newLeito.save(function(err){
 			if(err) return handleError(err,req,res);
 		});		
 
 
 		//B
-		/*
-		newLeito = createLeito("B1a");
-		newLeito.save(function(err, updatedLeito){
-			if(err) return handleError(err,req,res);
-		});
-		for(var i = 2; i <= 19; i++){
-			newLeito = createLeito(("B" + i + "a"));
-			newLeito.save(function(err, updatedLeito){
-				if(err) return handleError(err,req,res);
-			});
-			newLeito = createLeito(("B" + i + "b"));
-			newLeito.save(function(err, updatedLeito){
-				if(err) return handleError(err,req,res);
-			});
-		}*/
-		
+
 		newLeito = createLeito("B01a");
-		newLeito.save(function(err, updatedLeito){
+		newLeito.save(function(err){
 			if(err) return handleError(err,req,res);
 		});
 		for(var i = 2; i <= 9; i++){
 			newLeito = createLeito(("B" + '0' + i + "a"));
-			newLeito.save(function(err, updatedLeito){
+			newLeito.save(function(err){
 				if(err) return handleError(err,req,res);
 			});
 			newLeito = createLeito(("B" + '0' + i + "b"));
-			newLeito.save(function(err, updatedLeito){
+			newLeito.save(function(err){
 				if(err) return handleError(err,req,res);
 			});
 		}
 		for(var i = 10; i <= 19; i++){
 			newLeito = createLeito(("B" + i + "a"));
-			newLeito.save(function(err, updatedLeito){
+			newLeito.save(function(err){
 				if(err) return handleError(err,req,res);
 			});
 			newLeito = createLeito(("B" + i + "b"));
-			newLeito.save(function(err, updatedLeito){
+			newLeito.save(function(err){
 				if(err) return handleError(err,req,res);
 			});
 		}
@@ -1656,47 +1540,32 @@ module.exports = function(passport){
 		
 
 		//C
-		/*
-		for(var i = 1; i <= 25; i++){
-			newLeito = createLeito(("C" + i + "a"));
-			newLeito.save(function(err, updatedLeito){
-				if(err) return handleError(err,req,res);
-			});
-			newLeito = createLeito(("C" + i + "b"));
-			newLeito.save(function(err, updatedLeito){
-				if(err) return handleError(err,req,res);
-			});
-			newLeito = createLeito(("C" + i + "c"));
-			newLeito.save(function(err, updatedLeito){
-				if(err) return handleError(err,req,res);
-			});
-		}
-		*/
+
 		for(var i = 1; i <= 9; i++){
 			newLeito = createLeito(("C" + '0' + i + "a"));
-			newLeito.save(function(err, updatedLeito){
+			newLeito.save(function(err){
 				if(err) return handleError(err,req,res);
 			});
 			newLeito = createLeito(("C" + '0' + i + "b"));
-			newLeito.save(function(err, updatedLeito){
+			newLeito.save(function(err){
 				if(err) return handleError(err,req,res);
 			});
 			newLeito = createLeito(("C" + '0' + i + "c"));
-			newLeito.save(function(err, updatedLeito){
+			newLeito.save(function(err){
 				if(err) return handleError(err,req,res);
 			});
 		}
 		for(var i = 10; i <= 25; i++){
 			newLeito = createLeito(("C" + i + "a"));
-			newLeito.save(function(err, updatedLeito){
+			newLeito.save(function(err){
 				if(err) return handleError(err,req,res);
 			});
 			newLeito = createLeito(("C" + i + "b"));
-			newLeito.save(function(err, updatedLeito){
+			newLeito.save(function(err){
 				if(err) return handleError(err,req,res);
 			});
 			newLeito = createLeito(("C" + i + "c"));
-			newLeito.save(function(err, updatedLeito){
+			newLeito.save(function(err){
 				if(err) return handleError(err,req,res);
 			});
 		}
@@ -1704,11 +1573,11 @@ module.exports = function(passport){
 		
 		for(var i = 26; i <= 35; i++){
 			newLeito = createLeito(("C" + i + "a"));
-			newLeito.save(function(err, updatedLeito){
+			newLeito.save(function(err){
 				if(err) return handleError(err,req,res);
 			});
 			newLeito = createLeito(("C" + i + "b"));
-			newLeito.save(function(err, updatedLeito){
+			newLeito.save(function(err){
 				if(err) return handleError(err,req,res);
 			});
 		}
@@ -1716,74 +1585,74 @@ module.exports = function(passport){
 		//D
 		for(var i = 101; i <= 119; i++){
 			newLeito = createLeito(("D" + i + "a"));
-			newLeito.save(function(err, updatedLeito){
+			newLeito.save(function(err){
 				if(err) return handleError(err,req,res);
 			});
 			newLeito = createLeito(("D" + i + "b"));
-			newLeito.save(function(err, updatedLeito){
+			newLeito.save(function(err){
 				if(err) return handleError(err,req,res);
 			});
 			newLeito = createLeito(("D" + i + "c"));
-			newLeito.save(function(err, updatedLeito){
+			newLeito.save(function(err){
 				if(err) return handleError(err,req,res);
 			});
 			newLeito = createLeito(("D" + i + "d"));
-			newLeito.save(function(err, updatedLeito){
+			newLeito.save(function(err){
 				if(err) return handleError(err,req,res);
 			});
 		}
 		newLeito = createLeito(("D200a"));
-		newLeito.save(function(err, updatedLeito){
+		newLeito.save(function(err){
 			if(err) return handleError(err,req,res);
 		});
 		newLeito = createLeito(("D200b"));
-		newLeito.save(function(err, updatedLeito){
+		newLeito.save(function(err){
 			if(err) return handleError(err,req,res);
 		});
 		newLeito = createLeito(("D200c"));
-		newLeito.save(function(err, updatedLeito){
+		newLeito.save(function(err){
 			if(err) return handleError(err,req,res);
 		});
 		newLeito = createLeito(("D200d"));
-		newLeito.save(function(err, updatedLeito){
+		newLeito.save(function(err){
 			if(err) return handleErr200		});
 		for(var i = 202; i <= 221; i++){
 			newLeito = createLeito(("D" + i + "a"));
-			newLeito.save(function(err, updatedLeito){
+			newLeito.save(function(err){
 				if(err) return handleError(err,req,res);
 			});
 			newLeito = createLeito(("D" + i + "b"));
-			newLeito.save(function(err, updatedLeito){
+			newLeito.save(function(err){
 				if(err) return handleError(err,req,res);
 			});
 			newLeito = createLeito(("D" + i + "c"));
-			newLeito.save(function(err, updatedLeito){
+			newLeito.save(function(err){
 				if(err) return handleError(err,req,res);
 			});
 			newLeito = createLeito(("D" + i + "d"));
-			newLeito.save(function(err, updatedLeito){
+			newLeito.save(function(err){
 				if(err) return handleError(err,req,res);
 			});
 		}
 		for(var i = 222; i <= 223; i++){
 			newLeito = createLeito(("D" + i + "a"));
-			newLeito.save(function(err, updatedLeito){
+			newLeito.save(function(err){
 				if(err) return handleError(err,req,res);
 			});
 			newLeito = createLeito(("D" + i + "b"));
-			newLeito.save(function(err, updatedLeito){
+			newLeito.save(function(err){
 				if(err) return handleError(err,req,res);
 			});
 			newLeito = createLeito(("D" + i + "c"));
-			newLeito.save(function(err, updatedLeito){
+			newLeito.save(function(err){
 				if(err) return handleError(err,req,res);
 			});
 			newLeito = createLeito(("D" + i + "d"));
-			newLeito.save(function(err, updatedLeito){
+			newLeito.save(function(err){
 				if(err) return handleError(err,req,res);
 			});
 			newLeito = createLeito(("D" + i + "e"));
-			newLeito.save(function(err, updatedLeito){
+			newLeito.save(function(err){
 				if(err) return handleError(err,req,res);
 			});
 		}
@@ -1791,7 +1660,7 @@ module.exports = function(passport){
 	});
 	
 	router.get('/criar/registro', function(req, res){
-		Leito.find({}, function(err, leitos) {
+		Leito.find({}, null, {sort: 'cod_leito'}, function(err, leitos) {
 			if (err) return handleError(err,req,res);
 			if (leitos){
 				var dataInicial = moment('2017-01-01');
@@ -1810,7 +1679,7 @@ module.exports = function(passport){
 						newRegistro.estado[newRegistro.estado.length] = "livre";
 						newRegistro.ocupante[newRegistro.ocupante.length] = "";
 					}
-					newRegistro.save(function (err, updatedRegistro) {
+					newRegistro.save(function (err) {
 						if (err) return handleError(err,req,res);	
 					});
 					proximoDia.add(1, 'days')
@@ -1825,7 +1694,7 @@ module.exports = function(passport){
 	});
 	
 	router.get('/criar/log', function(req, res){
-		Leito.find({}, function(err, leitos) {
+		Leito.find({}, null, {sort: 'cod_leito'}, function(err, leitos) {
 			if (err) return handleError(err,req,res);
 			if (leitos){
 				var dataInicial = moment('2017-01-01');
@@ -1836,7 +1705,9 @@ module.exports = function(passport){
 					var newLog = new Log();
 					newLog.data = moment(proximoDia);
 					newLog.log = [];
-					newLog.save(function (err, updatedLog) {
+					newLog.ganho = 0;
+					newLog.gasto = 0;
+					newLog.save(function (err) {
 						if (err) return handleError(err,req,res);	
 					});
 					proximoDia.add(1, 'days')
@@ -1849,15 +1720,12 @@ module.exports = function(passport){
 			}
 		});
 	});
-	
+}
 	
 	return router;
 }
 
-function handleError(err,req,res){
-	console.log(err);
-	res.send(err);
-}
+{ // Functions
 
 function createLeito(cod_leito){
 	var ret = new Leito();
@@ -1869,7 +1737,16 @@ function createLeito(cod_leito){
 	return ret;
 }
 
+function handleError(err,req,res){
+	console.log(err);
+	res.send(err);
+}
+
+
+
 // Está sem nenhum autenticação para poder debugar mais fácil.
+
+
 
 var isAuthenticated = function (req, res, next) {
 	// if user is authenticated in the session, call the next() to call the next request handler 
@@ -1927,7 +1804,9 @@ var isGerente = function (req, res, next) {
 	}
 	res.redirect('/home');
 }
+}
 
+{ // Variables
 var createHash = function(password){
 	return bCrypt.hashSync(password, bCrypt.genSaltSync(10), null);
 }
@@ -1949,3 +1828,4 @@ var desc_itens_lavanderia = [
 	"Capa de travesseiro",
 	"Saia cama box solteiro",
 	"Capa para união cama box solteiro"];
+}
