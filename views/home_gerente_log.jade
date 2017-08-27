@@ -1,8 +1,14 @@
 extends layout
 
 block content
-	h1.
-		Log	
+	h1 Escolha uma data para exibir os logs
+		form(class='form-signin', action='/home/gerente/log', method='GET')
+			input(type='date', name='date' class='form-control', placeholder='Data',required, autofocus)
+			button(class='btn btn-lg btn-primary btn-block', type='submit') Visualizar Registros
+			span.clearfix
+
+	//h1.
+	//	Log	
 	-for (var i = 0; i < log.length; i++){
 		pre.
 			#{log[i]}
