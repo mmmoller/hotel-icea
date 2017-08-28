@@ -46,6 +46,7 @@ module.exports = function(passport){
 		newCadastro.posto = req.param('posto'); 
 		newCadastro.curso = req.param('curso'); 
 		newCadastro.solicitante = req.param('solicitante'); 
+		newCadastro.reserva = false;
 		// Se a data de saida for maior que a data de entrada, é valido (essa validação deveria ser feita no front-end)
 		// Ou renderizar a página com os dados já preenchidos
 		if (moment(newCadastro.dateIn) < moment(newCadastro.dateOut)){
@@ -467,7 +468,8 @@ module.exports = function(passport){
 						var dateIn = moment(registro.ocupante[index].checkIn);
 						var dateOut = moment(registro.ocupante[index].checkOut);
 						var hours = dateOut.diff(dateIn,"hours");
-						custo = hours*registro.ocupante[index].posto/24;
+						//custo = hours*registro.ocupante[index].posto/24;
+						custo = hours*dicionario_posto_valor[registro.ocupante[index].posto]/24;
 						
 						registro.save(function (err) {
 							if (err) return handleError(err,req,res);
@@ -612,8 +614,6 @@ module.exports = function(passport){
 						var dateIn = moment(registro[1].ocupante[index].checkIn);
 						var dateOut = moment(registro[1].ocupante[index].checkOut);
 						var hours = dateOut.diff(dateIn,"hours");
-						console.log(registro[1].ocupante[index].posto);
-						console.log(dicionario_posto_valor[registro[1].ocupante[index].posto]);
 						custo = hours*dicionario_posto_valor[registro[1].ocupante[index].posto]/24;
 						
 						for (var i = 0; i < registro.length; i++){
@@ -910,7 +910,7 @@ module.exports = function(passport){
 { // RESERVA
 	// /HOME/RESERVA
 	router.get('/home/reserva', isAuthenticated, isReserva, function(req, res){
-		Cadastro.find({}, function(err, cadastros) {
+		Cadastro.find({'reserva': "false"}, function(err, cadastros) {
 			if (err) return handleError(err,req,res);
 			if (cadastros){
 				res.render('home_reserva', {cadastros: cadastros});
@@ -1061,9 +1061,26 @@ module.exports = function(passport){
 								});
 							}
 							
+							/*
 							Cadastro.remove({'_id': req.session.cadastro._id}, function(err) {
 								if (err) return handleError(err,req,res);
+							});*/
+							
+							Cadastro.findOne({'_id': req.session.cadastro._id}, function(err, cadastro) {
+								if (err) return handleError(err,req,res);
+								if (cadastro){
+									cadastro.reserva = true;
+									cadastro.save(function(err){
+										if (err) return handleError(err,req,res);
+									});
+								}
+								else {
+									req.flash('message', "Não existe Cadastro");
+									res.redirect('/home');
+								}
 							});
+							
+							
 							
 							res.redirect('/home/reserva');
 						}
@@ -1874,13 +1891,7 @@ var dicionario_posto_valor = {'Almirante-de-Esquadra': 60,
 '1o Sargento': 40,
 '2o Sargento': 40,
 '3o Sargento': 40,
-'Taifeiro-Mor': 30,
-'Soldado-de-Primeira-Classe': 30,
-'Taifeiro-de-Primeira-Classe': 30,
-'Soldado-de-Segunda-Classe': 30,
-'Taifeiro-de-Segunda-Classe': 30,
-'Soldado': 30,
-'Marinheiro': 30,
+'Cabo': 30,
 'Civil': 50};
 
 var desc_itens_lavanderia = [
