@@ -27,14 +27,23 @@ module.exports = function(passport){
 	
 	router.post('/', function(req, res){
 		// Cria uma variavel cadastro com todos os parametros preenchidos pelo hóspede.
+
 		var newCadastro = new Cadastro();
-		newCadastro.name = req.param('nome');
-		newCadastro.email = req.param('email');
-		newCadastro.cpf = req.param('cpf');
-		newCadastro.dateIn = req.param('checkin');
-		newCadastro.dateOut = req.param('checkout');
-		newCadastro.acompanhante = req.param('acompanhante');
-		newCadastro.posto = req.param('posto');
+		newCadastro.name = req.param('nome'); 
+		newCadastro.name_guerra = req.param('nome_guerra'); 
+		newCadastro.saram = req.param('saram'); 
+		newCadastro.identidade = req.param('identidade'); 
+		newCadastro.unidade = req.param('unidade'); 
+		newCadastro.endereco = req.param('endereco'); 
+		newCadastro.telefone = req.param('telefone'); 
+		newCadastro.email = req.param('email'); 
+		newCadastro.cpf = req.param('cpf'); 
+		newCadastro.dateIn = req.param('checkin'); 
+		newCadastro.dateOut = req.param('checkout'); 
+		newCadastro.acompanhante = req.param('acompanhante'); 
+		newCadastro.posto = req.param('posto'); 
+		newCadastro.curso = req.param('curso'); 
+		newCadastro.solicitante = req.param('solicitante'); 
 		// Se a data de saida for maior que a data de entrada, é valido (essa validação deveria ser feita no front-end)
 		// Ou renderizar a página com os dados já preenchidos
 		if (moment(newCadastro.dateIn) < moment(newCadastro.dateOut)){
@@ -1359,6 +1368,27 @@ module.exports = function(passport){
 				req.flash('message', 'É necessário criar o Registro Geral');
 				res.redirect('/home');
 			}
+		});
+	});
+
+	router.get('/home/registro/cadastro', isAuthenticated, function(req,res){
+
+		if (req.param('_id') == undefined){
+			req.flash('message', 'O cadastro procurado não foi encontrado');
+			res.redirect('/home');
+		}
+		
+		Cadastro.findOne({_id: req.param('_id')},function(err, cadastro) {
+			if (err) return handleError(err,req,res);
+			if (cadastro){
+				
+				res.render('home_registro_cadastro', { cadastro: cadastro });
+			}
+			else {
+				req.flash('message', "Cadastro não existente");
+				res.redirect('/home');
+			}
+		
 		});
 	});
 	

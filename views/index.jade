@@ -10,8 +10,8 @@ block content
 					form(class='form-signin', action='/', method='POST')
 						.cadastro-sections
 							| Informações pessoais
-						select(name='posto', class='form-control', placeholder='Posto/Graduação')
-							option(value='0', disabled selected) Posto/Graduação
+						select(name='posto', class='form-control', placeholder='Posto/Graduação', required)
+							option(disabled value="" selected hidden) Posto/Graduação
 							option(value='Almirante-de-Esquadra') Almirante-de-Esquadra
 							option(value='General-de-Exército') General-de-Exército
 							option(value='Tenente-Brigadeiro-do-Ar') Tenente-Brigadeiro-do-Ar
