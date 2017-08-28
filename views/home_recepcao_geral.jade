@@ -19,7 +19,8 @@ block content
 				tbody
 					- for (var i = 0; i < cadastros.length; ++i){
 						tr
-							td #{cadastros[i].name}
+							td 
+								a(href='/home/registro/cadastro?_id=#{cadastros[i]._id}', target='blank') #{cadastros[i].name}
 							td #{leitos[i]}
 							td #{cadastros[i].dateIn}
 							td #{cadastros[i].dateOut}

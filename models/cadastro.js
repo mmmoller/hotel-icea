@@ -9,7 +9,6 @@ module.exports = mongoose.model('Cadastro',{
 	unidade: String,
 	endereco: String,
 	telefone: String,
-	CPF: String,
 	email: String,
 	cpf: String,
 	dateIn: String,

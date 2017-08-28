@@ -261,6 +261,15 @@ body header {
         text-align: center;
         padding: 20px 20px 20px 20px;
     }
+#registro_cadastro-table{
+    font-weight: bold;
+}
+#registro_cadastro-table td, #registro_cadastro-table th{
+    text-align: center;
+    padding: 3px 5px 3px 5px;
+    font-size: 20px;
+    border: 1.5px solid #3333ff;
+}
 
 #folha-ce-table{
 

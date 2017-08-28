@@ -20,7 +20,8 @@ block content
 				tbody
 					each cadastro in cadastros
 						tr
-							td #{cadastro.name}
+							td
+								a(href='/home/registro/cadastro?_id=#{cadastro._id}', target='blank') #{cadastro.name}
 							td #{cadastro.email}
 							td #{cadastro.cpf}
 							td #{cadastro.dateIn}

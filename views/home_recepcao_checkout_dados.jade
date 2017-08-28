@@ -16,7 +16,8 @@ block content
 				tbody
 					tr
 						td Nome
-						td #{cadastro.name}
+						td
+							a(href='/home/registro/cadastro?_id=#{cadastros._id}', target='blank') #{cadastro.name}
 					tr
 						td Data de entrada
 						td #{cadastro.dateIn}
