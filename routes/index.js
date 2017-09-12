@@ -3,6 +3,7 @@ var router = express.Router();
 var User = require('../models/user');
 var Cadastro = require('../models/cadastro');
 var Registro = require('../models/registro');
+var Folha = require('../models/folha');
 var Log = require('../models/log');
 var Leito = require('../models/leito');
 var Financeiro = require('../models/financeiro');
@@ -1081,11 +1082,46 @@ module.exports = function(passport){
 { // LAVANDERIA Adicionar LOG
 	// /HOME /LAVANDERIA
 	router.get('/home/lavanderia/folha', isAuthenticated, function(req, res){
-		res.render('home_lavanderia_folha', {descricoes: desc_itens_lavanderia});
+		res.render('home_lavanderia_folha', {descricoes: desc_itens_lavanderia, inserido: false});
+	});
+	router.post('/home/lavanderia/folha', isAuthenticated, function(req, res){
+		var n_entrega = new Array();
+		var n_coleta = new Array();
+
+		var newFolha = new Folha();
+		newFolha.data_coleta = req.param('dataColeta'); 
+		newFolha.data_entrega = req.param('dataEntrega'); 
+
+		for(var i = 0; i < 13; i++){
+			n_entrega.push(req.param('folha_entrega_item_'+i));
+			n_coleta.push(req.param('folha_coleta_item_'+i));
+		}
+		newFolha.n_entrega = n_entrega;
+		newFolha.n_coleta = n_coleta;
+		newFolha.nome_fiscal = req.param('nomeFiscal'); 
+		newFolha.save(function (err) {
+			if (err){
+				return handleError(err,req,res);
+			}
+		});
+		res.render('home_lavanderia_folha', {descricoes: desc_itens_lavanderia, inserido: true});
 	});
 	
 	router.get('/home/lavanderia/gerencia', isAuthenticated, function(req, res){
 		res.render('home_lavanderia_gerencia');
+	});
+
+	router.get('/home/lavanderia/lista', isAuthenticated, function(req, res){
+		Folha.find({}, null, {sort: 'data_coleta'}, function(err, folhas) {
+			if (err) return handleError(err,req,res);
+			if (folhas){
+				res.render('home_lavanderia_lista', {folhas: folhas});
+			}
+			else {
+				req.flash('message', "Ocorreu um erro ao extrair a lista de folhas de lavanderia do banco de dados");
+				res.redirect('/home');
+			}
+		});	
 	});
 
 }
@@ -1128,13 +1164,21 @@ module.exports = function(passport){
 			if (leito){
 				if(req.param('desc_pane_adc') != undefined){
 					leito.manutencao.push(req.param('desc_pane_adc'));
-					leito.save();
+					leito.save(function (err) {
+						if (err){
+							return handleError(err,req,res);
+						}
+					});
 					res.redirect('/home/manutencao/quadro/alterar?leito_alterado='+req.param('leito_alterado'));
 					return;
 				}
 				if(req.param('ocup') != undefined){
 					leito.ocupabilidade = req.param('ocup');
-					leito.save();
+					leito.save(function (err) {
+						if (err){
+							return handleError(err,req,res);
+						}
+					});
 					res.redirect('/home/manutencao/quadro/alterar?leito_alterado='+req.param('leito_alterado'));
 					return;
 				}
@@ -1145,7 +1189,11 @@ module.exports = function(passport){
 					}
 				}
 				leito.manutencao = newManutencao.slice(0); //clonando array
-				leito.save();
+				leito.save(function (err) {
+					if (err){
+						return handleError(err,req,res);
+					}
+				});
 				res.redirect('/home/manutencao/quadro/alterar?leito_alterado='+req.param('leito_alterado'));
 				return;
 				
@@ -1178,7 +1226,11 @@ module.exports = function(passport){
 			if (leito){
 				if(req.param('new_value') != undefined){
 					leito.limpeza = req.param('new_value');
-					leito.save();
+					leito.save(function (err) {
+						if (err){
+							return handleError(err,req,res);
+						}
+					});
 				}
 			}
 			else {
@@ -1391,7 +1443,26 @@ module.exports = function(passport){
 		
 		});
 	});
-	
+	router.get('/home/registro/lista', isAuthenticated, function(req,res){
+
+		if (req.param('_id') == undefined){
+			req.flash('message', 'A folha de lavanderia procurada não foi encontrada');
+			res.redirect('/home');
+		}
+		
+		Folha.findOne({_id: req.param('_id')},function(err, folha) {
+			if (err) return handleError(err,req,res);
+			if (folha){
+				
+				res.render('home_registro_lista', { folha: folha, descricoes: desc_itens_lavanderia});
+			}
+			else {
+				req.flash('message', "Folha não existente");
+				res.redirect('/home');
+			}
+		
+		});
+	});
 }
 
 { // DEBUG Delete/Criar
@@ -1844,7 +1915,6 @@ var createHash = function(password){
 var dicionario = {0: "Recepcao", 1: "Reserva", 2: "Lavanderia", 3:"Manutencao",4: "Financeiro",5: "Gerente"};
 
 var desc_itens_lavanderia = [
-	"",
 	"Lençol",
 	"Fronha",
 	"Colcha",

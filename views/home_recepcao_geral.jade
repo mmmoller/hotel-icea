@@ -6,16 +6,16 @@ block content
 			center
 				div.section-wall
 					h1.section-title #{titulo}
-	div.container#reservas-table-wrapper
+	div.container#folha-ce-table-wrapper
 		center
-			table#reservas-table
+			table#folha-ce-table.table-striped.table-bordered
 				thead
 					tr
-						th Nome
-						th Leito
-						th Data de Entrada
-						th Data de Saida
-						th #{botao}
+						th(style='width:50%') Nome
+						th(style='width:10%') Leito
+						th(style='width:10%') Data de Entrada
+						th(style='width:10%') Data de Saida
+						th(style='width:15%') #{botao}
 				tbody
 					- for (var i = 0; i < cadastros.length; ++i){
 						tr
@@ -25,7 +25,7 @@ block content
 							td #{cadastros[i].dateIn}
 							td #{cadastros[i].dateOut}
 							td
-								form(class='form-signin', action='/home/recepcao/' + '#{endereco}', method='POST')
+								form(class="form-signin", action='/home/recepcao/' + '#{endereco}', method='POST')
 									input(type='hidden', name='cod_leito', value=leitos[i])
 									input(type='hidden', name='dateOut', value=cadastros[i].dateOut)
 									input(type='hidden', name='dateIn', value=cadastros[i].dateIn)

@@ -4,5 +4,5 @@ module.exports = mongoose.model('Log',{
 	data: Date,
 	log: [String],
 	ganho: Number,
-	gasto: Number,
+	gasto: Number
 });

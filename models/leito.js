@@ -5,5 +5,5 @@ module.exports = mongoose.model('Leito',{
 	limpeza: String,
 	ocupabilidade: String,
 	manutencao: [String],
-	ocupante: [mongoose.Schema.Types.Mixed],
+	ocupante: [mongoose.Schema.Types.Mixed]
 });

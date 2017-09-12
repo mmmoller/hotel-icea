@@ -6,5 +6,5 @@ module.exports = mongoose.model('Registro',{
 	ocupante: [mongoose.Schema.Types.Mixed],
 	ganho: Number,
 	gasto: Number,
-	log: [String],
+	log: [String]
 });

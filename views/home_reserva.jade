@@ -6,17 +6,17 @@ block content
 			center
 				div.section-wall
 					h1.section-title Solicitações de reservas
-	div.container#reservas-table-wrapper
+	div.container#folha-ce-table-wrapper
 		center
-			table#reservas-table
+			table#folha-ce-table.table-striped.table-bordered
 				thead
 					tr
-						th Nome
-						th E-mail
-						th CPF
-						th Data de Check-in
-						th Data de Check-out
-						th Reservar
+						th(style='width:38%') Nome
+						th(style='width:22%') E-mail
+						th(style='width:10%') CPF
+						th(style='width:10%') Data de Check-in
+						th(style='width:10%') Data de Check-out
+						th(style='width:10%') Reservar
 				tbody
 					each cadastro in cadastros
 						tr

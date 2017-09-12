@@ -3,12 +3,13 @@ extends layout
 block content
 	div.container
 		div.row
-			div.col-sm-6.col-md-4.col-md-offset-4
-				div.home-wall-1
-					#user
-						if user
-							h1.text-center.login-title Bem-vindo,  #{user.username}
-								a(href='/home/signout', class='text-center new-account') Sair
+			center
+				div.section-wall
+					h1.section-title
+						#user
+							if user
+								h1.text-center.login-title Bem-vindo,  #{user.username}
+									a(href='/home/signout', class='text-center new-account') Sair
 				#message
 					if message
 						h1.text-center.error-message #{message}

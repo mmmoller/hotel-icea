@@ -1,0 +1,39 @@
+extends layout
+
+block content
+	div.container
+		div.row
+			center
+				div.section-wall
+					h1.section-title Lista de folhas de lavanderia
+	div.container#folha-ce-table-wrapper
+		center
+			table#folha-ce-table.table-striped.table-bordered
+				thead
+					tr
+						th(style='width:15%') Data de coleta
+						th(style='width:15%') Data de entrega
+						th(style='width:60%') Fiscal responsável
+						th(style='width:10%') 
+				tbody
+					each folha in folhas
+						tr
+							td #{folha.data_coleta}
+							td #{folha.data_entrega}
+							td #{folha.nome_fiscal}
+							td
+								a(href='/home/registro/lista?_id=#{folha._id}', target='blank') Visualizar
+
+	div.container
+		div.row
+			center
+				div.section-wall
+					h1.section-title
+						form(class='form-signup', action='/home', method='GET')
+							button(class='btn btn-lg btn-primary btn-block', type='submit', style='width:50%') Voltar
+							span.clearfix
+						#message
+						if message
+							h1.text-center.error-message #{message}
+				
+
