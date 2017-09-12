@@ -16,5 +16,6 @@ module.exports = mongoose.model('Cadastro',{
 	acompanhante: Number,
 	posto: String,
 	curso: String,
-	solicitante: String
+	solicitante: String,
+	reserva: Boolean
 });

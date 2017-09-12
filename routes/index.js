@@ -16,7 +16,9 @@ module.exports = function(passport){
 	// /'TESTE'
 	
 	router.get('/teste', function(req,res){
-		res.send("teste");
+		//var a = dic["a"];
+		console.log(dic["a"]);
+		res.send("banana");
 	});		
 
 { // Index/Login/Logout/Home
@@ -45,6 +47,7 @@ module.exports = function(passport){
 		newCadastro.posto = req.param('posto'); 
 		newCadastro.curso = req.param('curso'); 
 		newCadastro.solicitante = req.param('solicitante'); 
+		newCadastro.reserva = false;
 		// Se a data de saida for maior que a data de entrada, é valido (essa validação deveria ser feita no front-end)
 		// Ou renderizar a página com os dados já preenchidos
 		if (moment(newCadastro.dateIn) < moment(newCadastro.dateOut)){
@@ -466,7 +469,8 @@ module.exports = function(passport){
 						var dateIn = moment(registro.ocupante[index].checkIn);
 						var dateOut = moment(registro.ocupante[index].checkOut);
 						var hours = dateOut.diff(dateIn,"hours");
-						custo = hours*registro.ocupante[index].posto/24;
+						//custo = hours*registro.ocupante[index].posto/24;
+						custo = hours*dicionario_posto_valor[registro.ocupante[index].posto]/24;
 						
 						registro.save(function (err) {
 							if (err) return handleError(err,req,res);
@@ -611,7 +615,7 @@ module.exports = function(passport){
 						var dateIn = moment(registro[1].ocupante[index].checkIn);
 						var dateOut = moment(registro[1].ocupante[index].checkOut);
 						var hours = dateOut.diff(dateIn,"hours");
-						custo = hours*registro[1].ocupante[index].posto/24;
+						custo = hours*dicionario_posto_valor[registro[1].ocupante[index].posto]/24;
 						
 						for (var i = 0; i < registro.length; i++){
 							registro[i].save(function (err) {
@@ -907,7 +911,7 @@ module.exports = function(passport){
 { // RESERVA
 	// /HOME/RESERVA
 	router.get('/home/reserva', isAuthenticated, isReserva, function(req, res){
-		Cadastro.find({}, function(err, cadastros) {
+		Cadastro.find({'reserva': "false"}, function(err, cadastros) {
 			if (err) return handleError(err,req,res);
 			if (cadastros){
 				res.render('home_reserva', {cadastros: cadastros});
@@ -1058,9 +1062,26 @@ module.exports = function(passport){
 								});
 							}
 							
+							/*
 							Cadastro.remove({'_id': req.session.cadastro._id}, function(err) {
 								if (err) return handleError(err,req,res);
+							});*/
+							
+							Cadastro.findOne({'_id': req.session.cadastro._id}, function(err, cadastro) {
+								if (err) return handleError(err,req,res);
+								if (cadastro){
+									cadastro.reserva = true;
+									cadastro.save(function(err){
+										if (err) return handleError(err,req,res);
+									});
+								}
+								else {
+									req.flash('message', "Não existe Cadastro");
+									res.redirect('/home');
+								}
 							});
+							
+							
 							
 							res.redirect('/home/reserva');
 						}
@@ -1284,7 +1305,7 @@ module.exports = function(passport){
 		User.find({username: {$ne: 'admin'}}, function(err, users) {
 			if (err) return handleError(err,req,res);
 			if (users){
-				res.render('home_gerente_permissao', {users: users, dic: dicionario});
+				res.render('home_gerente_permissao', {users: users, dic: dicionario_permissao });
 			}
 			else {
 				req.flash('message', "Nenhum usuário existente");
@@ -1912,7 +1933,37 @@ var createHash = function(password){
 	return bCrypt.hashSync(password, bCrypt.genSaltSync(10), null);
 }
 
-var dicionario = {0: "Recepcao", 1: "Reserva", 2: "Lavanderia", 3:"Manutencao",4: "Financeiro",5: "Gerente"};
+var dicionario_permissao = {0: "Recepcao", 1: "Reserva", 2: "Lavanderia", 3:"Manutencao",4: "Financeiro",5: "Gerente"};
+
+var dicionario_posto_valor = {'Almirante-de-Esquadra': 60,
+'General-de-Exército': 60,
+'Tenente-Brigadeiro-do-Ar': 60,
+'Vice-Almirante': 60,
+'General-de-Divisão': 60,
+'Major-Brigadeiro-do-Ar': 60,
+'Contra-Almirante': 60,
+'General-de-Brigada': 60,
+'Brigadeiro-do-Ar': 60,
+'Capitão-de-Mar-e-Guerra': 60,
+'Coronel': 60,
+'Capitão-de-Fragata': 60,
+'Tenente Coronel': 60,
+'Capitão-de-Corveta': 50,
+'Major': 50,
+'Capitão-Tenente': 40,
+'Capitão': 40,
+'1o Tenente': 40,
+'2o Tenente': 40,
+'Guarda-Marinha': 40,
+'Aspirante': 40,
+'Cadete': 40,
+'Suboficial': 40,
+'SubTenente': 40,
+'1o Sargento': 40,
+'2o Sargento': 40,
+'3o Sargento': 40,
+'Cabo': 30,
+'Civil': 50};
 
 var desc_itens_lavanderia = [
 	"Lençol",
