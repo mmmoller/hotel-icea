@@ -12,6 +12,15 @@ block content
 				#message
 					if message
 						h1.text-center.error-message #{message}
-		
+	div.container
+		div.row
+			div.col-sm-6.col-md-4.col-md-offset-4
+				div.signup-wall
+					form(class='form-signin', action='/home', method='POST')
+						input(type='password', name='old_password', class='form-control nomargin', placeholder='Senha antiga', required, autofocus)
+						input(type='password', name='new_password', class='form-control nomargin', placeholder='Senha nova', required)
+						input(type='password', name='new_password_confirm', class='form-control nomargin', placeholder='Confirmação da senha nova', required)
+						button(class='btn btn-lg btn-primary btn-block', type='submit') Trocar senha
+					span.clearfix
 	
 	
