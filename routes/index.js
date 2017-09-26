@@ -17,8 +17,8 @@ module.exports = function(passport){
 	
 	router.get('/teste', function(req,res){
 		//var a = dic["a"];
-		console.log(dic["a"]);
-		res.send("banana");
+		//console.log(dic["a"]);
+		res.render("home_modulo", {titulo: "modulo", endereco: modulo_recepcao_endereco, tag: modulo_recepcao_titulo })
 	});		
 
 { // Index/Login/Logout/Home
@@ -129,6 +129,35 @@ module.exports = function(passport){
 		
 	});
 	
+	router.post('/home', isAuthenticated, function(req, res){
+		User.findOne({ 'username' :  req.user.username }, function(err, user) {
+			if (err) return handleError(err,req,res);
+			if (user){
+				if (bCrypt.compareSync(req.param("old_password"), user.password)){
+					if (req.param("new_password") == req.param("new_password_confirm")){
+						user.password = createHash(req.param("new_password"));
+						user.save(function (err) {
+							if (err) return handleError(err,req,res);
+						});
+						req.flash('message', 'Senha atualizada com sucesso.');
+						res.redirect('/home');
+					}
+					else {
+						req.flash('message', 'Senha nova e confirmação da senha nova não são iguais.');
+						res.redirect('/home');
+					}
+				}
+				else {
+					req.flash('message', 'Senha antiga incorreta.');
+					res.redirect('/home');
+				}
+			}
+			else {
+				req.flash('message', 'Usuário não existe.');
+				res.redirect('/home');
+			}
+		});
+	});
 }
 	
 { // RECEPCAO
@@ -1876,9 +1905,10 @@ var isAuthenticated = function (req, res, next) {
 	// request and response objects
 	
 	//debugar
+	/*
 	req.user = new User();
 	req.user.username = "teste";
-	return next();
+	return next();*/
 	
 	
 	if (req.isAuthenticated())
@@ -1888,7 +1918,7 @@ var isAuthenticated = function (req, res, next) {
 }
 
 var isRecepcao = function (req, res, next) {
-	return next();
+	//return next();
 	if (req.user.permissao[0] == true){
 		return next();
 	}
@@ -1896,7 +1926,7 @@ var isRecepcao = function (req, res, next) {
 }
 
 var isReserva = function (req, res, next) {
-	return next();
+	//return next();
 	if (req.user.permissao[1] == true){
 		return next();
 	}
@@ -1904,7 +1934,7 @@ var isReserva = function (req, res, next) {
 }
 
 var isManutencao = function (req, res, next) {
-	return next();
+	//return next();
 	if (req.user.permissao[3] == true){
 		return next();
 	}
@@ -1912,7 +1942,7 @@ var isManutencao = function (req, res, next) {
 }
 
 var isFinanceiro = function (req, res, next) {
-	return next();
+	//return next();
 	if (req.user.permissao[4] == true){
 		return next();
 	}
@@ -1920,7 +1950,7 @@ var isFinanceiro = function (req, res, next) {
 }
 
 var isGerente = function (req, res, next) {
-	return next();
+	//return next();
 	if (req.user.permissao[5] == true){
 		return next();
 	}
@@ -1979,4 +2009,9 @@ var desc_itens_lavanderia = [
 	"Capa de travesseiro",
 	"Saia cama box solteiro",
 	"Capa para união cama box solteiro"];
+
+var modulo_recepcao_endereco = ["/recepcao/checkin", "/recepcao/checkin/cancelar", "/recepcao/checkout", "/recepcao/checkout/antecipado", "/recepcao/mudanca"];
+var modulo_recepcao_titulo = ["Check-in", "Cancelar Check-in", "Check-out", "Check-out Antecipado", "Mudança de leito"];
+	
+	
 }
