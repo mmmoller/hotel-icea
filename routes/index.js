@@ -442,6 +442,7 @@ module.exports = function(passport){
 								}
 							}
 						}
+						req.session.endereco = "checkout";
 						res.render('home_recepcao_geral', {cadastros: cadastros, leitos: leitos_reservados,
 						titulo: "Realizar Check-Out", endereco: "checkout", botao: "Check-out"});
 						
@@ -544,7 +545,7 @@ module.exports = function(passport){
 							}
 						});
 							
-						res.render('home_recepcao_checkout_dados', {cadastro: registro.ocupante[index], custo: custo, hours: hours%24, days: parseInt(hours/24)});
+						res.render('home_recepcao_checkout_confirmacao', {cadastro: registro.ocupante[index], custo: custo, hours: hours%24, days: parseInt(hours/24)});
 						
 					}
 					
@@ -585,6 +586,7 @@ module.exports = function(passport){
 								leitos_reservados[leitos_reservados.length] = leitos[i].cod_leito;
 							}
 						}
+						req.session.endereco = "checkout/antecipado";
 						res.render('home_recepcao_geral', {cadastros: cadastros, leitos: leitos_reservados,
 						titulo: "Realizar Check-Out Antecipado", endereco: "checkout/antecipado", botao: "Check-out antecipado"});
 					}
@@ -704,6 +706,10 @@ module.exports = function(passport){
 				res.redirect('/home');
 			}
 		});
+	});
+	
+	// /HOME/RECEPCAO/CHECKOUT/CONFIRMACAO
+	router.get('/home/recepcao/checkout/confirmacao', isAuthenticated, isRecepcao, function(req,res){
 	});
 	
 	// /HOME/RECEPCAO/MUDANCA

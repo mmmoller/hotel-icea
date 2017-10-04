@@ -36,17 +36,4 @@ block content
 					tr
 						td Custo da estadia
 						td R$ #{custo.toFixed(2)}
-					tr
-						form(class='form-signin', action='/home', method='POST')
-							td Alterar custo
-							td
-								input.valor(type='text', name='valor', class='form-control', value=custo.toFixed(2))
-							tr
-								td
-									select(name = 'tipo_pagamento', class = 'form-control')
-										option(value = "gru") GRU
-										option(value = "desconto") Desconto em folha
-								td
-									button(class='btn btn-lg btn-primary btn-block', type='submit') Confirmar
-						span.clearfix
 		

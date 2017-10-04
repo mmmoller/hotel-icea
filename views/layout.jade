@@ -7,6 +7,7 @@ html
 		
 
 		script(type="text/javascript" src="/scripts/jquery.mask.min.js")
+		script(type="text/javascript" src="/scripts/jquery.maskMoney.min.js")
 		link(rel='stylesheet', href='/stylesheets/style.css')
 		link(rel='stylesheet', href='/stylesheets/3.3.7.css.bootstrap.min.css')
 		script.
@@ -15,6 +16,11 @@ html
 				$('.data').mask('00/00/0000');
 				$('.telefone').mask('(00) 00000-0000');
 				$('.dropdown-toggle').dropdown();
+				$(".valor").maskMoney({
+					prefix: "R$ ",
+					decimal: ",",
+					thousands: "."
+				});
 			});
 
 	body.body-background 
