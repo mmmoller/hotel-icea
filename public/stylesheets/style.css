@@ -312,7 +312,7 @@ body header {
 }
 
 .botao-header {
-    width: 800px;
+    width: 750px;
     height: 50px;
     text-align: left;
     display: block;
@@ -341,22 +341,22 @@ body header {
     left: 0%;
 }
 .pos-botao-2{
-    left: 15%;
+    left: 14%;
 }
 .pos-botao-3{
-    left: 30%;
+    left: 26%;
 }
 .pos-botao-4{
-    left: 45%;
+    left: 41%;
 }
 .pos-botao-5{
-    left: 60%;
+    left: 56%;
 }
 .pos-botao-6{
-    left: 75%;
+    left: 70%;
 }
 .pos-botao-7{
-    left: 90%;
+    left: 83%;
 }
 
 .form-signin{
