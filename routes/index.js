@@ -46,7 +46,7 @@ module.exports = function(passport){
 		newCadastro.posto = req.param('posto'); 
 		newCadastro.curso = req.param('curso'); 
 		newCadastro.solicitante = req.param('solicitante'); 
-		newCadastro.reserva = false;
+		newCadastro.estado = "solicitacao";
 		// Se a data de saida for maior que a data de entrada, é valido (essa validação deveria ser feita no front-end)
 		// Ou renderizar a página com os dados já preenchidos
 		if (moment(newCadastro.dateIn) < moment(newCadastro.dateOut)){
@@ -1130,7 +1130,7 @@ module.exports = function(passport){
 { // RESERVA
 	// /HOME/RESERVA
 	router.get('/home/reserva', isAuthenticated, isReserva, function(req, res){
-		Cadastro.find({'reserva': "false"}, function(err, cadastros) {
+		Cadastro.find({'estado': "solicitacao"}, function(err, cadastros) {
 			if (err) return handleError(err,req,res);
 			if (cadastros){
 				res.render('home_reserva', {cadastros: cadastros});
@@ -1203,6 +1203,31 @@ module.exports = function(passport){
 			}
 		
 		});
+	});
+	
+	// /HOME/RESERVA/CANCELAR *** Adicionar LOG
+	
+	router.get('/home/reserva/cancelar', isAuthenticated, isReserva, function(req, res){
+		res.redirect('/home/reserva');
+	});
+	
+	router.post('/home/reserva/cancelar', isAuthenticated, isReserva, function(req, res){
+		Cadastro.findOne({'_id': req.param('_id')}, function(err, cadastro) {
+			if (err) return handleError(err,req,res);
+			if (cadastro){
+				cadastro.estado = "cancelado";
+				cadastro.save(function(err){
+					if (err) return handleError(err,req,res);
+				});
+			}
+			else {
+				req.flash('message', "Não existe Cadastro");
+				res.redirect('/home');
+			}
+		});
+		
+		req.flash('message', "Solicitação de reserva cancelada");
+		res.redirect('/home');;
 	});
 	
 	// /HOME/RESERVA/ALOCACAO
@@ -1289,7 +1314,7 @@ module.exports = function(passport){
 							Cadastro.findOne({'_id': req.session.cadastro._id}, function(err, cadastro) {
 								if (err) return handleError(err,req,res);
 								if (cadastro){
-									cadastro.reserva = true;
+									cadastro.estado = "reservado";
 									cadastro.save(function(err){
 										if (err) return handleError(err,req,res);
 									});
