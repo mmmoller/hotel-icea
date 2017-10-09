@@ -47,7 +47,7 @@ module.exports = function(passport){
 		newCadastro.posto = req.param('posto'); 
 		newCadastro.curso = req.param('curso'); 
 		newCadastro.solicitante = req.param('solicitante'); 
-		newCadastro.reserva = false;
+		newCadastro.estado = "solicitacao";
 		// Se a data de saida for maior que a data de entrada, é valido (essa validação deveria ser feita no front-end)
 		// Ou renderizar a página com os dados já preenchidos
 		if (moment(newCadastro.dateIn) < moment(newCadastro.dateOut)){
@@ -160,7 +160,7 @@ module.exports = function(passport){
 	});
 }
 	
-{ // RECEPCAO
+{ // RECEPCAO **** Deletar Cadastro em Checkout? Deletar Cadastro em Cancelar-Checkin? Guardar informações?
 
 	// /HOME/RECEPCAO/CHECKIN
 	router.get('/home/recepcao/checkin', isAuthenticated, isRecepcao, function(req,res){
@@ -432,7 +432,7 @@ module.exports = function(passport){
 					if (leitos){
 						for (var i = 0; i < leitos.length; i++){
 							// *
-							if (registro.estado[i] == 'ocupado' || registro.estado[i] == 'reservado'){
+							if (registro.estado[i] == 'ocupado'/* || registro.estado[i] == 'reservado'*/){
 								
 								var dateOut = moment(registro.ocupante[i].dateOut);
 								
@@ -477,11 +477,81 @@ module.exports = function(passport){
 				Leito.find({}, null, {sort: 'cod_leito'}, function(err, leitos) {
 					if (err) return handleError(err,req,res);
 					if (leitos){
+						
+						var index = 0;
+						for (var j = 0; j < leitos.length; ++j){
+							if (leitos[j].cod_leito == req.param('cod_leito')){
+								//leitos[j].limpeza = "sujo";
+								//registro.estado.splice(j, 1, 'checkout');
+								index = j;
+							}
+						}
+						
+						var ocupante = registro.ocupante[index];
+						ocupante.checkOut = moment().format();
+						registro.ocupante.splice(index, 1, ocupante);
+						
+						var dateIn = moment(registro.ocupante[index].checkIn);
+						var dateOut = moment(registro.ocupante[index].checkOut);
+						var hours = dateOut.diff(dateIn,"hours");
+						
+						custo = hours*dicionario_posto_valor[registro.ocupante[index].posto]/24;
+						
+						var endereco = "checkout";
+						req.session.leito = req.param('cod_leito');
+						req.session.preventf5 = true;
+						
+						res.render('home_recepcao_checkout', 
+						{cadastro: registro.ocupante[index], custo: custo,
+						endereco: endereco
+						});
+						
+					}
+					
+					else {
+						req.flash('message', 'É necessário criar os Leitos');
+						res.redirect('/home');
+					}
+				});
+			} 
+			else {
+				req.flash('message', 'É necessário criar o Registro Geral');
+				res.redirect('/home');
+			}
+		});
+	});
+	
+	router.get('/home/recepcao/checkout/confirmacao', isAuthenticated, isRecepcao, function(req,res){
+		res.redirect('/home/recepcao/checkout');
+	});
+	
+	router.post('/home/recepcao/checkout/confirmacao', isAuthenticated, isRecepcao, function(req,res){
+		
+		if(req.session.preventf5 == false){
+			res.redirect('/home/recepcao/checkout');
+			return
+		}
+		req.session.preventf5 = false;
+		
+		var today = moment();
+		var yesterday = moment().subtract(1, 'days');
+		var before_yesterday = moment().subtract(2, 'days');
+		
+		// Procura o registro de ontem
+		Registro.findOne({data: {"$gte": before_yesterday, "$lte": yesterday}}
+		, null, {sort: 'data'}, function(err, registro) {
+			
+			if (err) return handleError(err,req,res);
+			if (registro){
+				
+				Leito.find({}, null, {sort: 'cod_leito'}, function(err, leitos) {
+					if (err) return handleError(err,req,res);
+					if (leitos){
 				
 			
 						var index = 0;
 						for (var j = 0; j < leitos.length; ++j){
-							if (leitos[j].cod_leito == req.param('cod_leito')){
+							if (leitos[j].cod_leito == req.session.leito){
 								leitos[j].limpeza = "sujo";
 								registro.estado.splice(j, 1, 'checkout');
 								index = j;
@@ -492,19 +562,19 @@ module.exports = function(passport){
 						ocupante.checkOut = moment().format();
 						registro.ocupante.splice(index, 1, ocupante);
 						
-						//console.log("CheckIn : " + registro[0].ocupante[index].checkIn);
-						//console.log("CheckOut :" + registro[0].ocupante[index].checkOut);
 						
-						var dateIn = moment(registro.ocupante[index].checkIn);
-						var dateOut = moment(registro.ocupante[index].checkOut);
-						var hours = dateOut.diff(dateIn,"hours");
-						//custo = hours*registro.ocupante[index].posto/24;
-						custo = hours*dicionario_posto_valor[registro.ocupante[index].posto]/24;
+						if (req.param("valor") == ""){
+							custo = Number(req.param("valor_previsto"));
+						}
+						else{
+							custo = Number((req.param("valor").replace(/[^0-9\,-]+/g,"")).replace(",","."));
+						}
+						tipo_pagamento = req.param("tipo_pagamento");
+						
 						
 						registro.save(function (err) {
 							if (err) return handleError(err,req,res);
 						});
-						
 						
 						leitos[index].save(function (err) {
 							if (err) return handleError(err,req,res);
@@ -544,8 +614,16 @@ module.exports = function(passport){
 								res.redirect('/home');
 							}
 						});
-							
-						res.render('home_recepcao_checkout_dados', {cadastro: registro.ocupante[index], custo: custo, hours: hours%24, days: parseInt(hours/24)});
+						
+						//deletando depois de 30s.
+						setTimeout(function () {Cadastro.remove({'_id': registro.ocupante[index]._id}, function(err) {
+							if (err) return handleError(err,req,res);
+						});}, 30000);
+						
+						
+						res.render('home_recepcao_checkout_confirmacao'
+						, {cadastro: registro.ocupante[index],
+						custo: custo, tipo_pagamento: tipo_pagamento});
 						
 					}
 					
@@ -561,6 +639,7 @@ module.exports = function(passport){
 			}
 		});
 	});
+	
 	
 	// /HOME/RECEPCAO/CHECKOUT/ANTECIPADO
 	router.get('/home/recepcao/checkout/antecipado', isAuthenticated, isRecepcao, function(req,res){
@@ -586,6 +665,7 @@ module.exports = function(passport){
 								leitos_reservados[leitos_reservados.length] = leitos[i].cod_leito;
 							}
 						}
+						
 						res.render('home_recepcao_geral', {cadastros: cadastros, leitos: leitos_reservados,
 						titulo: "Realizar Check-Out Antecipado", endereco: "checkout/antecipado", botao: "Check-out antecipado"});
 					}
@@ -623,6 +703,88 @@ module.exports = function(passport){
 							for (var j = 0; j < leitos.length; ++j){
 								if (leitos[j].cod_leito == req.param('cod_leito')){
 									if (i == 0){
+										/*
+										if (registro[i].estado[j] == 'ocupado'){
+											registro[i].estado.splice(j, 1, 'checkout');
+										}
+										leitos[j].limpeza = "sujo";*/
+										index = j;
+									}
+									else {
+										//registro[i].estado.splice(j, 1, 'livre');
+									}
+								}
+							}
+						}
+						
+						var ocupante = registro[1].ocupante[index];
+						ocupante.checkOut = moment().format();
+						registro[1].ocupante.splice(index, 1, ocupante);
+						
+						
+						var dateIn = moment(registro[1].ocupante[index].checkIn);
+						var dateOut = moment(registro[1].ocupante[index].checkOut);
+						var hours = dateOut.diff(dateIn,"hours");
+						custo = hours*dicionario_posto_valor[registro[1].ocupante[index].posto]/24;
+						
+						
+						var endereco = "checkout/antecipado";
+						req.session.leito = req.param('cod_leito');
+						req.session.preventf5 = true;
+						req.session.dateOut = req.param('dateOut');
+						
+						res.render('home_recepcao_checkout', 
+						{cadastro: registro[1].ocupante[index], custo: custo,
+						endereco: endereco
+						});
+					
+					
+					}
+					
+					else {
+						req.flash('message', 'É necessário criar os Leitos');
+						res.redirect('/home');
+					}
+				});
+			} 
+			else {
+				req.flash('message', 'É necessário criar o Registro Geral');
+				res.redirect('/home');
+			}
+		});
+	});
+	
+	router.get('/home/recepcao/checkout/antecipado/confirmacao', isAuthenticated, isRecepcao, function(req,res){
+		res.redirect('/home/recepcao/checkout/antecipado');
+	});
+	
+	router.post('/home/recepcao/checkout/antecipado/confirmacao', isAuthenticated, isRecepcao, function(req,res){
+		
+		if(req.session.preventf5 == false){
+			res.redirect('/home/recepcao/checkout/antecipado');
+			return
+		}
+		req.session.preventf5 = false;
+		
+		var today = moment();
+		var yesterday = moment().subtract(1, 'days');
+		var before_yesterday = moment().subtract(2, 'days');
+		
+		Registro.find({data: {"$gte": before_yesterday, "$lt": moment(req.session.dateOut)}}
+		, null, {sort: 'data'}, function(err, registro) {
+			
+			if (err) return handleError(err,req,res);
+			if (registro){
+				
+				Leito.find({}, null, {sort: 'cod_leito'}, function(err, leitos) {
+					if (err) return handleError(err,req,res);
+					if (leitos){
+				
+						var index = 0;
+						for (var i = 0; i < registro.length; i++){
+							for (var j = 0; j < leitos.length; ++j){
+								if (leitos[j].cod_leito == req.session.leito){
+									if (i == 0){
 										if (registro[i].estado[j] == 'ocupado'){
 											registro[i].estado.splice(j, 1, 'checkout');
 										}
@@ -640,11 +802,21 @@ module.exports = function(passport){
 						ocupante.checkOut = moment().format();
 						registro[1].ocupante.splice(index, 1, ocupante);
 						
-						
+						/*
 						var dateIn = moment(registro[1].ocupante[index].checkIn);
 						var dateOut = moment(registro[1].ocupante[index].checkOut);
 						var hours = dateOut.diff(dateIn,"hours");
-						custo = hours*dicionario_posto_valor[registro[1].ocupante[index].posto]/24;
+						custo = hours*dicionario_posto_valor[registro[1].ocupante[index].posto]/24;*/
+						
+						if (req.param("valor") == ""){
+							custo = Number(req.param("valor_previsto"));
+						}
+						else{
+							custo = Number((req.param("valor").replace(/[^0-9\,-]+/g,"")).replace(",","."));
+						}
+						tipo_pagamento = req.param("tipo_pagamento");
+						
+						
 						
 						for (var i = 0; i < registro.length; i++){
 							registro[i].save(function (err) {
@@ -691,7 +863,24 @@ module.exports = function(passport){
 							}
 						});
 						
-						res.render('home_recepcao_checkout_dados', {cadastro: registro[1].ocupante[index], custo: custo, hours: hours%24, days: parseInt(hours/24)});
+						
+						
+						/*
+						res.render('home_recepcao_checkout', 
+						{cadastro: registro[1].ocupante[index], custo: custo,
+						endereco: endereco
+						});*/
+						
+						setTimeout(function () {Cadastro.remove({'_id': registro[1].ocupante[index]._id}, function(err) {
+							if (err) return handleError(err,req,res);
+						});}, 30000);
+						
+						
+						res.render('home_recepcao_checkout_confirmacao'
+						, {cadastro: registro[1].ocupante[index],
+						custo: custo, tipo_pagamento: tipo_pagamento});
+					
+					
 					}
 					
 					else {
@@ -706,6 +895,8 @@ module.exports = function(passport){
 			}
 		});
 	});
+	
+	
 	
 	// /HOME/RECEPCAO/MUDANCA
 	router.get('/home/recepcao/mudanca', isAuthenticated, isRecepcao, function(req,res){
@@ -940,7 +1131,7 @@ module.exports = function(passport){
 { // RESERVA
 	// /HOME/RESERVA
 	router.get('/home/reserva', isAuthenticated, isReserva, function(req, res){
-		Cadastro.find({'reserva': "false"}, function(err, cadastros) {
+		Cadastro.find({'estado': "solicitacao"}, function(err, cadastros) {
 			if (err) return handleError(err,req,res);
 			if (cadastros){
 				res.render('home_reserva', {cadastros: cadastros});
@@ -1013,6 +1204,31 @@ module.exports = function(passport){
 			}
 		
 		});
+	});
+	
+	// /HOME/RESERVA/CANCELAR *** Adicionar LOG
+	
+	router.get('/home/reserva/cancelar', isAuthenticated, isReserva, function(req, res){
+		res.redirect('/home/reserva');
+	});
+	
+	router.post('/home/reserva/cancelar', isAuthenticated, isReserva, function(req, res){
+		Cadastro.findOne({'_id': req.param('_id')}, function(err, cadastro) {
+			if (err) return handleError(err,req,res);
+			if (cadastro){
+				cadastro.estado = "cancelado";
+				cadastro.save(function(err){
+					if (err) return handleError(err,req,res);
+				});
+			}
+			else {
+				req.flash('message', "Não existe Cadastro");
+				res.redirect('/home');
+			}
+		});
+		
+		req.flash('message', "Solicitação de reserva cancelada");
+		res.redirect('/home');;
 	});
 	
 	// /HOME/RESERVA/ALOCACAO
@@ -1099,7 +1315,7 @@ module.exports = function(passport){
 							Cadastro.findOne({'_id': req.session.cadastro._id}, function(err, cadastro) {
 								if (err) return handleError(err,req,res);
 								if (cadastro){
-									cadastro.reserva = true;
+									cadastro.estado = "reservado";
 									cadastro.save(function(err){
 										if (err) return handleError(err,req,res);
 									});

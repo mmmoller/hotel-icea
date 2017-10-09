@@ -1,0 +1,39 @@
+extends layout
+
+block content
+	div.container
+		div.row
+			center
+				div.section-wall
+					h1.section-title Dados para efetuar cobrança
+	div.container#register-table-wrapper
+		center
+			table#register-table
+				thead
+					tr
+						th //
+						th //
+				tbody
+					tr
+						td Nome
+						td
+							a(href='/home/registro/cadastro?_id=#{cadastro._id}', target='blank') #{cadastro.name}
+					tr
+						td Data de entrada
+						td #{cadastro.dateIn}
+					tr
+						td Data de saida
+						td #{cadastro.dateOut}
+					tr
+						td Data de entrada efetiva
+						td #{cadastro.checkIn}
+					tr
+						td Data de saida efetiva
+						td #{cadastro.checkOut}
+					tr
+						td Tipo de pagamento
+						td #{tipo_pagamento}
+					tr
+						td Valor cobrado
+						td R$ #{custo.toFixed(2)}
+		
