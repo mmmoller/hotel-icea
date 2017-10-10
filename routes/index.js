@@ -76,7 +76,7 @@ module.exports = function(passport){
 			
 			
 			
-			req.flash('message', "Solicitação de reserva realizado com sucesso, aguarde confirmação por e-mail");
+			req.flash('message', "Solicitação de reserva realizada com sucesso, aguarde confirmação por e-mail");
 			//res.redirect('/');
 			res.redirect('/home');
 			
@@ -246,7 +246,7 @@ module.exports = function(passport){
 								if (err) return handleError(err,req,res);
 							});
 						}
-		
+						var realizado = false;
 						Log.findOne({data: {"$gte": moment().subtract(1, 'days'), "$lte": moment()}}, function(err, log) {
 							if (err) return handleError(err,req,res);
 							if (log){
@@ -259,6 +259,7 @@ module.exports = function(passport){
 								". Usuário: " + req.user.username);
 								log.save(function (err) {
 								if (err) return handleError(err,req,res);
+								realizado = true;
 							});
 							}
 							else{
@@ -266,8 +267,10 @@ module.exports = function(passport){
 								res.redirect('/home');
 							}
 						});
-						
-						
+						var message = undefined;
+						if(realizado)
+							message = "Check-in realizado com sucesso";
+						req.flash('message', message);
 						res.redirect('/home/recepcao/checkin');
 					}
 					else {
@@ -1228,7 +1231,7 @@ module.exports = function(passport){
 		});
 		
 		req.flash('message', "Solicitação de reserva cancelada");
-		res.redirect('/home');;
+		res.redirect('/home/reserva');;
 	});
 	
 	// /HOME/RESERVA/ALOCACAO

@@ -1,6 +1,12 @@
 extends layout
 
 block content
+	-if ( message != undefined && message.length){
+		div.container
+			div.row
+				center
+					div.alert.alert-success #{message}
+	-}
 	div.container
 		div.row
 			center
@@ -10,18 +16,16 @@ block content
 							if user
 								h1.text-center.login-title Bem-vindo,  #{user.username}
 									a(href='/home/signout', class='text-center new-account') Sair
-				#message
-					if message
-						h1.text-center.error-message #{message}
-	div.container
+	div.container(style="margin-top:30px")
 		div.row
-			div.col-sm-6.col-md-4.col-md-offset-4
-				div.signup-wall
+			center
+				div.section-wall
+					h4.section-title Trocar senha
 					form(class='form-signin', action='/home', method='POST')
 						input(type='password', name='old_password', class='form-control nomargin', placeholder='Senha antiga', required, autofocus)
 						input(type='password', name='new_password', class='form-control nomargin', placeholder='Senha nova', required)
 						input(type='password', name='new_password_confirm', class='form-control nomargin', placeholder='Confirmação da senha nova', required)
-						button(class='btn btn-lg btn-primary btn-block', type='submit') Trocar senha
+						button(class='btn btn-lg btn-primary btn-block', type='submit') Trocar
 					span.clearfix
 	
 	
