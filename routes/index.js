@@ -246,7 +246,7 @@ module.exports = function(passport){
 						
 						res.render('home_recepcao_geral', {cadastros: cadastros_
 						, titulo: "Realizar Check-In", endereco: "checkin",
-						botao: "Check-in", limpeza: leitos_limpeza});
+						botao: "Check-in", limpeza: leitos_limpeza, message: req.flash('message')});
 						
 					}
 					else {
@@ -302,7 +302,7 @@ module.exports = function(passport){
 										if (err) return handleError(err,req,res);
 									});
 								}
-				
+								
 								Log.findOne({data: {"$gte": moment().subtract(1, 'days'), "$lte": moment()}}, function(err, log) {
 									if (err) return handleError(err,req,res);
 									if (log){
@@ -328,7 +328,7 @@ module.exports = function(passport){
 									if (err) return handleError(err,req,res);
 								});
 								
-								
+								req.flash('message', 'Check-in realizado com sucesso')
 								res.redirect('/home/recepcao/checkin');
 								
 							}
@@ -1822,7 +1822,8 @@ module.exports = function(passport){
 				req.flash('message', "Folha não existente");
 				res.redirect('/home');
 			}
-		
+		});
+	});
 	
 	router.get('/home/cadastro', isAuthenticated, function(req,res){
 		Cadastro.find({}, function(err, cadastros) {
