@@ -6,10 +6,10 @@ block content
 			center
 				div.section-wall
 					h1.section-title Registro geral
-	div.container
+	div.container(style="margin-top:30px")
 		div.row
-			div.col-sm-6.col-md-4.col-md-offset-4
-				div.home-wall-1
+			center
+				div.section-wall
 					h1 Escolha o intervalo para exibir os registros
 					form(class='form-signin', action='/home/registro', method='GET')
 						input(type='date', name='dataIn' class='form-control', placeholder='Data',required, autofocus)

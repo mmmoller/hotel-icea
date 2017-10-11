@@ -23,17 +23,5 @@ block content
 							td #{folha.nome_fiscal}
 							td
 								a(href='/home/registro/lista?_id=#{folha._id}', target='blank') Visualizar
-
-	div.container
-		div.row
-			center
-				div.section-wall
-					h1.section-title
-						form(class='form-signup', action='/home', method='GET')
-							button(class='btn btn-lg btn-primary btn-block', type='submit', style='width:50%') Voltar
-							span.clearfix
-						#message
-						if message
-							h1.text-center.error-message #{message}
 				
 

@@ -2,11 +2,20 @@
 extends layout2
 
 block content
-	div.container
+	-if ( message != undefined && message.length){
+		div.container
+			div.row
+				center
+					if (failure)
+						div.alert.alert-failure #{message}
+					else
+						div.alert.alert-sucess #{message}
+	-}
+	div.container(style="margin-top:30px")
 		div.row
-			div.col-sm-6.col-md-4.col-md-offset-4
-				div.signup-wall
-					h1.cadastro-title Solicitação de Reserva no Hotel do ICEA
+			center
+				div.section-wall
+					h1.section-title Solicitação de Reserva no Hotel do ICEA
 					form(class='form-signin', action='/', method='POST')
 						.cadastro-sections
 							| Informações pessoais

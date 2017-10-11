@@ -6,10 +6,10 @@ block content
 			center
 				div.section-wall
 					h1.section-title Criar novo usuário
-	div.container
+	div.container(style="margin-top:30px")
 		div.row
-			div.col-sm-6.col-md-4.col-md-offset-4
-				div.signup-wall
+			center
+				div.section-wall
 					form(class='form-signin', action='/home/gerente/signup', method='POST')
 						input(type='text', name='username', class='form-control', placeholder='Usuario',required, autofocus)
 						input(type='password', name='password', class='form-control nomargin', placeholder='Senha', required)

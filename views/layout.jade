@@ -17,9 +17,9 @@ html
 				$('.telefone').mask('(00) 00000-0000');
 				$('.dropdown-toggle').dropdown();
 				$(".valor").maskMoney({
-					prefix: "R$ ",
-					decimal: ",",
-					thousands: "."
+					prefix: "",
+					decimal: ".",
+					thousands: ""
 				});
 			});
 
@@ -39,10 +39,10 @@ html
 								a(href='/home/recepcao/checkin/cancelar') Cancelar Check-in
 							li
 								a(href='/home/recepcao/checkout') Realizar Check-out
-							li
-								a(href='/home/recepcao/checkout/antecipado') Realizar Check-out antecipado
-							li
-								a(href='/home/recepcao/mudanca') Mudança
+							//li
+							//	a(href='/home/recepcao/extender') Extender estadia
+							//li
+							//	a(href='/home/recepcao/mudanca') Mudança
 				.botao-box.pos-botao-2
 					.dropdown
 						button.btn.btn-link.dropdown-toggle.test(type='button', data-toggle='dropdown', style='color:white')
