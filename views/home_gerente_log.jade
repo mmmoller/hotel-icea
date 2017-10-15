@@ -13,12 +13,30 @@ block content
 					h1 Escolha uma data para exibir os logs
 					form(class='form-signin', action='/home/gerente/log', method='GET')
 						input(type='date', name='date' class='form-control', placeholder='Data',required, autofocus)
-						button(class='btn btn-lg btn-primary btn-block', type='submit') Visualizar Registros
+						button(class='btn btn-lg btn-primary btn-block', type='submit') Visualizar Logs
 						span.clearfix
-	-for (var i = 0; i < log.length; i++){
-		pre.
-			#{log[i]}
-	-}
+	div.container#reservas-table-wrapper
+		center
+			table#reservas-table
+				thead
+					tr
+						th Modulo
+						th Horário
+						th(style="width:50%") Log
+						th Cadastro
+						th Usuário
+						//th Data de saida
+				tbody
+					-for (var i = 0; i < log.log.length; i++){
+						tr
+							td #{log.modulo[i]}
+							td #{log.horario[i]}
+							td #{log.log[i]}
+							td
+								a(href='/home/registro/cadastro?_id=#{log.cadastro_id[i]}', target='blank') #{log.cadastro[i]}
+							td #{log.usuario[i]}
+							//td #{cadastro.dateOut}
+					-}
 		
 	
 	

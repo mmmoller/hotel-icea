@@ -3,13 +3,13 @@ extends layout2
 
 block content
 	-if ( message != undefined && message.length){
-		div.container
+		div.container(style="margin-top:30px")
 			div.row
 				center
-					if (failure)
-						div.alert.alert-failure #{message}
+					if ( message.toString().charAt(0) == '!')
+						div.alert.alert-danger #{message.toString().slice(1)}
 					else
-						div.alert.alert-sucess #{message}
+						div.alert.alert-success #{message}
 	-}
 	div.container(style="margin-top:30px")
 		div.row
@@ -20,7 +20,7 @@ block content
 						.cadastro-sections
 							| Informações pessoais
 						select(name='posto', class='form-control', placeholder='Posto/Graduação', required)
-							//option(disabled value='', selected hidden) Posto/Graduação
+							option(disabled value='', selected hidden) Posto/Graduação
 							option(value='Almirante-de-Esquadra') Almirante-de-Esquadra
 							option(value='General-de-Exército') General-de-Exército
 							option(value='Tenente-Brigadeiro-do-Ar') Tenente-Brigadeiro-do-Ar
@@ -102,7 +102,4 @@ block content
 
 						button(class='btn btn-lg btn-primary btn-block', type='submit', style='margin-top:20px') Solicitar Reserva
 						span.clearfix
-				#message
-					if message
-						h1.text-center.error-message #{message}
 		

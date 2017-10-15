@@ -4,9 +4,10 @@ module.exports = mongoose.model('Log',{
 	data: Date,
 	log: [String],
 	modulo: [String],
-	acao: [String],
+	horario: [String],
 	usuario: [String],
 	cadastro: [String],
+	cadastro_id: [String],
 	ganho: Number,
 	gasto: Number
 });
