@@ -86,8 +86,6 @@ module.exports = function(passport){
 				}
 				else{
 					req.flash('message', '!É necessário criar o Log');
-					res.redirect('/home');
-					//console.log("não tem log");
 				}
 			});
 			
@@ -447,8 +445,7 @@ module.exports = function(passport){
 										});
 									}
 									else{
-										req.flash('message', 'É necessário criar o Log');
-										res.redirect('/home');
+										req.flash('message', '!É necessário criar o Log');
 									}
 								});
 								
@@ -638,8 +635,7 @@ module.exports = function(passport){
 											});
 										}
 										else{
-											req.flash('message', 'É necessário criar o Log');
-											res.redirect('/home');
+											req.flash('message', '!É necessário criar o Log');
 										}
 									});
 									
@@ -780,8 +776,7 @@ module.exports = function(passport){
 										});
 									}
 									else{
-										req.flash('message', 'É necessário criar o Log');
-										res.redirect('/home');
+										req.flash('message', '!É necessário criar o Log');
 									}
 								});
 								
@@ -989,8 +984,7 @@ module.exports = function(passport){
 										});
 										}
 										else{
-											req.flash('message', 'É necessário criar o Log');
-											res.redirect('/home');
+											req.flash('message', '!É necessário criar o Log');
 										}
 									});
 									
@@ -1193,7 +1187,7 @@ module.exports = function(passport){
 										
 									}
 									else{
-										req.flash('message', 'É necessário criar o Log');
+										req.flash('message', '!É necessário criar o Log');
 										res.redirect('/home');
 									}
 								});
@@ -1253,8 +1247,7 @@ module.exports = function(passport){
 						});
 					}
 					else{
-						req.flash('message', 'É necessário criar o Log');
-						res.redirect('/home');
+						req.flash('message', '!É necessário criar o Log');
 					}
 				});
 				
@@ -1465,8 +1458,8 @@ module.exports = function(passport){
 		
 		
 		if (req.param('date') != undefined){
-			date = moment(req.param('date'));
-			dateAux = moment(date);
+			date = moment(req.param('date')).add(2, 'hours');
+			dateAux = moment(date).subtract(1, 'days');
 		}
 		
 		Log.findOne({data: {"$gte": dateAux, "$lte": date}}, function(err, log) {
