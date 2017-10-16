@@ -212,11 +212,13 @@ module.exports = function(passport){
 									}
 								}
 							}
-							// DEBUG
 							
+							// DEBUG
 							else {
-								cadastros_.push(cadastros[i]);
-								cores.push("azul");
+								if (debug){
+									cadastros_.push(cadastros[i]);
+									cores.push("vermelho");
+								}
 							}
 						}
 						
