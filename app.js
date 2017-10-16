@@ -32,6 +32,9 @@ app.use(expressSession({secret: 'mySecretKey'}));
 app.use(passport.initialize());
 app.use(passport.session());
 
+// Using momentjs on views.
+app.locals.moment = require('moment');
+
  // Using the flash middleware provided by connect-flash to store messages in session
  // and displaying in templates
 var flash = require('connect-flash');
