@@ -1458,8 +1458,9 @@ module.exports = function(passport){
 		
 		
 		if (req.param('date') != undefined){
-			date = moment(req.param('date')).add(2, 'hours');
-			dateAux = moment(date).subtract(1, 'days');
+			date = moment(req.param('date'));
+			console.log(date.format());
+			dateAux = moment(date)/*.subtract(1, 'days')*/;
 		}
 		
 		Log.findOne({data: {"$gte": dateAux, "$lte": date}}, function(err, log) {
@@ -1984,6 +1985,7 @@ module.exports = function(passport){
 						if (err) return handleError(err,req,res);	
 					});
 					proximoDia.add(1, 'days')
+					proximoDia.hour(0);
 				}
 				res.redirect('/criar/log');
 			}
@@ -2017,6 +2019,7 @@ module.exports = function(passport){
 						if (err) return handleError(err,req,res);	
 					});
 					proximoDia.add(1, 'days')
+					proximoDia.hour(0);
 				}
 				res.redirect('/');
 			}
