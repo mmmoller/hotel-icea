@@ -20,10 +20,10 @@ block content
 							a(href='/home/registro/cadastro?_id=#{cadastro._id}', target='blank') #{cadastro.name}
 					tr
 						td Data de entrada
-						td #{cadastro.dateIn}
+						td #{moment(cadastro.dateIn).format("DD/MM/YYYY")}
 					tr
 						td Data de saida
-						td #{cadastro.dateOut}
+						td #{moment(cadastro.dateOut).format("DD/MM/YYYY")}
 					tr
 						td Data de entrada efetiva
 						td #{checkIn}

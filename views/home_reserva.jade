@@ -26,8 +26,8 @@ block content
 								a(href='/home/registro/cadastro?_id=#{cadastro._id}', target='blank') #{cadastro.name}
 							td #{cadastro.saram}
 							td #{cadastro.cpf}
-							td #{cadastro.dateIn}
-							td #{cadastro.dateOut}
+							td #{moment(cadastro.dateIn).format("DD/MM/YYYY")}
+							td #{moment(cadastro.dateOut).format("DD/MM/YYYY")}
 							td #{cadastro.curso}
 							td
 								form(class='form-signin', action='/home/reserva', method='POST')
