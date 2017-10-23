@@ -1,5 +1,9 @@
 
+
+
 extends layout2
+
+
 
 block content
 	-if ( message != undefined && message.length){
@@ -16,7 +20,16 @@ block content
 			center
 				div.section-wall
 					h1.section-title Solicitação de Reserva no Hotel do ICEA
-					form(class='form-signin', action='/', method='POST')
+					script.
+						$('#form-solicitacao').submit(function(){
+							var s = "teste " + $('#Dt_saida').val() + "  " + $('#Dt_entrada');
+							if ($('#Dt_saida').val() < $('#Dt_entrada') ) {
+								$('#error').html("My Error Message");
+								$('#error').show();
+								return false;
+							}
+						});
+					form.form-signin#form-solicitacao( action='/', method='POST')
 						.cadastro-sections
 							| Informações pessoais
 						select(name='posto', class='form-control', placeholder='Posto/Graduação', required)
@@ -73,10 +86,10 @@ block content
 
 						.cadastro-sections
 							| Data de entrada
-						input(type='date', name='checkin', class='form-control', placeholder='Data de entrada',required)
+						input#dt_entrada(type='date', name='checkin', class='form-control', placeholder='Data de entrada', required)
 						.cadastro-sections
 							| Data de saída
-						input(type='date', name='checkout', class='form-control', placeholder='Data de saida',required)
+						input#dt_saida(type='date', name='checkout', class='form-control', placeholder='Data de saida', required)
 
 						.cadastro-sections
 							| Solicitante
@@ -95,7 +108,7 @@ block content
 						//	option(value = 1) Graduado
 						.cadastro-sections
 							| Termos de compromisso
-						input(type='checkbox')
+						input(type='checkbox' required)
 						|  Estou ciente do meu dever de ler a NPA 021/ASE que estabelece as normas de utilização do hotel do ICEA, bem como contribuir para o seu fiel cumprimento, colaborando com a boa convivência entre os hóspedes, civis contratados e com a administração do hotel, evitando, assim pagar multa e sofrer sanções previstas na NPA.
 						br
 						a(href="https://www.icea.gov.br/hotel/npa_021.pdf", target="_blank") NPA 021/ASE
