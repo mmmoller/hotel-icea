@@ -675,13 +675,13 @@ module.exports = function(passport){
 		}
 	});
 	
-	// /HOME/RECEPCAO/EXTENDER
-	router.get('/home/recepcao/extender', isAuthenticated, isRecepcao, function(req,res){
+	// /HOME/RECEPCAO/ESTENDER
+	router.get('/home/recepcao/estender', isAuthenticated, isRecepcao, function(req,res){
 		Cadastro.find({'estado': "checkin"}, function(err, cadastros) {
 			if (err) return handleError(err,req,res);
 			if (cadastros){
 				
-				// Quais cadastros_ são extendiveis em 1 dia a estadia.
+				// Quais cadastros_ são extensiveis em 1 dia a estadia.
 				var cadastros_ = [];
 				
 				Registro.findOne({data: {"$gte": moment().subtract(1, 'days'), "$lte": moment()}}
@@ -706,8 +706,8 @@ module.exports = function(passport){
 								}
 								
 								res.render('home_recepcao_geral', {cadastros: cadastros_
-								, titulo: "Extender estadia", endereco: "extender",
-								botao: "Extender", message: req.flash('message')});
+								, titulo: "Estender estada", endereco: "estender",
+								botao: "Estender", message: req.flash('message')});
 								}
 						else {
 							req.flash('message', 'É necessário criar os Leitos');
@@ -728,7 +728,7 @@ module.exports = function(passport){
 		});
 	});
 	
-	router.post('/home/recepcao/extender', isAuthenticated, isRecepcao, function(req,res){
+	router.post('/home/recepcao/estender', isAuthenticated, isRecepcao, function(req,res){
 		Cadastro.findOne({'_id': req.param('_id')}, function(err, cadastro) {
 			if (err) return handleError(err,req,res);
 			if (cadastro){
@@ -765,7 +765,7 @@ module.exports = function(passport){
 										
 										log.modulo.push("Recepcao");
 										log.horario.push(moment().format("HH:mm:ss"));
-										log.log.push("Extendida a estadia no leito "
+										log.log.push("Estendida a estada no leito "
 										+ cadastro.leito);
 										log.cadastro.push(cadastro.name);
 										log.cadastro_id.push(cadastro._id);
@@ -781,8 +781,8 @@ module.exports = function(passport){
 								});
 								
 								
-								req.flash('message', 'Estadia extendida com sucesso');
-								res.redirect('/home/recepcao/extender');
+								req.flash('message', 'Estada estendida com sucesso');
+								res.redirect('/home/recepcao/estender');
 								
 								}
 						else {

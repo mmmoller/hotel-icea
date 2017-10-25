@@ -16,6 +16,7 @@ block content
 						th CPF
 						th Data de Entrada
 						th Data de Saída
+						th Motivo/Curso
 						th Reservar
 						th Rejeitar
 				tbody
@@ -27,6 +28,7 @@ block content
 							td #{cadastro.cpf}
 							td #{moment(cadastro.dateIn).format("DD/MM/YYYY")}
 							td #{moment(cadastro.dateOut).format("DD/MM/YYYY")}
+							td #{cadastro.curso}
 							td
 								form(class='form-signin', action='/home/reserva', method='POST')
 									input(type='hidden', name='_id', value=cadastro._id)
