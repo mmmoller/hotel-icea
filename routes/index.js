@@ -915,15 +915,10 @@ module.exports = function(passport){
 								}
 								
 								var leitos_ = [];
-								var j = 0;
-								for (var i = 0; i < leitos.length; i++){
-									if (livre[i]){
-										leitos_[i-j] = leitos[i].cod_leito;
-									}
-									else {
-										j++;
-									}
-								}
+								for (var i = 0; i < leitos.length; i++)
+									if (livre[i])
+										leitos_.push(leitos[i]);
+								
 								
 								res.render('home_alocacao_geral', {leitos: leitos_,
 								num_hospede: (cadastro.acompanhante+1), endereco: "reserva/alocacao"});

@@ -6,62 +6,80 @@ block content
 			center
 				div.section-wall
 					h1.section-title #{titulo}
-	div.container#folha-ce-table-wrapper
-		center
-			table#folha-ce-table.table-striped.table-bordered
-				thead
+	
+	center
+		table#recepcao-table.table-striped.table-bordered
+			thead
+				tr
+					th Nome
+					th Leito
+					th Saram
+					th CPF
+					th Data de Entrada
+					th Data de Saida
+					if (custos)
+						th(style="width:6%") Custo previsto
+						th(style="width:8%") Ajustar custo
+						th(style="width:5%") Opção de pagamento
+					th #{botao}
+					th
+						.dropdown-submenu
+							| (?)
+							ul.dropdown-menu
+								li(style="margin-left:5px")
+									p
+										span(style="color: #ff0000") Vermelho 
+										| pra quando bla bla bla
+								li.divider
+								li(style="margin-left:5px")
+									p
+										span(style="color: #006dcc") Azul 
+										| pra quando bla bla bla
+								li.divider
+								li(style="margin-left:5px")
+									p
+										span(style="color: #FF9933") Laranja 
+										| pra quando bla bla bla
+					
+			tbody
+				- for (var i = 0; i < cadastros.length; ++i){
 					tr
-						th Nome
-						th Leito
-						th Saram
-						th CPF
-						th Data de Entrada
-						th Data de Saida
+						td 
+							a(href='/home/registro/cadastro?_id=#{cadastros[i]._id}', target='blank') #{cadastros[i].name}
+						td #{cadastros[i].leito}
+						td #{cadastros[i].saram}
+						td #{cadastros[i].cpf}
+						td #{moment(cadastros[i].dateIn).format("DD/MM/YYYY")}
+						td #{moment(cadastros[i].dateOut).format("DD/MM/YYYY")}
 						if (custos)
-							th(style="width:6%") Custo previsto
-							th(style="width:8%") Ajustar custo
-							th(style="width:5%") Opção de pagamento
-						th #{botao}
-						
-				tbody
-					- for (var i = 0; i < cadastros.length; ++i){
-						tr
-							td 
-								a(href='/home/registro/cadastro?_id=#{cadastros[i]._id}', target='blank') #{cadastros[i].name}
-							td #{cadastros[i].leito}
-							td #{cadastros[i].saram}
-							td #{cadastros[i].cpf}
-							td #{moment(cadastros[i].dateIn).format("DD/MM/YYYY")}
-							td #{moment(cadastros[i].dateOut).format("DD/MM/YYYY")}
+							td R$ #{custos[i].toFixed(2)}
+						form(class='form-signin', action='/home/recepcao/' + '#{endereco}', method='POST')
+							input(type='hidden', name='_id', value=cadastros[i]._id)
+							input(type='hidden', name='cod_leito', value=cadastros[i].leito)
+							input(type='hidden', name='dateOut', value=cadastros[i].dateOut)
+							input(type='hidden', name='dateIn', value=cadastros[i].dateIn)
 							if (custos)
-								td R$ #{custos[i].toFixed(2)}
-							form(class='form-signin', action='/home/recepcao/' + '#{endereco}', method='POST')
-								input(type='hidden', name='_id', value=cadastros[i]._id)
-								input(type='hidden', name='cod_leito', value=cadastros[i].leito)
-								input(type='hidden', name='dateOut', value=cadastros[i].dateOut)
-								input(type='hidden', name='dateIn', value=cadastros[i].dateIn)
-								if (custos)
-									td R$
-										input.valor(type='text', name='valor',class='form-control', value=custos[i].toFixed(2), required)
-									td
-										select(name = 'tipo_pagamento', class = 'form-control', required)
-											option(disabled value='', selected hidden) Opções
-											option(value = "gru") GRU
-											option(value = "consignado") Consignado
+								td R$
+									input.valor(type='text', name='valor',class='form-control', value=custos[i].toFixed(2), required)
 								td
-									if (cores)
-										if (cores[i] == "vermelho")
-											button(class='btn btn-lg btn-danger btn-block', type='submit') #{botao}
-										else if (cores[i] == "laranja")
-											button(class='btn btn-lg btn-warning btn-block', type='submit') #{botao}
-										else
-											button(class='btn btn-lg btn-primary btn-block', type='submit') #{botao}
+									select(name = 'tipo_pagamento', class = 'form-control', required)
+										option(disabled value='', selected hidden) Opções
+										option(value = "gru") GRU
+										option(value = "consignado") Consignado
+							td(colspan = '2')
+								if (cores)
+									if (cores[i] == "vermelho")
+										button(class='btn btn-lg btn-danger btn-block', type='submit') #{botao}
+									else if (cores[i] == "laranja")
+										button(class='btn btn-lg btn-warning btn-block', type='submit') #{botao}
 									else
 										button(class='btn btn-lg btn-primary btn-block', type='submit') #{botao}
-								span.clearfix
-					-}
-		
-		
+								else
+									button(class='btn btn-lg btn-primary btn-block', type='submit') #{botao}
+							span.clearfix
+				-}
+	
+	
 		
 		
 	
