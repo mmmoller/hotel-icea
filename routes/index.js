@@ -10,6 +10,7 @@ var Financeiro = require('../models/financeiro');
 var bCrypt = require('bcrypt-nodejs');
 var moment = require('moment');
 var mongoose = require('mongoose');
+var nodemailer = require('nodemailer');
 
 module.exports = function(passport){
 
@@ -71,6 +72,10 @@ module.exports = function(passport){
 			createLog("Cadastro", newCadastro.name, newCadastro._id, "", "", log);
 			
 			req.flash('message', "Solicitação de reserva realizada com sucesso, aguarde confirmação por e-mail");
+			
+			
+			
+			
 			if (req.user){
 				res.redirect('/home');
 			}
@@ -1014,7 +1019,11 @@ module.exports = function(passport){
 												log.cadastro_id.push(newCadastro._id);
 												log.usuario.push(req.user.username);
 												
+												if (!acompanhante){
+													acceptMail(newCadastro);
+												}
 												acompanhante = true;
+												
 											}
 										}
 										
@@ -1072,6 +1081,7 @@ module.exports = function(passport){
 					if (err) return handleError(err,req,res);
 				});
 				
+				rejectMail(cadastro);
 				
 				createLog("Reserva", cadastro.name, cadastro._id,
 				"", req.user.username, "Solicitação cancelada");
@@ -2176,6 +2186,52 @@ function createLeito(bloco,quarto,vaga){
 	return ret;
 }
 
+function acceptMail(cadastro){
+	
+	var text = 'A solicitação de reserva do ' + cadastro.posto
+	+ " " + cadastro.name_guerra + " foi realizada com sucesso." + 
+	" A hospedagem será no leito " + cadastro.leito + " do dia " +
+	moment(cadastro.dateIn).format("DD/MM/YYYY") + " ao dia " +
+	moment(cadastro.dateOut).format("DD/MM/YYYY") + ".";
+	
+	var mailOptions = {
+		from: 'hotel.icea@gmail.com',
+		to: cadastro.email,
+		subject: 'Solicitação de reserva confirmada',
+		text: text
+	};
+
+	transporter.sendMail(mailOptions, function(error, info){
+		if (error) {
+			console.log(error);
+		} else {
+			console.log('Email sent: ' + info.response);
+		}
+	});
+}
+
+function rejectMail(cadastro){
+	
+	var text = 'A solicitação de reserva do ' + cadastro.posto + " " + cadastro.name_guerra +
+	" foi rejeitada devido à falta de vagas disponíveis na data solicitada.";
+	
+	var mailOptions = {
+		from: 'hotel.icea@gmail.com',
+		to: cadastro.email,
+		subject: 'Solicitação de reserva rejeitada',
+		text: text
+	};
+
+	transporter.sendMail(mailOptions, function(error, info){
+		if (error) {
+			console.log(error);
+		} else {
+			console.log('Email sent: ' + info.response);
+		}
+	});
+}
+
+
 function handleError(err,req,res){
 	console.log(err);
 	res.send(err);
@@ -2305,6 +2361,14 @@ var desc_itens_lavanderia = [
 	"Saia cama box solteiro",
 	"Capa para união cama box solteiro"];
 
+var transporter = nodemailer.createTransport({
+	service: 'gmail',
+	auth: {
+		user: 'hotel.icea@gmail.com',
+		pass: 'Senha123'
+	}
+});
+	
 var debug = false
 
 }
