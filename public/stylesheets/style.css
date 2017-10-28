@@ -302,6 +302,43 @@ body header {
         font-size: 18px;
     }
 
+#recepcao-table{
+    border: 1px solid #3333ff;
+    margin-top: 30px;
+    margin-bottom: 30px;
+    border-radius: 5px;
+    margin-left: 0;
+    width: 60%;
+    left: 0%;
+    padding: 0px;
+    background-color: #f7f7f7;
+    -moz-box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.3);
+    -webkit-box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.3);
+    box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.3); 
+    overflow: auto;
+}
+        #recepcao-table-wrapper{
+            border: 1px solid #3333ff;
+            position: relative;
+
+
+
+        }
+        #recepcao-table thead{
+            background-color: #f7f7f7;
+        }
+        #recepcao-table tbody{
+            background-color: #f7f7f7;
+        }
+        #recepcao-table tr{
+            text-align: center;
+        }
+        #recepcao-table th, #recepcao-table td{
+            text-align: center;
+            padding: 5px 5px 5px 5px;
+            font-size: 18px;
+        }
+
 
 .botoes-wrapper {
 
