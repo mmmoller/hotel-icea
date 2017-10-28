@@ -16,8 +16,11 @@ module.exports = function(passport){
 	// /'TESTE'
 	
 	router.get('/teste', function(req,res){
+		//createLeito("A", "20", "a");
+		res.send("banana");
+		
 		//req.flash('message', "!Solicitação de reserva realizada com sucesso, aguarde confirmação por e-mail");
-		res.render("teste");
+		//res.render("teste");
 		//res.render("home_modulo", {titulo: "Recepção", endereco: modulo_recepcao_endereco, tag: modulo_recepcao_titulo })
 	});		
 
@@ -1549,7 +1552,7 @@ module.exports = function(passport){
 	});
 }
 
-{ // DEBUG Delete/Criar
+{ // Criar/Delete/Debug
 	
 	// DELETE
 	router.get('/delete', function(req, res){
@@ -1652,6 +1655,7 @@ module.exports = function(passport){
 		
 	});
 	
+	/*
 	router.get('/criar/leitos', function(req,res){
 		var newLeito;
 		//A
@@ -1848,6 +1852,204 @@ module.exports = function(passport){
 		}
 		setTimeout(function () {res.redirect('/criar/registro')}, 1000);
 	});
+	*/
+	router.get('/criar/leitos', function(req,res){
+		var newLeito;
+		//A
+		
+		for(var i = 1; i <= 9; i++){
+			newLeito = createLeito("A" , '0' + i , "a");
+			newLeito.save(function(err){
+				if(err) return handleError(err,req,res);
+			});
+			newLeito = createLeito("A" , '0'+ i , "b");
+			newLeito.save(function(err){
+				if(err) return handleError(err,req,res);
+			});
+		}
+		
+		for(var i = 10; i <= 18; i++){
+			newLeito = createLeito("A" , i , "a");
+			newLeito.save(function(err){
+				if(err) return handleError(err,req,res);
+			});
+			newLeito = createLeito("A" , i , "b");
+			newLeito.save(function(err){
+				if(err) return handleError(err,req,res);
+			});
+		}
+		
+		newLeito = createLeito("A" , "19" , "a");
+		newLeito.save(function(err){
+			if(err) return handleError(err,req,res);
+		});
+		newLeito = createLeito("A", "19", "b");
+		newLeito.save(function(err){
+			if(err) return handleError(err,req,res);
+		});
+		newLeito = createLeito("A", "19" , "c");
+		newLeito.save(function(err){
+			if(err) return handleError(err,req,res);
+		});
+		newLeito = createLeito("A", "20", "a");
+		newLeito.save(function(err){
+			if(err) return handleError(err,req,res);
+		});		
+		newLeito = createLeito("A", "21", "a");
+		newLeito.save(function(err){
+			if(err) return handleError(err,req,res);
+		});		
+
+
+		//B
+
+		newLeito = createLeito("B", "01", "a");
+		newLeito.save(function(err){
+			if(err) return handleError(err,req,res);
+		});
+		for(var i = 2; i <= 9; i++){
+			newLeito = createLeito("B" , '0' + i.toString() , "a");
+			newLeito.save(function(err){
+				if(err) return handleError(err,req,res);
+			});
+			newLeito = createLeito("B" , '0' + i.toString() , "b");
+			newLeito.save(function(err){
+				if(err) return handleError(err,req,res);
+			});
+		}
+		for(var i = 10; i <= 19; i++){
+			newLeito = createLeito("B" , i , "a");
+			newLeito.save(function(err){
+				if(err) return handleError(err,req,res);
+			});
+			newLeito = createLeito("B" , i  , "b");
+			newLeito.save(function(err){
+				if(err) return handleError(err,req,res);
+			});
+		}
+		
+		
+
+		//C
+
+		for(var i = 1; i <= 9; i++){
+			newLeito = createLeito("C" , '0' + i , "a");
+			newLeito.save(function(err){
+				if(err) return handleError(err,req,res);
+			});
+			newLeito = createLeito("C" , '0' + i , "b");
+			newLeito.save(function(err){
+				if(err) return handleError(err,req,res);
+			});
+			newLeito = createLeito("C" , '0' + i , "c");
+			newLeito.save(function(err){
+				if(err) return handleError(err,req,res);
+			});
+		}
+		for(var i = 10; i <= 25; i++){
+			newLeito = createLeito("C" , i , "a");
+			newLeito.save(function(err){
+				if(err) return handleError(err,req,res);
+			});
+			newLeito = createLeito("C" , i , "b");
+			newLeito.save(function(err){
+				if(err) return handleError(err,req,res);
+			});
+			newLeito = createLeito("C" , i , "c");
+			newLeito.save(function(err){
+				if(err) return handleError(err,req,res);
+			});
+		}
+		
+		
+		for(var i = 26; i <= 35; i++){
+			newLeito = createLeito("C" , i , "a");
+			newLeito.save(function(err){
+				if(err) return handleError(err,req,res);
+			});
+			newLeito = createLeito("C" , i , "b");
+			newLeito.save(function(err){
+				if(err) return handleError(err,req,res);
+			});
+		}
+
+		//D
+		for(var i = 101; i <= 119; i++){
+			newLeito = createLeito("D" , i , "a");
+			newLeito.save(function(err){
+				if(err) return handleError(err,req,res);
+			});
+			newLeito = createLeito("D" , i , "b");
+			newLeito.save(function(err){
+				if(err) return handleError(err,req,res);
+			});
+			newLeito = createLeito("D" , i , "c");
+			newLeito.save(function(err){
+				if(err) return handleError(err,req,res);
+			});
+			newLeito = createLeito("D" , i , "d");
+			newLeito.save(function(err){
+				if(err) return handleError(err,req,res);
+			});
+		}
+		newLeito = createLeito("D" , "200", "a");
+		newLeito.save(function(err){
+			if(err) return handleError(err,req,res);
+		});
+		newLeito = createLeito("D", "200", "b");
+		newLeito.save(function(err){
+			if(err) return handleError(err,req,res);
+		});
+		newLeito = createLeito("D", "200", "c");
+		newLeito.save(function(err){
+			if(err) return handleError(err,req,res);
+		});
+		newLeito = createLeito("D", "200", "d");
+		newLeito.save(function(err){
+			if(err) return handleError(err,req,res);
+		});
+		for(var i = 202; i <= 221; i++){
+			newLeito = createLeito("D" , i , "a");
+			newLeito.save(function(err){
+				if(err) return handleError(err,req,res);
+			});
+			newLeito = createLeito("D" , i , "b");
+			newLeito.save(function(err){
+				if(err) return handleError(err,req,res);
+			});
+			newLeito = createLeito("D" , i , "c");
+			newLeito.save(function(err){
+				if(err) return handleError(err,req,res);
+			});
+			newLeito = createLeito("D" , i , "d");
+			newLeito.save(function(err){
+				if(err) return handleError(err,req,res);
+			});
+		}
+		for(var i = 222; i <= 223; i++){
+			newLeito = createLeito("D" , i , "a");
+			newLeito.save(function(err){
+				if(err) return handleError(err,req,res);
+			});
+			newLeito = createLeito("D" , i , "b");
+			newLeito.save(function(err){
+				if(err) return handleError(err,req,res);
+			});
+			newLeito = createLeito("D" , i , "c");
+			newLeito.save(function(err){
+				if(err) return handleError(err,req,res);
+			});
+			newLeito = createLeito("D" , i , "d");
+			newLeito.save(function(err){
+				if(err) return handleError(err,req,res);
+			});
+			newLeito = createLeito("D" , i , "e");
+			newLeito.save(function(err){
+				if(err) return handleError(err,req,res);
+			});
+		}
+		setTimeout(function () {res.redirect('/criar/registro')}, 1000);
+	});
 	
 	router.get('/criar/registro', function(req, res){
 		Leito.find({}, null, {sort: 'cod_leito'}, function(err, leitos) {
@@ -1961,13 +2163,16 @@ function createLog(modulo, cadastro, cadastro_id, leito, username, log_){
 	});
 }
 
-function createLeito(cod_leito){
+function createLeito(bloco,quarto,vaga){
 	var ret = new Leito();
-	ret.cod_leito = cod_leito;
+	//ret.cod_leito = cod_leito;
 	ret.limpeza = "limpo";
 	ret.ocupabilidade = "normal";
 	ret.manutencao = [];
-	ret.ocupante = [];
+	ret.bloco = bloco;
+	ret.quarto = quarto;
+	ret.vaga = vaga;
+	ret.cod_leito = bloco + "" + quarto + "" + vaga;
 	return ret;
 }
 
