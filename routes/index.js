@@ -189,9 +189,14 @@ module.exports = function(passport){
 							}
 						}
 						
+						var azul = "Leito limpo"
+						var laranja = "Leito sujo"
+						var vermelho = "Apenas no modo 'Debug'"
+						
 						res.render('home_recepcao_geral', {cadastros: cadastros_
 						, titulo: "Realizar Check-In", endereco: "checkin",
-						botao: "Check-in", cores: cores, message: req.flash('message')});
+						botao: "Check-in", cores: cores, message: req.flash('message')
+						, azul: azul, laranja: laranja, vermelho: vermelho});
 						
 					}
 					else {
@@ -306,9 +311,14 @@ module.exports = function(passport){
 					
 				}
 				
+				var azul = "Deve ser cancelado. Já passou a data de estada e o hospede não compareceu."
+				var laranja = "Cancelar apenas se houver demanda. O hóspede já deveria ter realizado check-in."
+				var vermelho = "Cancelar apenas por motivos de força maior. O hóspede se encontra em situação regular."
+				
 				res.render('home_recepcao_geral', {cadastros: cadastros
 				, titulo: "Cancelar Check-In", endereco: "checkin/cancelar",
-				botao: "Cancelar", cores: cores, message: req.flash('message')});
+				botao: "Cancelar", cores: cores, message: req.flash('message')
+				, azul: azul, laranja: laranja, vermelho: vermelho});
 						
 					
 				
@@ -444,9 +454,14 @@ module.exports = function(passport){
 				
 				req.session.preventf5 = true;
 				
+				var azul = "Hóspede deve realizar o check-out hoje."
+				var laranja = "Ainda não é a data de check-out do hóspede, porém ele pode ser realizado antecipadamente."
+				var vermelho = "Hóspede já deveria ter realizado o check-out."
+				
 				res.render('home_recepcao_geral', {cadastros: cadastros
 				, titulo: "Realizar Check-Out", endereco: "checkout",
-				botao: "Check-out", cores: cores, custos: custos, message: req.flash('message')});
+				botao: "Check-out", cores: cores, custos: custos, message: req.flash('message')
+				, azul: azul, laranja: laranja, vermelho: vermelho});
 								
 			}
 			else {

@@ -22,24 +22,29 @@ block content
 						th(style="width:8%") Ajustar custo
 						th(style="width:5%") Opção de pagamento
 					th #{botao}
-					th
-						.dropdown-submenu
-							| (?)
-							ul.dropdown-menu
-								li(style="margin-left:5px")
-									p
-										span(style="color: #ff0000") Vermelho 
-										| pra quando bla bla bla
-								li.divider
-								li(style="margin-left:5px")
-									p
-										span(style="color: #006dcc") Azul 
-										| pra quando bla bla bla
-								li.divider
-								li(style="margin-left:5px")
-									p
-										span(style="color: #FF9933") Laranja 
-										| pra quando bla bla bla
+					if (cores)
+						th
+							.dropdown-submenu
+								| (?)
+								ul.dropdown-menu
+									if (azul)
+										li(style="margin-left:5px")
+											p
+												span(style="color: #006dcc") Azul: 
+												| #{azul}
+									if (laranja)
+										li.divider
+										li(style="margin-left:5px")
+											p
+												span(style="color: #FF9933") Laranja: 
+												| #{laranja}
+									if (vermelho)
+										li.divider
+										li(style="margin-left:5px")
+											p
+												span(style="color: #ff0000") Vermelho: 
+												| #{vermelho}
+									
 					
 			tbody
 				- for (var i = 0; i < cadastros.length; ++i){
