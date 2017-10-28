@@ -6,6 +6,8 @@ extends layout2
 
 
 block content
+	script(src="/scripts/jquery-1.12.4.js")
+	script(src="/scripts/jquery-ui.js")
 	-if ( message != undefined && message.length){
 		div.container(style="margin-top:30px")
 			div.row
@@ -20,20 +22,12 @@ block content
 			center
 				div.section-wall
 					h1.section-title Solicitação de Reserva no Hotel do ICEA
-					script.
-						$('#form-solicitacao').submit(function(){
-							var s = "teste " + $('#Dt_saida').val() + "  " + $('#Dt_entrada');
-							if ($('#Dt_saida').val() < $('#Dt_entrada') ) {
-								$('#error').html("My Error Message");
-								$('#error').show();
-								return false;
-							}
-						});
 					form.form-signin#form-solicitacao( action='/', method='POST')
 						.cadastro-sections
 							| Informações pessoais
 						select(name='posto', class='form-control', placeholder='Posto/Graduação', required)
-							option(disabled value='', selected hidden) Posto/Graduação
+							if (!_debug)
+								option(disabled value='', selected hidden) Posto/Graduação
 							option(value='Almirante-de-Esquadra') Almirante-de-Esquadra
 							option(value='General-de-Exército') General-de-Exército
 							option(value='Tenente-Brigadeiro-do-Ar') Tenente-Brigadeiro-do-Ar
@@ -63,8 +57,10 @@ block content
 							option(value='3o Sargento') 3o Sargento
 							option(value='Cabo') Cabo
 							option(value='Civil') Civil
-
-						input(type='text', name='nome', class='form-control', placeholder='Nome completo', required)
+						if (_debug)
+							input(type='text', name='nome', class='form-control', placeholder='Nome completo', value="debug")
+						else
+							input(type='text', name='nome', class='form-control', placeholder='Nome completo', required)
 						input(type='text', name='nome_guerra', class='form-control', placeholder='Nome de Guerra/Tratamento')
 						input(type='text', name='saram', class='form-control', placeholder='SARAM')
 						input(type='text', name='identidade', class='form-control', placeholder='Identidade')
@@ -84,13 +80,57 @@ block content
 							| Nome do curso ou missão
 						input(type='text', name='curso', class='form-control', value='Motivo pessoal', placeholder='Nome do curso ou missão')
 
+						script.
+							$( function() {
+								var dateFormat = "dd/mm/yy",
+								from = $( "#from" ).datepicker(
+								{ showOtherMonths: true,
+								selectOtherMonths: true,
+								dateFormat: dateFormat,
+								altField: "#checkin",
+								altFormat: "yy-mm-dd",
+								minDate: 0 
+								})
+								.on( "change", function() {
+									var date = $(this).datepicker("getDate");
+									date.setDate(date.getDate() + 1); 
+									to.datepicker( "option", "minDate", date );
+								}),
+								to = $( "#to" ).datepicker(
+								{ showOtherMonths: true,
+								selectOtherMonths: true,
+								dateFormat: dateFormat,
+								altField: "#checkout",
+								altFormat: "yy-mm-dd",
+								minDate: "+1d"
+								})
+								.on( "change", function() {
+									var date = $(this).datepicker("getDate");
+									date.setDate(date.getDate() - 1);
+									from.datepicker( "option", "maxDate", date );
+								});
+									
+								function getDate( element ) {
+									var date;
+									try {
+									date = $.datepicker.parseDate( dateFormat, element.value );
+									} catch( error ) {
+										date = null;
+									}
+									return date;
+								}
+							});
+							
 						.cadastro-sections
 							| Data de entrada
-						input#dt_entrada(type='date', name='checkin', class='form-control', placeholder='Data de entrada', required)
+						input#from(type='text', name='checkin_', class='form-control', placeholder='Data de entrada', required)
+						input#checkin(type='hidden', name='checkin', class='form-control')
+						
 						.cadastro-sections
 							| Data de saída
-						input#dt_saida(type='date', name='checkout', class='form-control', placeholder='Data de saida', required)
-
+						input#to(type='text', name='checkout_', class='form-control', placeholder='Data de saida', required)
+						input#checkout(type='hidden', name='checkout', class='form-control')
+						
 						.cadastro-sections
 							| Solicitante
 						.radio-inline
@@ -108,7 +148,10 @@ block content
 						//	option(value = 1) Graduado
 						.cadastro-sections
 							| Termos de compromisso
-						input(type='checkbox' required)
+						if (_debug)
+							input(type='checkbox')
+						else
+							input(type='checkbox', required)
 						|  Estou ciente do meu dever de ler a NPA 021/ASE que estabelece as normas de utilização do hotel do ICEA, bem como contribuir para o seu fiel cumprimento, colaborando com a boa convivência entre os hóspedes, civis contratados e com a administração do hotel, evitando, assim pagar multa e sofrer sanções previstas na NPA.
 						br
 						a(href="https://www.icea.gov.br/hotel/npa_021.pdf", target="_blank") NPA 021/ASE

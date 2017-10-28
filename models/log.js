@@ -8,6 +8,7 @@ module.exports = mongoose.model('Log',{
 	usuario: [String],
 	cadastro: [String],
 	cadastro_id: [String],
+	leito:[String],
 	ganho: Number,
 	gasto: Number
 });

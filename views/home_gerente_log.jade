@@ -22,20 +22,27 @@ block content
 					tr
 						th Modulo
 						th Horário
-						th(style="width:50%") Log
+						th(style="width:30%") Log
 						th Cadastro
+						th Leito
 						th Usuário
-						//th Data de saida
 				tbody
 					-for (var i = 0; i < log.log.length; i++){
 						tr
 							td #{log.modulo[i]}
 							td #{log.horario[i]}
 							td #{log.log[i]}
-							td
-								a(href='/home/registro/cadastro?_id=#{log.cadastro_id[i]}', target='blank') #{log.cadastro[i]}
+							if (log.modulo[i] == "Lavanderia")
+								td
+									a(href='/home/registro/lista?_id=#{log.cadastro_id[i]}', target='blank') folha
+							else if (log.modulo[i] == "Gerência")
+								td
+									a(href='/home/registro/usuario?_id=#{log.cadastro_id[i]}', target='blank') #{log.cadastro[i]}
+							else
+								td
+									a(href='/home/registro/cadastro?_id=#{log.cadastro_id[i]}', target='blank') #{log.cadastro[i]}
+							td #{log.leito[i]}
 							td #{log.usuario[i]}
-							//td #{cadastro.dateOut}
 					-}
 		
 	

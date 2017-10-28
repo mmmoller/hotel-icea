@@ -16,8 +16,8 @@ module.exports = function(passport){
 	// /'TESTE'
 	
 	router.get('/teste', function(req,res){
-		req.flash('message', "!Solicitação de reserva realizada com sucesso, aguarde confirmação por e-mail");
-		res.redirect('/home');
+		//req.flash('message', "!Solicitação de reserva realizada com sucesso, aguarde confirmação por e-mail");
+		res.render("teste");
 		//res.render("home_modulo", {titulo: "Recepção", endereco: modulo_recepcao_endereco, tag: modulo_recepcao_titulo })
 	});		
 
@@ -25,12 +25,12 @@ module.exports = function(passport){
 	
 	// /'INDEX'
 	router.get('/', function(req, res) {
-		res.render('index', {message: req.flash('message')});
+		res.render('index', {message: req.flash('message'), _debug: debug});
 	});
 	
 	router.post('/', function(req, res){
 		// Cria uma variavel cadastro com todos os parametros preenchidos pelo hóspede.
-
+		
 		var newCadastro = new Cadastro();
 		newCadastro.name = req.param('nome'); 
 		newCadastro.name_guerra = req.param('nome_guerra'); 
@@ -62,34 +62,10 @@ module.exports = function(passport){
 				if (err) return handleError(err,req,res);
 			});
 			
-			Log.findOne({data: {"$gte": moment().subtract(1, 'days'), "$lte": moment()}}, function(err, log) {
-				if (err) return handleError(err,req,res);
-				if (log){
-					/*
-					log.log.push("[" + moment().format("HH:mm:ss") + "]" +
-					" CADASTRO: " +
-					"realizado a SOLITICAÇÃO DE RESERVA do hospede " + newCadastro.name +
-					", do dia " + moment(newCadastro.dateIn).format("DD/MM/YY") +
-					" ao dia " + moment(newCadastro.dateOut).format("DD/MM/YY"));
-					*/
-					log.modulo.push("Cadastro");
-					log.horario.push(moment().format("HH:mm:ss"));
-					log.log.push("Solicitação de reserva. Data de entrada: "
-					+ moment(newCadastro.dateIn).format("DD/MM/YY") +
-					". Data de saida: " + moment(newCadastro.dateOut).format("DD/MM/YY"));
-					log.cadastro.push(newCadastro.name);
-					log.cadastro_id.push(newCadastro._id);
-					log.usuario.push("");
-					log.save(function (err) {
-						if (err) return handleError(err,req,res);
-					});
-				}
-				else{
-					req.flash('message', '!É necessário criar o Log');
-				}
-			});
-			
-			
+			var log = "Solicitação de reserva. Data de entrada: "
+			+ moment(newCadastro.dateIn).format("DD/MM/YY") +
+			". Data de saida: " + moment(newCadastro.dateOut).format("DD/MM/YY");
+			createLog("Cadastro", newCadastro.name, newCadastro._id, "", "", log);
 			
 			req.flash('message', "Solicitação de reserva realizada com sucesso, aguarde confirmação por e-mail");
 			if (req.user){
@@ -105,8 +81,7 @@ module.exports = function(passport){
 			res.redirect('/');
 		}
 	});
-		
-		
+			
 	// /LOGIN
 	router.get('/login', function(req,res){
 		// Se já estiver logado, não precisa logar de novo.
@@ -131,21 +106,7 @@ module.exports = function(passport){
 	
 	// /HOME
 	router.get('/home', isAuthenticated, function(req, res){
-		//console.log(moment('2017-07-02T12'));
-		//console.log(moment());
-		if (req.user){
-			if (req.user.username == 'visitante'){
-				res.redirect('/home/registro');
-			}
-			else{
-				
-			}
-		}
-		else {
-			
-		}
 		res.render('home', { user: req.user, message: req.flash('message')});
-		
 	});
 	
 	router.post('/home', isAuthenticated, function(req, res){
@@ -277,35 +238,8 @@ module.exports = function(passport){
 									});
 								}
 								
-								Log.findOne({data: {"$gte": moment().subtract(1, 'days'), "$lte": moment()}}, function(err, log) {
-									if (err) return handleError(err,req,res);
-									if (log){
-										/*
-										log.log.push("[" + moment().format("HH:mm:ss") + "]" +
-										" RECEPÇÃO: " +
-										"realizado o CHECK-IN do hospede " + registros[0].ocupante[index].name +
-										", do dia " + moment(registros[0].ocupante[index].dateIn).format("DD/MM/YY") +
-										" ao dia " + moment(registros[0].ocupante[index].dateOut).format("DD/MM/YY") +
-										" no leito " + leitos[index].cod_leito +
-										". Usuário: " + req.user.username);*/
-										log.modulo.push("Recepcao");
-										log.horario.push(moment().format("HH:mm:ss"));
-										log.log.push("Check-in no leito "
-										+ leitos[index].cod_leito);
-										log.cadastro.push(cadastro.name);
-										log.cadastro_id.push(cadastro._id);
-										log.usuario.push(req.user.username);
-										
-										log.save(function (err) {
-										if (err) return handleError(err,req,res);
-									});
-									}
-									else{
-										req.flash('message', 'É necessário criar o Log');
-										res.redirect('/home');
-									}
-								});
-								
+								createLog("Recepção", cadastro.name, cadastro._id,
+								leitos[index].cod_leito, req.user.username, "Check-in");
 								
 								cadastro.save(function(err){
 									if (err) return handleError(err,req,res);
@@ -420,34 +354,8 @@ module.exports = function(passport){
 									});
 								}
 								
-								Log.findOne({data: {"$gte": moment().subtract(1, 'days'), "$lte": moment()}}, function(err, log) {
-									if (err) return handleError(err,req,res);
-									if (log){
-										/*
-										log.log.push("[" + moment().format("HH:mm:ss") + "]" +
-										"RECEPÇÃO: " +
-										"CANCELADO O CHECK-IN do hospede " + registros[0].ocupante[index].name +
-										", do dia " + moment(registros[0].ocupante[index].dateIn).format("DD/MM/YY") +
-										" ao dia " + moment(registros[0].ocupante[index].dateOut).format("DD/MM/YY") +
-										" no leito " + leitos[index].cod_leito +
-										". Usuário: " + req.user.username);*/
-										
-										log.modulo.push("Recepcao");
-										log.horario.push(moment().format("HH:mm:ss"));
-										log.log.push("Cancelado o check-in no leito "
-										+ leitos[index].cod_leito);
-										log.cadastro.push(cadastro.name);
-										log.cadastro_id.push(cadastro._id);
-										log.usuario.push(req.user.username);
-										
-										log.save(function (err) {
-											if (err) return handleError(err,req,res);
-										});
-									}
-									else{
-										req.flash('message', '!É necessário criar o Log');
-									}
-								});
+								createLog("Recepção", cadastro.name, cadastro._id,
+								leitos[index].cod_leito, req.user.username, "Reserva cancelada");
 								
 								req.flash('message', 'Check-in cancelado com sucesso');
 								res.redirect('/home/recepcao/checkin/cancelar');
@@ -618,26 +526,9 @@ module.exports = function(passport){
 										}
 									});
 									
-									Log.findOne({data: {"$gte": moment().subtract(1, 'days'), "$lte": moment()}}, function(err, log) {
-										if (err) return handleError(err,req,res);
-										if (log){
-											
-											log.modulo.push("Recepcao");
-											log.horario.push(moment().format("HH:mm:ss"));
-											log.log.push("Check-out no leito "
-											+ leitos[index].cod_leito);
-											log.cadastro.push(cadastro.name);
-											log.cadastro_id.push(cadastro._id);
-											log.usuario.push(req.user.username);
-											
-											log.save(function (err) {
-												if (err) return handleError(err,req,res);
-											});
-										}
-										else{
-											req.flash('message', '!É necessário criar o Log');
-										}
-									});
+									
+									createLog("Recepção", cadastro.name, cadastro._id,
+									leitos[index].cod_leito, req.user.username, "Check-out");
 									
 									/*
 									req.flash('message', 'Check-out realizado com sucesso.');
@@ -759,26 +650,9 @@ module.exports = function(passport){
 									if (err) return handleError(err,req,res);
 								});
 								
-								Log.findOne({data: {"$gte": moment().subtract(1, 'days'), "$lte": moment()}}, function(err, log) {
-									if (err) return handleError(err,req,res);
-									if (log){
-										
-										log.modulo.push("Recepcao");
-										log.horario.push(moment().format("HH:mm:ss"));
-										log.log.push("Estendida a estada no leito "
-										+ cadastro.leito);
-										log.cadastro.push(cadastro.name);
-										log.cadastro_id.push(cadastro._id);
-										log.usuario.push(req.user.username);
-										
-										log.save(function (err) {
-											if (err) return handleError(err,req,res);
-										});
-									}
-									else{
-										req.flash('message', '!É necessário criar o Log');
-									}
-								});
+								
+								createLog("Recepção", cadastro.name, cadastro._id,
+								cadastro.leito, req.user.username, "Estendida a estada");
 								
 								
 								req.flash('message', 'Estada estendida com sucesso');
@@ -954,39 +828,11 @@ module.exports = function(passport){
 										if (err) return handleError(err,req,res);
 									});
 								
-							
-									Log.findOne({data: {"$gte": moment().subtract(1, 'days'), "$lte": moment()}}, function(err, log) {
-										if (err) return handleError(err,req,res);
-										if (log){
-											/*
-											log.log.push("[" + moment().format("HH:mm:ss") + "]" +
-											" RECEPÇÃO: " +
-											"realizada a MUDANÇA do hospede " + registros[0].ocupante[index_leito_novo].name +
-											", do leito " + leitos[index_leito_antigo].cod_leito +
-											" para o leito " + leitos[index_leito_novo].cod_leito +
-											", do dia " + moment().format("DD/MM/YY") +
-											" ao dia " + moment(registros[0].ocupante[index_leito_novo].dateOut).format("DD/MM/YY") +
-											". Usuário: " + req.user.username);*/
-											
-											log.modulo.push("Recepcao");
-											log.horario.push(moment().format("HH:mm:ss"));
-											log.log.push("Mudança do leito "
-											+ leitos[index_leito_antigo].cod_leito +
-											" para o leito " +
-											leitos[index_leito_novo].cod_leito
-											);
-											log.cadastro.push(cadastro.name);
-											log.cadastro_id.push(cadastro._id);
-											log.usuario.push(req.user.username);
-											
-											log.save(function (err) {
-											if (err) return handleError(err,req,res);
-										});
-										}
-										else{
-											req.flash('message', '!É necessário criar o Log');
-										}
-									});
+								
+									
+									createLog("Recepção", cadastro.name, cadastro._id,
+									leitos[index_leito_novo].cod_leito, req.user.username, 
+									"Mudança do leito " + leitos[index_leito_antigo].cod_leito);
 									
 								}
 								else {
@@ -1159,8 +1005,8 @@ module.exports = function(passport){
 												
 												log.modulo.push("Reserva");
 												log.horario.push(moment().format("HH:mm:ss"));
-												log.log.push("Aceita a reserva no leito "
-												+ leitos[j].cod_leito);
+												log.log.push("Reserva efetuada");
+												log.leito.push(leitos[j].cod_leito);
 												log.cadastro.push(newCadastro.name);
 												log.cadastro_id.push(newCadastro._id);
 												log.usuario.push(req.user.username);
@@ -1223,33 +1069,9 @@ module.exports = function(passport){
 					if (err) return handleError(err,req,res);
 				});
 				
-				Log.findOne({data: {"$gte": moment().subtract(1, 'days'), "$lte": moment()}}, function(err, log) {
-					if (err) return handleError(err,req,res);
-					if (log){
-						/*
-						log.log.push("[" + moment().format("HH:mm:ss") + "]" +
-						"RECEPÇÃO: " +
-						"CANCELADO O CHECK-IN do hospede " + registros[0].ocupante[index].name +
-						", do dia " + moment(registros[0].ocupante[index].dateIn).format("DD/MM/YY") +
-						" ao dia " + moment(registros[0].ocupante[index].dateOut).format("DD/MM/YY") +
-						" no leito " + leitos[index].cod_leito +
-						". Usuário: " + req.user.username);*/
-						
-						log.modulo.push("Reserva");
-						log.horario.push(moment().format("HH:mm:ss"));
-						log.log.push("Cancelada a solicitação de reserva");
-						log.cadastro.push(cadastro.name);
-						log.cadastro_id.push(cadastro._id);
-						log.usuario.push(req.user.username);
-						
-						log.save(function (err) {
-							if (err) return handleError(err,req,res);
-						});
-					}
-					else{
-						req.flash('message', '!É necessário criar o Log');
-					}
-				});
+				
+				createLog("Reserva", cadastro.name, cadastro._id,
+				"", req.user.username, "Solicitação cancelada");
 				
 				
 			}
@@ -1265,16 +1087,19 @@ module.exports = function(passport){
 	
 }
 	
-{ // LAVANDERIA Adicionar LOG
+{ // LAVANDERIA
 	// /HOME /LAVANDERIA
-	router.get('/home/lavanderia/folha', isAuthenticated, function(req, res){
-		res.render('home_lavanderia_folha', {descricoes: desc_itens_lavanderia, inserido: false});
+	router.get('/home/lavanderia/folha', isAuthenticated, isLavanderia, function(req, res){
+		res.render('home_lavanderia_folha', {descricoes: desc_itens_lavanderia,
+		message: req.flash('message')});
 	});
 	
-	router.post('/home/lavanderia/folha', isAuthenticated, function(req, res){
+	router.post('/home/lavanderia/folha', isAuthenticated, isLavanderia, function(req, res){
+		
 		var n_entrega = new Array();
 		var n_coleta = new Array();
-
+		
+		
 		var newFolha = new Folha();
 		newFolha.data_coleta = req.param('dataColeta'); 
 		newFolha.data_entrega = req.param('dataEntrega'); 
@@ -1291,14 +1116,24 @@ module.exports = function(passport){
 				return handleError(err,req,res);
 			}
 		});
-		res.render('home_lavanderia_folha', {descricoes: desc_itens_lavanderia, inserido: true});
+		
+		createLog("Lavanderia", "", newFolha._id,
+		"", req.user.username, 
+		"Folha inserida. " + "Data de coleta: " +
+		moment(newFolha.data_coleta).format("DD/MM/YY") +
+		". Data de entrega: " + moment(newFolha.data_entrega).format("DD/MM/YY") +
+		". Fiscal: " + newFolha.nome_fiscal);
+		
+		req.flash('message', 'Folha inserida com sucesso')
+		res.redirect("/home/lavanderia/folha");
+		//res.render('home_lavanderia_folha', {descricoes: desc_itens_lavanderia, inserido: true});
 	});
 	
-	router.get('/home/lavanderia/gerencia', isAuthenticated, function(req, res){
+	router.get('/home/lavanderia/gerencia', isAuthenticated, isLavanderia, function(req, res){
 		res.render('home_lavanderia_gerencia');
 	});
 
-	router.get('/home/lavanderia/lista', isAuthenticated, function(req, res){
+	router.get('/home/lavanderia/lista', isAuthenticated, isLavanderia, function(req, res){
 		Folha.find({}, null, {sort: 'data_coleta'}, function(err, folhas) {
 			if (err) return handleError(err,req,res);
 			if (folhas){
@@ -1313,7 +1148,7 @@ module.exports = function(passport){
 
 }
 	
-{ // MANUTENCAO Adicionar LOG
+{ // MANUTENCAO
 	// /HOME/MANUTENCAO/QUADRO
 	router.get('/home/manutencao/quadro', isAuthenticated, isManutencao, function(req, res){
 		Leito.find({}, null, {sort: 'cod_leito'}, function(err, leitos) {
@@ -1330,11 +1165,10 @@ module.exports = function(passport){
 	
 	// /HOME/MANUTENCAO/QUADRO/ALTERAR
 	router.get('/home/manutencao/quadro/alterar', isAuthenticated, isManutencao, function(req, res){
-		console.log("get /HOME/MANUTENCAO/QUADRO/ALTERAR");
 		Leito.find({cod_leito: req.param('leito_alterado')}, function(err, leito) {
 			if (err) return handleError(err,req,res);
 			if (leito){
-				res.render('home_manutencao_quadro_alterar', {leito: leito});
+				res.render('home_manutencao_quadro_alterar', {leito: leito, message: req.flash('message')});
 			}
 			else {
 				req.flash('message', "Os Leito procurado não foi encontrado");
@@ -1344,7 +1178,6 @@ module.exports = function(passport){
 	});
 	
 	router.post('/home/manutencao/quadro/alterar', isAuthenticated, isManutencao, function(req, res){
-		console.log("post /HOME/MANUTENCAO/QUADRO/ALTERAR");
 
 		Leito.findOne({cod_leito: req.param('leito_alterado')}, function(err, leito) {
 			if (err) return handleError(err,req,res);
@@ -1356,33 +1189,56 @@ module.exports = function(passport){
 							return handleError(err,req,res);
 						}
 					});
+					
+					createLog("Manutenção", "", "", leito.cod_leito, req.user.username, 
+					"Pane inserida: " + req.param('desc_pane_adc'));
+					req.flash('message', "Pane inserida com sucesso");
 					res.redirect('/home/manutencao/quadro/alterar?leito_alterado='+req.param('leito_alterado'));
 					return;
 				}
-				if(req.param('ocup') != undefined){
+				else if(req.param('ocup') != undefined){
 					leito.ocupabilidade = req.param('ocup');
 					leito.save(function (err) {
 						if (err){
 							return handleError(err,req,res);
 						}
 					});
+					
+					createLog("Manutenção", "", "", leito.cod_leito, req.user.username, 
+					"Ocupabilidade alterada para " + req.param('ocup'));
+					
+					req.flash('message', "Ocupabilidade alterada com sucesso");
 					res.redirect('/home/manutencao/quadro/alterar?leito_alterado='+req.param('leito_alterado'));
 					return;
 				}
-				var newManutencao = [];
-				for(var i = 0; i < leito.manutencao.length; i++){
-					if(req.param('idx_pane_rem_'+i) != '1'){ //manter essa pane
-						newManutencao.push(leito.manutencao[i]);
+				else {
+					var newManutencao = [];
+					var paneRemovida = [];
+					for(var i = 0; i < leito.manutencao.length; i++){
+						if(req.param('idx_pane_rem_'+i) != '1'){ //manter essa pane
+							newManutencao.push(leito.manutencao[i]);
+						}
+						else{
+							paneRemovida.push(leito.manutencao[i]);
+						}
+						
 					}
+					leito.manutencao = newManutencao.slice(0); //clonando array
+					leito.save(function (err) {
+						if (err){
+							return handleError(err,req,res);
+						}
+					});
+					
+					for (var i = 0; i < paneRemovida.length; i++){
+						createLog("Manutenção", "", "", leito.cod_leito, req.user.username, 
+						"Pane removida: " + paneRemovida[i]);
+					}
+					
+					req.flash('message', "Pane removida com sucesso");
+					res.redirect('/home/manutencao/quadro/alterar?leito_alterado='+req.param('leito_alterado'));
+					return;
 				}
-				leito.manutencao = newManutencao.slice(0); //clonando array
-				leito.save(function (err) {
-					if (err){
-						return handleError(err,req,res);
-					}
-				});
-				res.redirect('/home/manutencao/quadro/alterar?leito_alterado='+req.param('leito_alterado'));
-				return;
 				
 			}
 			else {
@@ -1392,7 +1248,7 @@ module.exports = function(passport){
 		});
 	});
 
-	// /HOME/MANUTENCAO/LIMPEZA
+	// /HOME/MANUTENCAO/LIMPEZA Adicionar Log, pensar na usabilidade.
 	router.get('/home/manutencao/limpeza', isAuthenticated, isManutencao, function(req, res){
 
 		Leito.find({}, null, {sort: 'cod_leito'}, function(err, leitos) {
@@ -1444,7 +1300,7 @@ module.exports = function(passport){
 	});
 }
 
-{ // GERENTE Adicionar LOG
+{ // GERENTE
 
 	// /HOME/GERENTE
 	router.get('/home/gerente', isAuthenticated, isGerente, function(req, res){
@@ -1453,6 +1309,7 @@ module.exports = function(passport){
 	
 	// /HOME/GERENTE/LOG
 	router.get('/home/gerente/log', isAuthenticated, isGerente, function(req, res){
+		
 		var date = moment();
 		var dateAux = moment(date).subtract(1, 'days');
 		
@@ -1473,7 +1330,8 @@ module.exports = function(passport){
 		User.find({username: {$ne: 'admin'}}, function(err, users) {
 			if (err) return handleError(err,req,res);
 			if (users){
-				res.render('home_gerente_permissao', {users: users, dic: dicionario_permissao });
+				res.render('home_gerente_permissao', {users: users, dic: dicionario_permissao, 
+				message: req.flash('message')});
 			}
 			else {
 				req.flash('message', "Nenhum usuário existente");
@@ -1484,18 +1342,20 @@ module.exports = function(passport){
 	
 	router.post('/home/gerente/permissao', isAuthenticated, isGerente, function(req, res){
 		
-		
 		User.findOne({ 'username' :  req.body.bizu }, function(err, user) {
 			if (err) return handleError(err,req,res);
 			
 			if (user) {
 				user.permissao = [req.body.Recepcao, req.body.Reserva, req.body.Lavanderia, req.body.Manutencao, req.body.Financeiro, req.body.Gerente];
-				//console.log(user.permissao);
 				user.save(function (err) {
 					if (err) return handleError(err,req,res);
 				});
-				req.flash('message', "Permissão alterada com sucesso");
-				res.redirect('/home');
+				
+				createLog("Gerência", user.username, user._id,
+				"", req.user.username, "Permissões de acesso alteradas");
+				
+				req.flash('message', "Permissões alteradas com sucesso");
+				res.redirect('/home/gerente/permissao');
 			}
 			else {
 				req.flash('message', "O usuário não existe");
@@ -1524,16 +1384,18 @@ module.exports = function(passport){
 			newUser.username = req.param('username');
             newUser.password = createHash(req.param('password'));
             newUser.email = req.param('email');
-            newUser.firstName = req.param('firstName');
-            newUser.lastName = req.param('lastName');
+            newUser.name = req.param('name');
 			newUser.permissao = [true, true, true, true, true, false];
 			
 			newUser.save(function (err) {
 				if (err) return handleError(err,req,res);
-				
 			});
+			
+			createLog("Gerência", newUser.username, newUser._id,
+			"", req.user.username, "Usuário criado");
+			
 			req.flash('message', "Usuário criado com sucesso.");
-			res.redirect('/home');
+			res.redirect('/home/gerente/signup');
         });
 		
 	});
@@ -1652,6 +1514,27 @@ module.exports = function(passport){
 		});
 	});
 	
+	router.get('/home/registro/usuario', isAuthenticated, function(req,res){
+
+		if (req.param('_id') == undefined){
+			req.flash('message', 'O usuário procurado não foi encontrado');
+			res.redirect('/home');
+		}
+		
+		User.findOne({_id: req.param('_id')},function(err, user) {
+			if (err) return handleError(err,req,res);
+			if (user){
+				
+				res.render('home_registro_usuario', { user: user, dic: dicionario_permissao });
+			}
+			else {
+				req.flash('message', "Usuário não existente");
+				res.redirect('/home');
+			}
+		
+		});
+	});
+	
 	router.get('/home/cadastro', isAuthenticated, function(req,res){
 		Cadastro.find({}, function(err, cadastros) {
 			if (err) return handleError(err,req,res);
@@ -1688,6 +1571,9 @@ module.exports = function(passport){
 		Log.remove({}, function(err){
 			console.log("Log removed");
 		});
+		Folha.remove({}, function(err){
+			console.log("Folha removed");
+		});
 		
 		res.redirect('/');
 	});
@@ -1721,10 +1607,11 @@ module.exports = function(passport){
 				if (err) return handleError(err,req,res);
 			});
         });
-		res.redirect('/criar/visitante');
+		res.redirect('/criar/financeiro');
 		
 	});
 	
+	/*
 	router.get('/criar/visitante', function(req, res){
 		
 		User.findOne({ 'username' :  'visitante' }, function(err, user) {
@@ -1753,6 +1640,7 @@ module.exports = function(passport){
 		
 	});
 		
+	*/
 	router.get('/criar/financeiro', function(req, res){
 		var newFinanceiro = new Financeiro();
 		newFinanceiro.gasto = 0;
@@ -2013,6 +1901,7 @@ module.exports = function(passport){
 					newLog.cadastro = [];
 					newLog.cadastro_id = [];
 					newLog.usuario = [];
+					newLog.leito = [];
 					newLog.ganho = 0;
 					newLog.gasto = 0;
 					newLog.save(function (err) {
@@ -2029,12 +1918,48 @@ module.exports = function(passport){
 			}
 		});
 	});
+
+	// DEBUG
+	router.get('/debug', function(req, res){
+		if (debug){
+			req.flash('message', 'Debug desabilitado');
+			debug = false;
+		}
+		else {
+			req.flash('message', 'Debug habilitado');
+			debug = true;
+		}
+		
+		res.redirect('/home');
+	});
+	
 }
 	
 	return router;
 }
 
 { // Functions
+
+function createLog(modulo, cadastro, cadastro_id, leito, username, log_){
+	Log.findOne({data: {"$gte": moment().subtract(1, 'days'), "$lte": moment()}}, function(err, log) {
+		if (err) return handleError(err,req,res);
+		if (log){
+			log.modulo.push(modulo);
+			log.horario.push(moment().format("HH:mm:ss"));
+			log.log.push(log_);
+			log.cadastro.push(cadastro);
+			log.cadastro_id.push(cadastro_id);
+			log.leito.push(leito);
+			log.usuario.push(username);
+			log.save(function (err) {
+				if (err) return handleError(err,req,res);
+			});
+		}
+		else{
+			req.flash('message', '!É necessário criar o Log');
+		}
+	});
+}
 
 function createLeito(cod_leito){
 	var ret = new Leito();
@@ -2084,6 +2009,14 @@ var isRecepcao = function (req, res, next) {
 var isReserva = function (req, res, next) {
 	if (debug) return next();
 	if (req.user.permissao[1] == true){
+		return next();
+	}
+	res.redirect('/home');
+}
+
+var isLavanderia = function (req, res, next) {
+	if (debug) return next();
+	if (req.user.permissao[2] == true){
 		return next();
 	}
 	res.redirect('/home');
@@ -2167,6 +2100,6 @@ var desc_itens_lavanderia = [
 	"Saia cama box solteiro",
 	"Capa para união cama box solteiro"];
 
-var debug = false;
+var debug = true
 
 }
