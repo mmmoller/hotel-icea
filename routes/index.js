@@ -2100,6 +2100,6 @@ var desc_itens_lavanderia = [
 	"Saia cama box solteiro",
 	"Capa para união cama box solteiro"];
 
-var debug = true
+var debug = false
 
 }
