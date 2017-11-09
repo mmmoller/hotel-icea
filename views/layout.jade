@@ -12,7 +12,7 @@ html
 		script(type="text/javascript" src="/scripts/jquery.mask.min.js")
 		script(type="text/javascript" src="/scripts/jquery.maskMoney.min.js")
 
-		script(type="text/javascript" src="/scripts/jquery-1.12.4.js")
+		//script(type="text/javascript" src="/scripts/jquery-1.12.4.js")
 		script(type="text/javascript" src="/scripts/jquery-ui.js")
 
 		link(rel='stylesheet', href='/stylesheets/style.css')
@@ -86,7 +86,7 @@ html
 							span.caret
 						ul.dropdown-menu
 							li
-								a(href='/home/financeiro') Gerar relatório financeiro
+								a(href='/home/financeiro/inserir') Inserir ganho/despesa
 				.botao-box.pos-botao-6
 					.dropdown
 						button.btn.btn-link.dropdown-toggle.test(type='button', data-toggle='dropdown', style='color:white')
@@ -113,6 +113,8 @@ html
 								a(href='/home') Home
 							li
 								a(href='/') Cadastrar
+							li
+								a(href='/home/signout') Sair
 		
 	-if ( message != undefined && message.length){
 		div.container

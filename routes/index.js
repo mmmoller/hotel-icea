@@ -216,7 +216,8 @@ module.exports = function(passport){
 	router.post('/home/recepcao/checkin', isAuthenticated, isRecepcao, function(req,res){
 	
 		// Procura registros com as datas compreendidas no periodo da reserva dos hospedes.
-		Registro.find({data: {"$gte": moment(req.param('dateIn')), "$lt": moment(req.param('dateOut'))}}
+		// *Antes estava moment(req.param('dateIn')), agora vai ser ontem.
+		Registro.find({data: {"$gte": moment().subtract(1, 'days'), "$lt": moment(req.param('dateOut'))}}
 		, null, {sort: 'data'}, function(err, registros) {
 			if (err) return handleError(err,req,res);
 			if (registros){
@@ -549,10 +550,31 @@ module.exports = function(passport){
 										}
 									});
 									
+									Log.findOne({data: {"$gte": moment().subtract(1, 'days'), "$lte": moment()}}, function(err, log) {
+										if (err) return handleError(err,req,res);
+										if (log){
+											log.modulo.push("Recepção");
+											log.horario.push(moment().format("HH:mm:ss"));
+											log.log.push("Check-out. Valor cobrado: R$ " + req.param("valor") +
+											". Valor previsto: R$" + req.param("custo_previsto"));
+											log.cadastro.push(cadastro.name);
+											log.cadastro_id.push(cadastro._id);
+											log.leito.push(leitos[index].cod_leito);
+											log.usuario.push(req.user.username);
+											log.ganho += custo;
+											log.save(function (err) {
+												if (err) return handleError(err,req,res);
+											});
+										}
+										else{
+											req.flash('message', '!É necessário criar o Log');
+										}
+									});
 									
+									/*
 									createLog("Recepção", cadastro.name, cadastro._id,
 									leitos[index].cod_leito, req.user.username, "Check-out");
-									
+									*/
 									/*
 									req.flash('message', 'Check-out realizado com sucesso.');
 									res.redirect('/home/recepcao/checkout');
@@ -1321,6 +1343,63 @@ module.exports = function(passport){
 			}
 		});
 	});
+	
+	router.get('/home/financeiro/inserir', isAuthenticated, isFinanceiro, function(req, res){
+		res.render('home_financeiro_inserir', {message: req.flash('message')});
+	});
+	
+	router.post('/home/financeiro/inserir', isAuthenticated, isFinanceiro, function(req, res){
+		Financeiro.findOne({}, function(err, financeiro) {
+			if (err) return handleError(err,req,res);
+			if (financeiro){
+				Log.findOne({data: {"$gte": moment().subtract(1, 'days'), "$lte": moment()}}, function(err, log) {
+					if (err) return handleError(err,req,res);
+					if (log){
+						
+						
+						var _log = req.param("tipo") + " inserida. " +
+						"Valor: R$ " + req.param("valor") +
+						". Motivo: " + req.param("motivo");
+						
+						if (req.param("tipo") == "Ganho"){
+							financeiro.ganho = req.param("valor");
+							log.ganho = req.param("valor");
+						}
+						else {
+							financeiro.gasto = req.param("valor");
+							log.gasto = req.param("valor");
+						}
+						
+						log.modulo.push("Financeiro");
+						log.horario.push(moment().format("HH:mm:ss"));
+						log.log.push(_log);
+						log.cadastro.push("");
+						log.cadastro_id.push("");
+						log.leito.push("");
+						log.usuario.push(req.user.username);
+						log.save(function (err) {
+							if (err) return handleError(err,req,res);
+						});
+						
+						
+						req.flash('message', 'Inserção realizada com sucesso.');
+						
+						
+					}
+					else{
+						req.flash('message', '!É necessário criar o Log');
+					}
+					
+					res.redirect('/home/financeiro/inserir');
+				});
+			}
+			else {
+				req.flash('message', "O Financeiro ainda não foram criados");
+				res.redirect('/home');
+			}
+		});
+	});
+	
 }
 
 { // GERENTE
@@ -2202,7 +2281,8 @@ function acceptMail(cadastro){
 	+ " " + cadastro.name_guerra + " foi realizada com sucesso." + 
 	" A hospedagem será no leito " + cadastro.leito + " do dia " +
 	moment(cadastro.dateIn).format("DD/MM/YYYY") + " ao dia " +
-	moment(cadastro.dateOut).format("DD/MM/YYYY") + ".";
+	moment(cadastro.dateOut).format("DD/MM/YYYY") + "." +
+	"\n\n\nEssa mensagem é gerada automaticamente pelo sistema. O sistema ainda está em fase de teste.";
 	
 	var mailOptions = {
 		from: 'hotel.icea@gmail.com',
@@ -2223,7 +2303,8 @@ function acceptMail(cadastro){
 function rejectMail(cadastro){
 	
 	var text = 'A solicitação de reserva do ' + cadastro.posto + " " + cadastro.name_guerra +
-	" foi rejeitada devido à falta de vagas disponíveis na data solicitada.";
+	" foi rejeitada devido à falta de vagas disponíveis na data solicitada." + 
+	"\n\n\nEssa mensagem é gerada automaticamente pelo sistema. O sistema ainda está em fase de teste.";
 	
 	var mailOptions = {
 		from: 'hotel.icea@gmail.com',
@@ -2379,6 +2460,6 @@ var transporter = nodemailer.createTransport({
 	}
 });
 	
-var debug = false
+var debug = false;
 
 }

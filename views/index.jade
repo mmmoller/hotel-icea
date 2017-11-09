@@ -71,7 +71,19 @@ block content
 						.cadastro-sections
 							| Nome do curso ou missão
 						input(type='text', name='curso', class='form-control', value='Motivo pessoal', placeholder='Nome do curso ou missão')
-
+						
+						.cadastro-sections
+							| Solicitante
+						.radio-inline
+							input(type='radio', name='solicitante', value='Aluno', checked='çhecked')
+							| Aluno
+						.radio-inline
+							input(type='radio', name='solicitante', value='Instrutor')
+							| Instrutor
+						.radio-inline
+							input(type='radio', name='solicitante', value='Não se aplica')
+							| Não se aplica
+						
 						script.
 							$( function() {
 								var dateFormat = "dd/mm/yy",
@@ -115,25 +127,17 @@ block content
 							
 						.cadastro-sections
 							| Data de entrada
-						input#from(type='text', name='checkin_', class='form-control', placeholder='Data de entrada', required)
-						input#checkin(type='hidden', name='checkin', class='form-control')
-						
+						if (!_debug)
+							input#from(type='text', name='checkin_', class='form-control', placeholder='Data de entrada', required)
+							input#checkin(type='hidden', name='checkin', class='form-control')
+						else
+							input(type='date', name='checkin', class='form-control')
 						.cadastro-sections
 							| Data de saída
 						input#to(type='text', name='checkout_', class='form-control', placeholder='Data de saida', required)
 						input#checkout(type='hidden', name='checkout', class='form-control')
 						
-						.cadastro-sections
-							| Solicitante
-						.radio-inline
-							input(type='radio', name='solicitante', value='Aluno', checked='çhecked')
-							| Aluno
-						.radio-inline
-							input(type='radio', name='solicitante', value='Instrutor')
-							| Instrutor
-						.radio-inline
-							input(type='radio', name='solicitante', value='Não se aplica')
-							| Não se aplica
+						
 						//select(name = 'posto', class = 'form-control')
 						//	option(value = 100) Oficial General
 						//	option(value = 10) Oficial

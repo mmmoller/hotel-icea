@@ -11,17 +11,20 @@ block content
 			table#folha-ce-table.table-striped.table-bordered
 				thead
 					tr
+						th Posto/Graduação
 						th Nome
 						th Saram
 						th CPF
 						th Data de Entrada
 						th Data de Saída
 						th Motivo/Curso
+						th Solicitante
 						th Reservar
 						th Rejeitar
 				tbody
 					each cadastro in cadastros
 						tr
+							td #{cadastro.posto}
 							td
 								a(href='/home/registro/cadastro?_id=#{cadastro._id}', target='blank') #{cadastro.name}
 							td #{cadastro.saram}
@@ -29,6 +32,7 @@ block content
 							td #{moment(cadastro.dateIn).format("DD/MM/YYYY")}
 							td #{moment(cadastro.dateOut).format("DD/MM/YYYY")}
 							td #{cadastro.curso}
+							td #{cadastro.solicitante}
 							td
 								form(class='form-signin', action='/home/reserva', method='POST')
 									input(type='hidden', name='_id', value=cadastro._id)

@@ -64,6 +64,7 @@ block content
 							input(type='hidden', name='dateOut', value=cadastros[i].dateOut)
 							input(type='hidden', name='dateIn', value=cadastros[i].dateIn)
 							if (custos)
+								input(type='hidden', name='custo_previsto', value=custos[i].toFixed(2))
 								td R$
 									input.valor(type='text', name='valor',class='form-control', value=custos[i].toFixed(2), required)
 								td
