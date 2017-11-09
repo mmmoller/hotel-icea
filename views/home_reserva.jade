@@ -19,6 +19,7 @@ block content
 						th Data de Saída
 						th Motivo/Curso
 						th Solicitante
+						th Sexo
 						th Reservar
 						th Rejeitar
 				tbody
@@ -29,10 +30,11 @@ block content
 								a(href='/home/registro/cadastro?_id=#{cadastro._id}', target='blank') #{cadastro.name}
 							td #{cadastro.saram}
 							td #{cadastro.cpf}
-							td #{moment(cadastro.dateIn).format("DD/MM/YYYY")}
-							td #{moment(cadastro.dateOut).format("DD/MM/YYYY")}
+							td #{moment(cadastro.dateIn).format("DD/MM/ YYYY")}
+							td #{moment(cadastro.dateOut).format("DD/MM/ YYYY")}
 							td #{cadastro.curso}
 							td #{cadastro.solicitante}
+							td #{cadastro.sexo}
 							td
 								form(class='form-signin', action='/home/reserva', method='POST')
 									input(type='hidden', name='_id', value=cadastro._id)

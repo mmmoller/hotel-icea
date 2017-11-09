@@ -51,6 +51,7 @@ module.exports = function(passport){
 		newCadastro.posto = req.param('posto'); 
 		newCadastro.curso = req.param('curso'); 
 		newCadastro.solicitante = req.param('solicitante'); 
+		newCadastro.sexo = req.param('sexo');
 		newCadastro.estado = "solicitacao";
 		// Se a data de saida for maior que a data de entrada, é valido (essa validação deveria ser feita no front-end)
 		// Ou renderizar a página com os dados já preenchidos
