@@ -34,7 +34,7 @@ body header {
     border: none;
 }
 #tabela-cadastros th{
-    font-size: 25px;
+    font-size: 22px;
     text-align: center;
     padding: 15px;
     border-bottom: 1px solid black;
@@ -153,12 +153,12 @@ body header {
     }
     #manutencao-table th{
         border-bottom: 3px solid #000066;
-        font-size: 25px;
+        font-size: 22px;
     }
 
     #manutencao-table th, #manutencao-table td{
         text-align: center;
-        font-size: 25px;
+        font-size: 22px;
         padding: 20px 20px 20px 20px;
     }
 #manutencao-dropdown a{
@@ -192,7 +192,7 @@ body header {
     #table-alterar-manutencao th, #table-alterar-manutencao td{
         text-align: center;
         padding: 5px 5px 5px 5px;
-        font-size: 15px;
+        font-size: 12px;
     }
 
 #permissoes-table{
@@ -224,7 +224,7 @@ body header {
     #permissoes-table th, #permissoes-table td{
         text-align: center;
         padding: 5px 5px 5px 5px;
-        font-size: 15px;
+        font-size: 12px;
     }
 #reservas-table{
 
@@ -267,7 +267,7 @@ body header {
 #registro_cadastro-table td, #registro_cadastro-table th{
     text-align: center;
     padding: 3px 5px 3px 5px;
-    font-size: 20px;
+    font-size: 17px;
     border: 1.5px solid black;
 }
 
@@ -299,7 +299,7 @@ body header {
     #folha-ce-table th, #folha-ce-table td{
         text-align: center;
         padding: 5px 5px 5px 5px;
-        font-size: 18px;
+        font-size: 15px;
     }
 
 #recepcao-table{
@@ -336,7 +336,7 @@ body header {
         #recepcao-table th, #recepcao-table td{
             text-align: center;
             padding: 5px 5px 5px 5px;
-            font-size: 18px;
+            font-size: 15px;
         }
 
 
@@ -367,7 +367,7 @@ body header {
        /* z-index: 10;*/
         margin: 30px 0px 0px 0px;
         top:25%;
-        font-size: 10px;
+        font-size: 7px;
         font-weight: bold;
         text-indent: 3px;
         padding: 0;
@@ -409,7 +409,7 @@ body header {
 }
 .form-signin .form-control{
     position: relative;
-    font-size: 16px;
+    font-size: 13px;
     height: auto;
     padding: 10px;
     -webkit-box-sizing: border-box;
@@ -452,13 +452,13 @@ body header {
 }
 .cadastro-title{
     color: #555;
-    font-size: 32px;
+    font-size: 27px;
     font-weight: bold;
     display: block;
 }
 .cadastro-sections{
     color: #555;
-    font-size: 20px;
+    font-size: 17px;
     font-weight: bold;
     display: block;
     margin-top: 15px;
@@ -466,13 +466,13 @@ body header {
 
 .login-title{
     color: #555;
-    font-size: 32px;
+    font-size: 27px;
     font-weight: 400;
     display: block;
 }
 .login-existente{
     color: #555;
-    font-size: 25px;
+    font-size: 22px;
     font-weight: 400;
 }
 .login-existente-wall{
@@ -486,12 +486,12 @@ body header {
 
 .section-wall{
     border: 1px solid #3333ff;
-    width: 50%;
+    width: 35%;
     position: relative;
     margin-top: 0px;
     border-radius: 5px;
     left: 0%;
-    padding: 10px 0px 10px 0px;
+    padding: 5px 0px 5px 0px;
     background-color: #f7f7f7;
     -moz-box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.3);
     -webkit-box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.3);
@@ -501,7 +501,7 @@ body header {
 }
 .section-title{
     font-weight: 400;
-    font-size: 32px;
+    font-size: 27px;
 }
 
 .home-wall-1{
@@ -550,7 +550,7 @@ body header {
 .new-account{
     display: block;
     margin-top: 10px;
-    font-size: 20px;
+    font-size: 17px;
 }
 h1.error-message{
     color: red;
