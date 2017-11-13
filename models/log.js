@@ -4,6 +4,7 @@ module.exports = mongoose.model('Log',{
 	data: Date,
 	log: [String],
 	modulo: [String],
+	query: [String],
 	horario: [String],
 	usuario: [String],
 	cadastro: [String],

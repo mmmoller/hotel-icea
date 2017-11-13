@@ -21,7 +21,7 @@ module.exports = function(passport){
 	});
 	
 
-{ // Index/Login/Logout/Home
+{ // INDEX e LOGIN
 	
 	// /'INDEX'
 	router.get('/', function(req, res) {
@@ -84,7 +84,7 @@ module.exports = function(passport){
 			var log = "Solicitação de reserva. Data de entrada: "
 			+ moment(newCadastro.dateIn).format("DD/MM/YY") +
 			". Data de saida: " + moment(newCadastro.dateOut).format("DD/MM/YY");
-			createLog("Cadastro", newCadastro.name, newCadastro._id, "", "", log);
+			createLog("Cadastro", newCadastro.name, newCadastro._id, "", "", log, "cadastrar");
 			
 			req.flash('message', "Solicitação de reserva realizada com sucesso, aguarde confirmação por e-mail");
 			
@@ -121,47 +121,7 @@ module.exports = function(passport){
 		failureFlash : true
 	})); 
 
-	// /HOME/LOGOUT
-	router.get('/home/signout', function(req, res) {
-		req.logout();
-		res.redirect('/');
-	});
-	
-	// /HOME
-	router.get('/home', isAuthenticated, function(req, res){
-		res.render('home', { user: req.user, message: req.flash('message')});
-	});
-	
-	router.post('/home', isAuthenticated, function(req, res){
-		User.findOne({ 'username' :  req.user.username }, function(err, user) {
-			if (err) return handleError(err,req,res);
-			if (user){
-				if (bCrypt.compareSync(req.param("old_password"), user.password)){
-					if (req.param("new_password") == req.param("new_password_confirm")){
-						user.password = createHash(req.param("new_password"));
-						user.save(function (err) {
-							if (err) return handleError(err,req,res);
-						});
-						req.flash('message', 'Senha atualizada com sucesso.');
-						res.redirect('/home');
-					}
-					else {
-						req.flash('message', '!Senha nova e confirmação da senha nova não são iguais.');
-						res.redirect('/home');
-					}
-				}
-				else {
-					req.flash('message', '!Senha antiga incorreta.');
-					res.redirect('/home');
-				}
-			}
-			else {
-				req.flash('message', '!Usuário não existe.');
-				res.redirect('/home');
-			}
-		});
-	});
-}
+	}
 	
 { // RECEPCAO
 
@@ -268,7 +228,7 @@ module.exports = function(passport){
 								}
 								
 								createLog("Recepção", cadastro.name, cadastro._id,
-								leitos[index].cod_leito, req.user.username, "Check-in");
+								leitos[index].cod_leito, req.user.username, "Check-in.", "check-in");
 								
 								cadastro.save(function(err){
 									if (err) return handleError(err,req,res);
@@ -391,7 +351,7 @@ module.exports = function(passport){
 								var motivo = req.param("motivo_cancelar_checkin");
 								
 								createLog("Recepção", cadastro.name, cadastro._id,
-								leitos[index].cod_leito, req.user.username, "Reserva cancelada. Motivo: " + motivo + ".");
+								leitos[index].cod_leito, req.user.username, "Reserva cancelada. Motivo: " + motivo + ".", "cancelar check-in");
 								
 								req.flash('message', 'Check-in cancelado com sucesso');
 								res.redirect('/home/recepcao/checkin/cancelar');
@@ -588,6 +548,7 @@ module.exports = function(passport){
 											". Valor previsto: R$" + req.param("custo_previsto") + ". Motivo: "
 											+ req.param("motivo_ajuste") + "."
 											);
+											log.query.push("check-out");
 											log.cadastro.push(cadastro.name);
 											log.cadastro_id.push(cadastro._id);
 											log.leito.push(leitos[index].cod_leito);
@@ -728,7 +689,7 @@ module.exports = function(passport){
 								
 								
 								createLog("Recepção", cadastro.name, cadastro._id,
-								cadastro.leito, req.user.username, "Estendida a estada");
+								cadastro.leito, req.user.username, "Estendida a estada.", "estender estada");
 								
 								
 								req.flash('message', 'Estada estendida com sucesso');
@@ -803,15 +764,9 @@ module.exports = function(passport){
 						}
 						
 						var leitos_ = [];
-						var j = 0;
-						for (var i = 0; i < leitos.length; i++){
-							if (livre[i]){
-								leitos_[i-j] = leitos[i].cod_leito;
-							}
-							else {
-								j++;
-							}
-						}
+							for (var i = 0; i < leitos.length; i++)
+								if (livre[i])
+									leitos_.push(leitos[i]);
 						
 						res.render('home_alocacao_geral', {leitos: leitos_,
 						num_hospede: 1, endereco: "recepcao/mudanca/alocacao"});
@@ -908,7 +863,7 @@ module.exports = function(passport){
 									
 									createLog("Recepção", cadastro.name, cadastro._id,
 									leitos[index_leito_novo].cod_leito, req.user.username, 
-									"Mudança do leito " + leitos[index_leito_antigo].cod_leito);
+									"Mudançao do leito " + leitos[index_leito_antigo].cod_leito, "mudança");
 									
 								}
 								else {
@@ -1076,7 +1031,8 @@ module.exports = function(passport){
 												
 												log.modulo.push("Reserva");
 												log.horario.push(moment().format("HH:mm:ss"));
-												log.log.push("Reserva efetuada");
+												log.log.push("Reserva efetuada.");
+												log.query.push("reservar");
 												log.leito.push(leitos[j].cod_leito);
 												log.cadastro.push(newCadastro.name);
 												log.cadastro_id.push(newCadastro._id);
@@ -1149,7 +1105,7 @@ module.exports = function(passport){
 				rejectMail(cadastro, motivo);
 				
 				createLog("Reserva", cadastro.name, cadastro._id,
-				"", req.user.username, "Solicitação cancelada. Motivo: " + motivo + ".");
+				"", req.user.username, "Solicitação cancelada. Motivo: " + motivo + ".", "cancelar solicitação");
 				
 				
 			}
@@ -1200,7 +1156,7 @@ module.exports = function(passport){
 		"Folha inserida. " + "Data de coleta: " +
 		moment(newFolha.data_coleta).format("DD/MM/YY") +
 		". Data de entrega: " + moment(newFolha.data_entrega).format("DD/MM/YY") +
-		". Fiscal: " + newFolha.nome_fiscal);
+		". Fiscal: " + newFolha.nome_fiscal, "inserir folha");
 		
 		req.flash('message', 'Folha inserida com sucesso')
 		res.redirect("/home/lavanderia/folha");
@@ -1269,7 +1225,7 @@ module.exports = function(passport){
 					});
 					
 					createLog("Manutenção", "", "", leito.cod_leito, req.user.username, 
-					"Pane inserida: " + req.param('desc_pane_adc'));
+					"Pane inserida: " + req.param('desc_pane_adc'), "inserir pane");
 					req.flash('message', "Pane inserida com sucesso");
 					res.redirect('/home/manutencao/quadro/alterar?leito_alterado='+req.param('leito_alterado'));
 					return;
@@ -1283,7 +1239,7 @@ module.exports = function(passport){
 					});
 					
 					createLog("Manutenção", "", "", leito.cod_leito, req.user.username, 
-					"Ocupabilidade alterada para " + req.param('ocup'));
+					"Ocupabilidade alterada para " + req.param('ocup'), "ocupabilidade");
 					
 					req.flash('message', "Ocupabilidade alterada com sucesso");
 					res.redirect('/home/manutencao/quadro/alterar?leito_alterado='+req.param('leito_alterado'));
@@ -1310,7 +1266,7 @@ module.exports = function(passport){
 					
 					for (var i = 0; i < paneRemovida.length; i++){
 						createLog("Manutenção", "", "", leito.cod_leito, req.user.username, 
-						"Pane removida: " + paneRemovida[i]);
+						"Pane removida: " + paneRemovida[i], "remover pane");
 					}
 					
 					req.flash('message', "Pane removida com sucesso");
@@ -1407,6 +1363,7 @@ module.exports = function(passport){
 						log.modulo.push("Financeiro");
 						log.horario.push(moment().format("HH:mm:ss"));
 						log.log.push(_log);
+						log.query.push("inserir financeiro")
 						log.cadastro.push("");
 						log.cadastro_id.push("");
 						log.leito.push("");
@@ -1486,7 +1443,7 @@ module.exports = function(passport){
 						//console.log(aux_dic)
 						
 						createLog("Financeiro", "", "",
-						"", req.user.username, "Valores de diárias alteradas com sucesso." + _log);
+						"", req.user.username, "Valor(es) de diária(s) alterada(s)." + _log, "alterar diária");
 						
 						
 						req.flash('message', 'Valores de diárias alteradas com sucesso');
@@ -1518,18 +1475,43 @@ module.exports = function(passport){
 	// /HOME/GERENTE/LOG
 	router.get('/home/gerente/log', isAuthenticated, isGerente, function(req, res){
 		
+		/*
 		var date = moment();
 		var dateAux = moment(date).subtract(1, 'days');
 		
 		
 		if (req.param('date') != undefined){
 			date = moment(req.param('date'));
-			console.log(date.format());
-			dateAux = moment(date)/*.subtract(1, 'days')*/;
+			//console.log(date.format());
+			dateAux = moment(date);
 		}
 		
 		Log.findOne({data: {"$gte": dateAux, "$lte": date}}, function(err, log) {
-			res.render("home_gerente_log", {log: log});
+			res.render("home_gerente_log", {log: log, modulo: req.param("modulo")});
+		});*/
+		
+		var dataIn = moment().subtract(1, 'days');
+		var dataOut = moment(dataIn).add(1, 'days');
+		if (req.param('dataIn') != undefined && req.param('dataIn')){
+			dataIn = moment(req.param('dataIn'));
+			dataOut = moment(dataIn);
+		}
+		if (req.param('dataOut') != undefined && req.param('dataOut')){
+			dataOut = moment(req.param('dataOut'));
+		}
+		
+		var modulo = "";
+		var query = "";
+		if (req.param("modulo") != undefined){
+			modulo = req.param("modulo");
+		}
+		if (req.param("query") != undefined){
+			query = req.param("query");
+		}
+		
+		
+		Log.find({data: {"$gte": dataIn, "$lte": dataOut}}, function(err, log) {
+			res.render("home_gerente_log", {log: log, modulo: modulo, query: query});
 		});
 	});
 	
@@ -1560,7 +1542,7 @@ module.exports = function(passport){
 				});
 				
 				createLog("Gerência", user.username, user._id,
-				"", req.user.username, "Permissões de acesso alteradas");
+				"", req.user.username, "Permissões de acesso alteradas.", "alterar permissão");
 				
 				req.flash('message', "Permissões alteradas com sucesso");
 				res.redirect('/home/gerente/permissao');
@@ -1600,7 +1582,7 @@ module.exports = function(passport){
 			});
 			
 			createLog("Gerência", newUser.username, newUser._id,
-			"", req.user.username, "Usuário criado");
+			"", req.user.username, "Usuário criado.", "criar usuário");
 			
 			req.flash('message', "Usuário criado com sucesso.");
 			res.redirect('/home/gerente/signup');
@@ -1757,7 +1739,57 @@ module.exports = function(passport){
 	});
 }
 
-{ // Criar/Delete/Debug
+{ // INICIO
+	
+	// /HOME
+	router.get('/home', isAuthenticated, function(req, res){
+		res.render('home', { user: req.user, message: req.flash('message')});
+	});
+	
+	// /HOME/LOGOUT
+	router.get('/home/signout', function(req, res) {
+		req.logout();
+		res.redirect('/');
+	});
+	
+	// /HOME/SENHA
+	router.get('/home/senha', isAuthenticated, function(req, res){
+		res.render('home_senha', { user: req.user, message: req.flash('message')});
+	});
+	
+	router.post('/home/senha', isAuthenticated, function(req, res){
+		User.findOne({ 'username' :  req.user.username }, function(err, user) {
+			if (err) return handleError(err,req,res);
+			if (user){
+				if (bCrypt.compareSync(req.param("old_password"), user.password)){
+					if (req.param("new_password") == req.param("new_password_confirm")){
+						user.password = createHash(req.param("new_password"));
+						user.save(function (err) {
+							if (err) return handleError(err,req,res);
+						});
+						req.flash('message', 'Senha atualizada com sucesso.');
+						res.redirect('/home');
+					}
+					else {
+						req.flash('message', '!Senha nova e confirmação da senha nova não são iguais.');
+						res.redirect('/home/senha');
+					}
+				}
+				else {
+					req.flash('message', '!Senha antiga incorreta.');
+					res.redirect('/home/senha');
+				}
+			}
+			else {
+				req.flash('message', '!Usuário não existe.');
+				res.redirect('/home');
+			}
+		});
+	});
+
+}
+
+{ // Criar/Delete/Debug ** Alterar data de registro/log para até 2020
 	
 	// DELETE
 	router.get('/delete', function(req, res){
@@ -2305,6 +2337,7 @@ module.exports = function(passport){
 					newLog.data = moment(proximoDia);
 					newLog.modulo = [];
 					newLog.log = [];
+					newLog.query = [];
 					newLog.horario = [];
 					newLog.cadastro = [];
 					newLog.cadastro_id = [];
@@ -2358,6 +2391,50 @@ module.exports = function(passport){
 			res.redirect('/');
 		}, 1000);
 	});
+
+	router.get('/log', function(req, res){
+		
+		Log.remove({}, function(err) { 
+			console.log('Financeiro removed')
+		});
+		
+		setTimeout(function () {
+			Leito.find({}, null, {sort: 'cod_leito'}, function(err, leitos) {
+				if (err) return handleError(err,req,res);
+				if (leitos){
+					var dataInicial = moment('2017-01-01');
+					var dataFinal = moment('2018-01-01');
+					var proximoDia = moment(dataInicial);
+					
+					while (proximoDia < dataFinal){
+						var newLog = new Log();
+						newLog.data = moment(proximoDia);
+						newLog.modulo = [];
+						newLog.log = [];
+						newLog.query = [];
+						newLog.horario = [];
+						newLog.cadastro = [];
+						newLog.cadastro_id = [];
+						newLog.usuario = [];
+						newLog.leito = [];
+						newLog.ganho = 0;
+						newLog.gasto = 0;
+						newLog.save(function (err) {
+							if (err) return handleError(err,req,res);	
+						});
+						proximoDia.add(1, 'days')
+						proximoDia.hour(0);
+					}
+					res.redirect('/');
+				}
+				else {
+					req.flash('message', "Os Leitos ainda não foram criados");
+					res.redirect('/');
+				}
+			});
+		}, 1000);
+	});
+	
 }
 	
 	return router;
@@ -2365,7 +2442,7 @@ module.exports = function(passport){
 
 { // Functions
 
-function createLog(modulo, cadastro, cadastro_id, leito, username, log_){
+function createLog(modulo, cadastro, cadastro_id, leito, username, log_, query){
 	Log.findOne({data: {"$gte": moment().subtract(1, 'days'), "$lte": moment()}}, function(err, log) {
 		if (err) return handleError(err,req,res);
 		if (log){
@@ -2376,6 +2453,7 @@ function createLog(modulo, cadastro, cadastro_id, leito, username, log_){
 			log.cadastro_id.push(cadastro_id);
 			log.leito.push(leito);
 			log.usuario.push(username);
+			log.query.push(query);
 			log.save(function (err) {
 				if (err) return handleError(err,req,res);
 			});
@@ -2560,6 +2638,25 @@ var dicionario_posto_valor = {'Almirante-de-Esquadra': 60,
 '3o Sargento': 40,
 'Cabo': 30,
 'Civil': 50};
+
+var dicionario_query = {
+'/': "cadastrar",
+'/home/recepcao/checkin': "check-in",
+'/home/recepcao/checkin/cancelar': "cancelar check-in",
+'/home/recepcao/checkout': "check-out",
+'/home/recepcao/estender': "estender estada",
+'/home/recepcao/mudanca': "mudança",
+'/home/reserva': "reservar",
+'/home/reserva/cancelar': 'cancelar solicitação',
+'/home/lavanderia/folha': 'inserir folha',
+'/home/manutencao/quadro/alterar': 'inserir pane',
+'/home/manutencao/quadro/alterar_': 'ocupabilidade',
+'/home/manutencao/quadro/alterar__': 'remover pane',
+'/home/financeiro/inserir': 'inserir financeiro',
+'/home/financeiro/alterar': 'alterar diária',
+'/home/gerente/permissao': 'alterar permissão',
+'/home/gerente/signup': 'criar usuário'
+};
 
 var desc_itens_lavanderia = [
 	"Lençol",

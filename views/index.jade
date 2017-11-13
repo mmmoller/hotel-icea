@@ -146,8 +146,11 @@ block content
 							input(type='date', name='checkin', class='form-control')
 						.cadastro-sections
 							| Data de saída
-						input#to(type='text', name='checkout_', class='form-control', placeholder='Data de saida', required)
-						input#checkout(type='hidden', name='checkout', class='form-control')
+						if (!_debug)
+							input#to(type='text', name='checkout_', class='form-control', placeholder='Data de saida', required)
+							input#checkout(type='hidden', name='checkout', class='form-control')
+						else
+							input(type='date', name='checkout', class='form-control')
 						
 						
 						//select(name = 'posto', class = 'form-control')
