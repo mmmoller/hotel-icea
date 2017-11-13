@@ -2584,6 +2584,6 @@ var transporter = nodemailer.createTransport({
 	}
 });
 	
-var debug = true;
+var debug = false;
 
 }
