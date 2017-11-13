@@ -1590,6 +1590,40 @@ module.exports = function(passport){
 		
 	});
 	
+	// /HOME/GERENTE/REMOVER/USUARIO
+	
+	router.get('/home/gerente/remover/usuario', isAuthenticated, isGerente, function(req, res){
+		User.find({username: {$ne: 'admin'}}, function(err, users) {
+			if (err) return handleError(err,req,res);
+			if (users){
+				res.render('home_gerente_remover_usuario', {users: users,
+				message: req.flash('message')});
+			}
+			else {
+				req.flash('message', "Nenhum usuário existente");
+				res.redirect('/home');
+			}
+		});
+	});
+	
+	router.post('/home/gerente/remover/usuario', isAuthenticated, isGerente, function(req, res){
+		
+		User.remove({ 'username' :  req.body.bizu }, function(err) {
+			if (err) return handleError(err,req,res);
+			
+			createLog("Gerência", "", "",
+			"", req.user.username, "Usuário " + req.body.bizu + " removido.", "remover usuário");
+			
+			req.flash('message', "Usuário removido com sucesso");
+			res.redirect('/home/gerente/remover/usuario');
+			
+        });
+		
+		
+	});
+	
+
+	
 	// /HOME/REGISTRO
 	
 	router.get('/home/registro', isAuthenticated, function(req,res){
@@ -2655,7 +2689,8 @@ var dicionario_query = {
 '/home/financeiro/inserir': 'inserir financeiro',
 '/home/financeiro/alterar': 'alterar diária',
 '/home/gerente/permissao': 'alterar permissão',
-'/home/gerente/signup': 'criar usuário'
+'/home/gerente/signup': 'criar usuário',
+'/home/gerente/remover/usuario': 'remover usuário'
 };
 
 var desc_itens_lavanderia = [
