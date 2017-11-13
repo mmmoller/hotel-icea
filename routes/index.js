@@ -863,7 +863,7 @@ module.exports = function(passport){
 									
 									createLog("Recepção", cadastro.name, cadastro._id,
 									leitos[index_leito_novo].cod_leito, req.user.username, 
-									"Mudançao do leito " + leitos[index_leito_antigo].cod_leito, "mudança");
+									"Mudança do leito " + leitos[index_leito_antigo].cod_leito, "mudança");
 									
 								}
 								else {
