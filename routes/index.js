@@ -17,19 +17,33 @@ module.exports = function(passport){
 	// /'TESTE'
 	
 	router.get('/teste', function(req,res){
-		//createLeito("A", "20", "a");
 		res.send("banana");
-		
-		//req.flash('message', "!Solicitação de reserva realizada com sucesso, aguarde confirmação por e-mail");
-		//res.render("teste");
-		//res.render("home_modulo", {titulo: "Recepção", endereco: modulo_recepcao_endereco, tag: modulo_recepcao_titulo })
-	});		
+	});
+	
 
 { // Index/Login/Logout/Home
 	
 	// /'INDEX'
 	router.get('/', function(req, res) {
-		res.render('index', {message: req.flash('message'), _debug: debug});
+		
+		
+		Financeiro.findOne({}, function(err, financeiro) {
+			if (err) return handleError(err,req,res);
+			if (financeiro){
+				var posto = [];
+				for (var key in financeiro.dic_posto_valor) {
+					if (financeiro.dic_posto_valor.hasOwnProperty(key)){
+						posto.unshift(key);
+					}
+				}		
+				res.render('index', {message: req.flash('message'), _debug: debug, posto: posto});
+			}
+			else {
+				req.flash('message', "!O sistema não está disponível. Problemas no setor Financeiro.");
+				res.redirect('/');
+			}
+		});
+		
 	});
 	
 	router.post('/', function(req, res){
@@ -374,8 +388,10 @@ module.exports = function(passport){
 									});
 								}
 								
+								var motivo = req.param("motivo_cancelar_checkin");
+								
 								createLog("Recepção", cadastro.name, cadastro._id,
-								leitos[index].cod_leito, req.user.username, "Reserva cancelada");
+								leitos[index].cod_leito, req.user.username, "Reserva cancelada. Motivo: " + motivo + ".");
 								
 								req.flash('message', 'Check-in cancelado com sucesso');
 								res.redirect('/home/recepcao/checkin/cancelar');
@@ -411,60 +427,72 @@ module.exports = function(passport){
 			if (err) return handleError(err,req,res);
 			if (cadastros){
 				
-				// Para dizer se deve cancelar o check-in ou não.
-				var cores = [];
+				Financeiro.findOne({}, function(err, financeiro) {
+					if (err) return handleError(err,req,res);
+					if (financeiro){
 				
-				// Custo.
-				var custos = [];
-				
-				//checkout certo. (AZUL)
-				//  					         dateOut(00:00)	
-				//                         ontem(-23:59)      hoje(00:01)
-				// 						   ocupado            livre
-				
-				//checkout antecipado. (LARANJA)
-				//  					                               dateOut(00:00)	
-				//                         ontem(-23:59)      hoje(00:01)
-				// 						   ocupado            ocupado
-				
-				//checkout ruim. (VERMELHO)
-				//  					         dateOut(00:00)	
-				//                         ontem(-11:59)      hoje(12:01)
-				// 						   ocupado            livre
+						// Para dizer se deve cancelar o check-in ou não.
+						var cores = [];
+						
+						// Custo.
+						var custos = [];
+						
+						//checkout certo. (AZUL)
+						//  					         dateOut(00:00)	
+						//                         ontem(-23:59)      hoje(00:01)
+						// 						   ocupado            livre
+						
+						//checkout antecipado. (LARANJA)
+						//  					                               dateOut(00:00)	
+						//                         ontem(-23:59)      hoje(00:01)
+						// 						   ocupado            ocupado
+						
+						//checkout ruim. (VERMELHO)
+						//  					         dateOut(00:00)	
+						//                         ontem(-11:59)      hoje(12:01)
+						// 						   ocupado            livre
+									
+						for (var i = 0; i < cadastros.length; i++){
+							if (moment(cadastros[i].dateOut) < moment()
+								&& moment(cadastros[i].dateOut) > moment().subtract(12, 'hours')){
+								cores[i] = "azul";
+							}
+							else if (moment(cadastros[i].dateOut) > moment()){
+								cores[i] = "laranja"
+							}
+							else {
+								cores[i] = "vermelho";
+							}
 							
-				for (var i = 0; i < cadastros.length; i++){
-					if (moment(cadastros[i].dateOut) < moment()
-						&& moment(cadastros[i].dateOut) > moment().subtract(12, 'hours')){
-						cores[i] = "azul";
-					}
-					else if (moment(cadastros[i].dateOut) > moment()){
-						cores[i] = "laranja"
+							
+							var dateIn = moment(cadastros[i].checkIn);
+							var dateOut = moment();
+							var hours = moment().diff(moment(cadastros[i].checkIn),"hours");
+								
+							custos[i] = hours*financeiro.dic_posto_valor[cadastros[i].posto]/24;
+							
+							
+						}
+						
+						req.session.preventf5 = true;
+						
+						var azul = "Hóspede deve realizar o check-out hoje."
+						var laranja = "Ainda não é a data de check-out do hóspede, porém ele pode ser realizado antecipadamente."
+						var vermelho = "Hóspede já deveria ter realizado o check-out."
+						
+						res.render('home_recepcao_geral', {cadastros: cadastros
+						, titulo: "Realizar Check-Out", endereco: "checkout",
+						botao: "Check-out", cores: cores, custos: custos, message: req.flash('message')
+						, azul: azul, laranja: laranja, vermelho: vermelho});
+					
 					}
 					else {
-						cores[i] = "vermelho";
+						req.flash('message', "!O sistema não está disponível. Problemas no setor Financeiro.");
+						res.redirect('/');
 					}
-					
-					
-					var dateIn = moment(cadastros[i].checkIn);
-					var dateOut = moment();
-					var hours = moment().diff(moment(cadastros[i].checkIn),"hours");
-						
-					custos[i] = hours*dicionario_posto_valor[cadastros[i].posto]/24;
-					
-					
-				}
-				
-				req.session.preventf5 = true;
-				
-				var azul = "Hóspede deve realizar o check-out hoje."
-				var laranja = "Ainda não é a data de check-out do hóspede, porém ele pode ser realizado antecipadamente."
-				var vermelho = "Hóspede já deveria ter realizado o check-out."
-				
-				res.render('home_recepcao_geral', {cadastros: cadastros
-				, titulo: "Realizar Check-Out", endereco: "checkout",
-				botao: "Check-out", cores: cores, custos: custos, message: req.flash('message')
-				, azul: azul, laranja: laranja, vermelho: vermelho});
-								
+				});				
+			
+			
 			}
 			else {
 				req.flash('message', "Não existem reservas");
@@ -557,7 +585,9 @@ module.exports = function(passport){
 											log.modulo.push("Recepção");
 											log.horario.push(moment().format("HH:mm:ss"));
 											log.log.push("Check-out. Valor cobrado: R$ " + req.param("valor") +
-											". Valor previsto: R$" + req.param("custo_previsto"));
+											". Valor previsto: R$" + req.param("custo_previsto") + ". Motivo: "
+											+ req.param("motivo_ajuste") + "."
+											);
 											log.cadastro.push(cadastro.name);
 											log.cadastro_id.push(cadastro._id);
 											log.leito.push(leitos[index].cod_leito);
@@ -1114,10 +1144,12 @@ module.exports = function(passport){
 					if (err) return handleError(err,req,res);
 				});
 				
-				rejectMail(cadastro);
+				var motivo = req.param("motivo_cancelar_reserva");
+				
+				rejectMail(cadastro, motivo);
 				
 				createLog("Reserva", cadastro.name, cadastro._id,
-				"", req.user.username, "Solicitação cancelada");
+				"", req.user.username, "Solicitação cancelada. Motivo: " + motivo + ".");
 				
 				
 			}
@@ -1345,6 +1377,7 @@ module.exports = function(passport){
 		});
 	});
 	
+	// /HOME/FINANCEIRO/INSERIR
 	router.get('/home/financeiro/inserir', isAuthenticated, isFinanceiro, function(req, res){
 		res.render('home_financeiro_inserir', {message: req.flash('message')});
 	});
@@ -1360,7 +1393,7 @@ module.exports = function(passport){
 						
 						var _log = req.param("tipo") + " inserida. " +
 						"Valor: R$ " + req.param("valor") +
-						". Motivo: " + req.param("motivo");
+						". Motivo: " + req.param("motivo_financeiro");
 						
 						if (req.param("tipo") == "Ganho"){
 							financeiro.ganho = req.param("valor");
@@ -1392,6 +1425,78 @@ module.exports = function(passport){
 					}
 					
 					res.redirect('/home/financeiro/inserir');
+				});
+			}
+			else {
+				req.flash('message', "O Financeiro ainda não foram criados");
+				res.redirect('/home');
+			}
+		});
+	});
+	
+	// /HOME/FINANCEIRO/ALTERAR
+	router.get('/home/financeiro/alterar', isAuthenticated, isFinanceiro, function(req, res){
+		Financeiro.findOne({}, function(err, financeiro) {
+			if (err) return handleError(err,req,res);
+			if (financeiro){
+				var posto = [];
+				var valor = [];
+				for (var key in financeiro.dic_posto_valor) {
+					if (financeiro.dic_posto_valor.hasOwnProperty(key)){
+						posto.unshift(key);
+						valor.unshift(financeiro.dic_posto_valor[key]);
+					}
+				}		
+				res.render('home_financeiro_alterar', {message: req.flash('message'), posto: posto, valor: valor});
+			}
+			else {
+				req.flash('message', "O Financeiro ainda não foram criados");
+				res.redirect('/home');
+			}
+		});
+	});
+	
+	router.post('/home/financeiro/alterar', isAuthenticated, isFinanceiro, function(req, res){
+		Financeiro.findOne({}, function(err, financeiro) {
+			if (err) return handleError(err,req,res);
+			if (financeiro){
+				Log.findOne({data: {"$gte": moment().subtract(1, 'days'), "$lte": moment()}}, function(err, log) {
+					if (err) return handleError(err,req,res);
+					if (log){
+
+						var aux_dic = {};
+						var _log = "";
+						
+						for (var i = 0; i < req.body._posto.length; i++){
+							aux_dic[req.body._posto[i]] = Number(req.body._valor[i]);
+							
+							if (financeiro.dic_posto_valor[req.body._posto[i]] != req.body._valor[i]){
+								_log = _log + " " + String(req.body._posto[i]) 
+								+ ": de R$ " + String(financeiro.dic_posto_valor[req.body._posto[i]])
+								+ " para R$ " + String(req.body._valor[i]) + ".";
+							}
+						}
+						
+						financeiro.dic_posto_valor = aux_dic;
+						
+						financeiro.save(function (err) {
+							if (err) return handleError(err,req,res);
+						});
+						
+						//console.log(aux_dic)
+						
+						createLog("Financeiro", "", "",
+						"", req.user.username, "Valores de diárias alteradas com sucesso." + _log);
+						
+						
+						req.flash('message', 'Valores de diárias alteradas com sucesso');
+						
+					}
+					else{
+						req.flash('message', '!É necessário criar o Log');
+					}
+					
+					res.redirect('/home/financeiro/alterar');
 				});
 			}
 			else {
@@ -1748,6 +1853,7 @@ module.exports = function(passport){
 		var newFinanceiro = new Financeiro();
 		newFinanceiro.gasto = 0;
 		newFinanceiro.ganho = 0;
+		newFinanceiro.dic_posto_valor = dicionario_posto_valor;
 		newFinanceiro.save(function (err) {
 			if (err) return handleError(err,req,res);
 		});
@@ -2235,6 +2341,23 @@ module.exports = function(passport){
 		res.redirect('/home');
 	});
 	
+	router.get('/financeiro', function(req, res){
+		
+		Financeiro.remove({}, function(err) { 
+			console.log('Financeiro removed')
+		});
+		
+		setTimeout(function () {
+			var newFinanceiro = new Financeiro();
+			newFinanceiro.gasto = 0;
+			newFinanceiro.ganho = 0;
+			newFinanceiro.dic_posto_valor = dicionario_posto_valor;
+			newFinanceiro.save(function (err) {
+				if (err) return handleError(err,req,res);
+			});
+			res.redirect('/');
+		}, 1000);
+	});
 }
 	
 	return router;
@@ -2301,10 +2424,10 @@ function acceptMail(cadastro){
 	});
 }
 
-function rejectMail(cadastro){
+function rejectMail(cadastro, motivo){
 	
 	var text = 'A solicitação de reserva do ' + cadastro.posto + " " + cadastro.name_guerra +
-	" foi rejeitada devido à falta de vagas disponíveis na data solicitada." + 
+	" foi rejeitada pelo seguinte motivo: " + motivo + "." + 
 	"\n\n\nEssa mensagem é gerada automaticamente pelo sistema. O sistema ainda está em fase de teste.";
 	
 	var mailOptions = {
@@ -2461,6 +2584,6 @@ var transporter = nodemailer.createTransport({
 	}
 });
 	
-var debug = false;
+var debug = true;
 
 }

@@ -20,35 +20,38 @@ block content
 						select(name='posto', class='form-control', placeholder='Posto/Graduação', required)
 							if (!_debug)
 								option(disabled value='', selected hidden) Posto/Graduação
-							option(value='Almirante-de-Esquadra') Almirante-de-Esquadra
-							option(value='General-de-Exército') General-de-Exército
-							option(value='Tenente-Brigadeiro-do-Ar') Tenente-Brigadeiro-do-Ar
-							option(value='Vice-Almirante') Vice-Almirante
-							option(value='General-de-Divisão') General-de-Divisão
-							option(value='Major-Brigadeiro-do-Ar') Major-Brigadeiro-do-Ar
-							option(value='Contra-Almirante') Contra-Almirante
-							option(value='General-de-Brigada') General-de-Brigada
-							option(value='Brigadeiro-do-Ar') Brigadeiro-do-Ar
-							option(value='Capitão-de-Mar-e-Guerra') Capitão-de-Mar-e-Guerra
-							option(value='Coronel') Coronel
-							option(value='Capitão-de-Fragata') Capitão-de-Fragata
-							option(value='Tenente Coronel') Tenente Coronel
-							option(value='Capitão-de-Corveta') Capitão-de-Corveta
-							option(value='Major') Major
-							option(value='Capitão-Tenente') Capitão-Tenente
-							option(value='Capitão') Capitão
-							option(value='1o Tenente') 1o Tenente
-							option(value='2o Tenente') 2o Tenente
-							option(value='Guarda-Marinha') Guarda-Marinha
-							option(value='Aspirante') Aspirante
-							option(value='Cadete') Cadete
-							option(value='Suboficial') Suboficial
-							option(value='SubTenente') SubTenente
-							option(value='1o Sargento') 1o Sargento
-							option(value='2o Sargento') 2o Sargento
-							option(value='3o Sargento') 3o Sargento
-							option(value='Cabo') Cabo
-							option(value='Civil') Civil
+							- for (var i = 0; i < posto.length; i++) {
+								option(value=posto[i]) #{posto[i]}
+							- }
+							//option(value='Almirante-de-Esquadra') Almirante-de-Esquadra
+							//option(value='General-de-Exército') General-de-Exército
+							//option(value='Tenente-Brigadeiro-do-Ar') Tenente-Brigadeiro-do-Ar
+							//option(value='Vice-Almirante') Vice-Almirante
+							//option(value='General-de-Divisão') General-de-Divisão
+							//option(value='Major-Brigadeiro-do-Ar') Major-Brigadeiro-do-Ar
+							//option(value='Contra-Almirante') Contra-Almirante
+							//option(value='General-de-Brigada') General-de-Brigada
+							//option(value='Brigadeiro-do-Ar') Brigadeiro-do-Ar
+							//option(value='Capitão-de-Mar-e-Guerra') Capitão-de-Mar-e-Guerra
+							//option(value='Coronel') Coronel
+							//option(value='Capitão-de-Fragata') Capitão-de-Fragata
+							//option(value='Tenente Coronel') Tenente Coronel
+							//option(value='Capitão-de-Corveta') Capitão-de-Corveta
+							//option(value='Major') Major
+							//option(value='Capitão-Tenente') Capitão-Tenente
+							//option(value='Capitão') Capitão
+							//option(value='1o Tenente') 1o Tenente
+							//option(value='2o Tenente') 2o Tenente
+							//option(value='Guarda-Marinha') Guarda-Marinha
+							//option(value='Aspirante') Aspirante
+							//option(value='Cadete') Cadete
+							//option(value='Suboficial') Suboficial
+							//option(value='SubTenente') SubTenente
+							//option(value='1o Sargento') 1o Sargento
+							//option(value='2o Sargento') 2o Sargento
+							//option(value='3o Sargento') 3o Sargento
+							//option(value='Cabo') Cabo
+							//option(value='Civil') Civil
 						if (_debug)
 							input(type='text', name='nome', class='form-control', placeholder='Nome completo', value="debug")
 						else
