@@ -40,7 +40,7 @@ module.exports = function(passport){
 			}
 			else {
 				req.flash('message', "!O sistema não está disponível. Problemas no setor Financeiro.");
-				res.redirect('/');
+				res.send('O sistema não está disponível. Problemas com o setor Financeiro.');
 			}
 		});
 		
