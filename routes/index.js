@@ -20,6 +20,10 @@ module.exports = function(passport){
 		res.send("banana");
 	});
 	
+	router.get('/teste', function(req.res){
+		
+	});
+	
 
 { // INDEX e LOGIN
 	
@@ -66,7 +70,7 @@ module.exports = function(passport){
 		newCadastro.curso = req.param('curso'); 
 		newCadastro.solicitante = req.param('solicitante'); 
 		newCadastro.sexo = req.param('sexo');
-		newCadastro.estado = "solicitacao";
+		newCadastro.estado = "solicitação de reserva";
 		// Se a data de saida for maior que a data de entrada, é valido (essa validação deveria ser feita no front-end)
 		// Ou renderizar a página com os dados já preenchidos
 		if (moment(newCadastro.dateIn).isValid() &&
@@ -213,7 +217,7 @@ module.exports = function(passport){
 						Cadastro.findOne({'_id': req.param('_id')}, function(err, cadastro) {
 							if (err) return handleError(err,req,res);
 							if (cadastro){
-								cadastro.estado = "checkin";
+								cadastro.estado = "checkIn";
 								cadastro.checkIn = moment().format();
 								
 								for (var i = 0; i < registros.length; ++i){
@@ -321,7 +325,7 @@ module.exports = function(passport){
 						Cadastro.findOne({'_id': req.param('_id')}, function(err, cadastro) {
 							if (err) return handleError(err,req,res);
 							if (cadastro){
-								cadastro.estado = "no show";
+								cadastro.estado = "reserva cancelada";
 								cadastro.save(function(err){
 									if (err) return handleError(err,req,res);
 								});
@@ -383,7 +387,7 @@ module.exports = function(passport){
 	
 	// /HOME/RECEPCAO/CHECKOUT
 	router.get('/home/recepcao/checkout', isAuthenticated, isRecepcao, function(req,res){
-		Cadastro.find({'estado': "checkin"}, function(err, cadastros) {
+		Cadastro.find({'estado': "checkIn"}, function(err, cadastros) {
 			if (err) return handleError(err,req,res);
 			if (cadastros){
 				
@@ -605,7 +609,7 @@ module.exports = function(passport){
 	
 	// /HOME/RECEPCAO/ESTENDER
 	router.get('/home/recepcao/estender', isAuthenticated, isRecepcao, function(req,res){
-		Cadastro.find({'estado': "checkin"}, function(err, cadastros) {
+		Cadastro.find({'estado': "checkIn"}, function(err, cadastros) {
 			if (err) return handleError(err,req,res);
 			if (cadastros){
 				
@@ -717,7 +721,7 @@ module.exports = function(passport){
 	
 	// /HOME/RECEPCAO/MUDANCA
 	router.get('/home/recepcao/mudanca', isAuthenticated, isRecepcao, function(req,res){
-		Cadastro.find({'estado': "checkin"}, function(err, cadastros) {
+		Cadastro.find({'estado': "checkIn"}, function(err, cadastros) {
 			if (err) return handleError(err,req,res);
 			if (cadastros){
 				
@@ -896,7 +900,7 @@ module.exports = function(passport){
 { // RESERVA
 	// /HOME/RESERVA
 	router.get('/home/reserva', isAuthenticated, isReserva, function(req, res){
-		Cadastro.find({'estado': "solicitacao"}, function(err, cadastros) {
+		Cadastro.find({'estado': "solicitação de reserva"}, function(err, cadastros) {
 			if (err) return handleError(err,req,res);
 			if (cadastros){
 				res.render('home_reserva', {cadastros: cadastros, message: req.flash('message')});
@@ -1095,7 +1099,7 @@ module.exports = function(passport){
 		Cadastro.findOne({'_id': req.param('_id')}, function(err, cadastro) {
 			if (err) return handleError(err,req,res);
 			if (cadastro){
-				cadastro.estado = "cancelado";
+				cadastro.estado = "solicitação cancelada";
 				cadastro.save(function(err){
 					if (err) return handleError(err,req,res);
 				});
@@ -2336,9 +2340,9 @@ module.exports = function(passport){
 					newRegistro.data = moment(proximoDia);
 					newRegistro.estado = [];
 					newRegistro.ocupante = [];
-					newRegistro.log = [];
-					newRegistro.ganho = 0;
-					newRegistro.gasto = 0;
+					//newRegistro.log = [];
+					//newRegistro.ganho = 0;
+					//newRegistro.gasto = 0;
 					for (var i = 0; i < leitos.length; i++){
 						newRegistro.estado[newRegistro.estado.length] = "livre";
 						newRegistro.ocupante[newRegistro.ocupante.length] = "";
