@@ -20,8 +20,8 @@ module.exports = function(passport){
 		res.send("banana");
 	});
 	
-	router.get('/teste', function(req.res){
-		
+	router.get('/teste2', function(req,res){
+		res.send("banana2");
 	});
 	
 
