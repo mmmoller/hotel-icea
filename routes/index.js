@@ -2359,8 +2359,8 @@ module.exports = function(passport){
 		Leito.find({}, null, {sort: 'cod_leito'}, function(err, leitos) {
 			if (err) return handleError(err,req,res);
 			if (leitos){
-				var dataInicial = moment('2017-01-01');
-				var dataFinal = moment('2018-01-01');
+				var dataInicial = moment('2018-01-01');
+				var dataFinal = moment('2019-01-01');
 				var proximoDia = moment(dataInicial);
 				
 				while (proximoDia < dataFinal){
@@ -2394,8 +2394,8 @@ module.exports = function(passport){
 		Leito.find({}, null, {sort: 'cod_leito'}, function(err, leitos) {
 			if (err) return handleError(err,req,res);
 			if (leitos){
-				var dataInicial = moment('2017-01-01');
-				var dataFinal = moment('2018-01-01');
+				var dataInicial = moment('2018-01-01');
+				var dataFinal = moment('2019-01-01');
 				var proximoDia = moment(dataInicial);
 				
 				while (proximoDia < dataFinal){
@@ -2468,8 +2468,8 @@ module.exports = function(passport){
 			Leito.find({}, null, {sort: 'cod_leito'}, function(err, leitos) {
 				if (err) return handleError(err,req,res);
 				if (leitos){
-					var dataInicial = moment('2017-01-01');
-					var dataFinal = moment('2018-01-01');
+					var dataInicial = moment('2018-01-01');
+					var dataFinal = moment('2019-01-01');
 					var proximoDia = moment(dataInicial);
 					
 					while (proximoDia < dataFinal){
