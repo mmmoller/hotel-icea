@@ -47,16 +47,6 @@ block content
 							td Total de leitos
 							each reservado in reservados
 								td #{total}
-						if (user)
-							if (user.permissao[4])
-								tr
-									td Ganho
-									each registro in registros
-										td R$ #{registro.ganho.toFixed(2)}
-								tr
-									td Gastos
-									each registro in registros
-										td R$ #{registro.gasto.toFixed(2)}
 		div.container#register-table-wrapper
 			center
 				table#register-table

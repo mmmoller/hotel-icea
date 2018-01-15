@@ -10,8 +10,6 @@ var mongoose = require('mongoose');
 // Connect to DB
 mongoose.connect(dbConfig.url);
 
-console.log(mongoose.connection.host);
-console.log(mongoose.connection.port);
 
 var app = express();
 

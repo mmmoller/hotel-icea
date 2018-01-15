@@ -1917,36 +1917,6 @@ module.exports = function(passport){
 		
 	});
 	
-	/*
-	router.get('/criar/visitante', function(req, res){
-		
-		User.findOne({ 'username' :  'visitante' }, function(err, user) {
-            // In case of any error, return using the done method
-			if (err){
-				return handleError(err,req,res);
-			}
-			if (user){
-				user.password = createHash('visitante');
-				user.save(function(err){
-					if (err) return handleError(err,req,res);
-				});
-				return;
-			}
-			var newUser = new User();
-			
-			newUser.username = 'visitante';
-			newUser.password = createHash('visitante');
-			newUser.permissao = [false, false, false, false, false, false];
-			
-			newUser.save(function (err) {
-				if (err) return handleError(err,req,res);
-			});
-        });
-		res.redirect('/criar/financeiro');
-		
-	});
-		
-	*/
 	router.get('/criar/financeiro', function(req, res){
 		var newFinanceiro = new Financeiro();
 		newFinanceiro.gasto = 0;
@@ -2157,6 +2127,7 @@ module.exports = function(passport){
 		setTimeout(function () {res.redirect('/criar/registro')}, 1000);
 	});
 	*/
+	
 	router.get('/criar/leitos', function(req,res){
 		var newLeito;
 		//A
@@ -2352,7 +2323,7 @@ module.exports = function(passport){
 				if(err) return handleError(err,req,res);
 			});
 		}
-		setTimeout(function () {res.redirect('/criar/registro')}, 1000);
+		setTimeout(function () {res.redirect('/criar/registro')}, 2000);
 	});
 	
 	router.get('/criar/registro', function(req, res){
