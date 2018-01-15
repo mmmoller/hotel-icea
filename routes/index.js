@@ -11,17 +11,45 @@ var bCrypt = require('bcrypt-nodejs');
 var moment = require('moment');
 var mongoose = require('mongoose');
 var nodemailer = require('nodemailer');
+var Teste = require('../models/teste');
 
 module.exports = function(passport){
 
 	// /'TESTE'
 	
 	router.get('/teste', function(req,res){
-		res.send("banana");
+		var teste = new Teste()
+		teste.teste1 = "teste";
+		teste.save(function (err) {
+			if (err) return handleError(err,req,res);
+			else {
+				console.log("teste criado com sucesso");
+			}
+		});
+		res.send("teste");
 	});
 	
 	router.get('/teste2', function(req,res){
-		res.send("banana2");
+		Teste.findOne({}, function(err, teste) {
+            // In case of any error, return using the done method
+			if (err){
+				return handleError(err,req,res);
+			}
+			if (teste){
+				console.log("achou");
+			}
+			else {
+				console.log("ñ achou");
+			}
+        });
+		res.send("teste2")
+	});
+	
+	router.get('/teste3', function(req,res){
+		Teste.remove({}, function(err) { 
+			console.log('Teste removed')
+		});
+		res.send("teste3")
 	});
 	
 
