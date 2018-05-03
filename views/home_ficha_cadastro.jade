@@ -21,7 +21,7 @@ block content
 						]
 					} );
 				});
-			button#hide(onclick="myFunction()", style='margin-top: 10px') Imprimir
+			button#hide(onclick="myFunction()") Print this page
 			br
 			img(src="/img/icea.jpg", style='width:5%')
 			table#example(style="font-size: 10px")
@@ -76,14 +76,14 @@ block content
 						td
 							strong Data de entrada:
 							if (cadastro.checkIn)
-								|  #{moment(cadastro.checkIn).format("DD/MM/YYYY hh:mm:ss")}
+								|  #{moment(cadastro.checkIn).format("DD/MM/YYYY HH:mm:ss")}
 							else
 								| 
 						td
 							strong Saída Prevista:
 							|  #{moment(cadastro.dateOut).format("DD/MM/YYYY")}
 						td
-							strong Dependentes:
+							strong Nº Dependentes:
 							|  #{cadastro.dependente}
 							
 					tr
@@ -135,9 +135,9 @@ block content
 							|  #{cadastro.unidade}
 					tr
 						td
-							strong Data de entrada:
-							if (cadastro.checkIn)
-								|  #{moment(cadastro.checkIn).format("DD/MM/YYYY hh:mm:ss")}
+							strong Data de saída:
+							if (cadastro.checkOut)
+								|  #{moment(cadastro.checkOut).format("DD/MM/YYYY HH:mm:ss")}
 							else
 								| 
 						td

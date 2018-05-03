@@ -15,11 +15,12 @@ module.exports = mongoose.model('Cadastro',{
 	dateOut: String,
 	checkIn: String,
 	checkOut: String,
-	acompanhante: Number,
+	dependente: Number,
 	sexo: String,
 	posto: String,
 	curso: String,
 	solicitante: String,
 	estado: String,
-	leito: String
+	leito: String,
+	num_registro: String,
 });

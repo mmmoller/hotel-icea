@@ -18,7 +18,7 @@ block content
 					each user, j in users
 						tr
 							td(style="bold")
-								a(href='/home/registro/usuario?_id=#{user._id}', target='blank') #{user.username}
+								a(href='/home/dados/usuario?_id=#{user._id}', target='blank') #{user.username}
 							form(name="permissao",method="post",action="/home/gerente/remover/usuario" )
 								td 
 									button.btn.btn-primary(type="submit", value=user.username, name="bizu") Remover

@@ -1,33 +1,27 @@
 doctype html
 html
 	head
-		
-	
-	
 		title= title
 		script(type="text/javascript" src="/scripts/jquery.2.1.1.query.min.js")
 		script(type="text/javascript" src="/scripts/3.3.7.js.bootstrap.min.js")
-		
-
 		script(type="text/javascript" src="/scripts/jquery.mask.min.js")
 		script(type="text/javascript" src="/scripts/jquery.maskMoney.min.js")
-
-		//script(type="text/javascript" src="/scripts/jquery-1.12.4.js")
 		script(type="text/javascript" src="/scripts/jquery-ui.js")
-
+		script(type="text/javascript" src="/scripts/datatables.min.js")
+		script(type="text/javascript" src="/scripts/dataTables.buttons.min.js")
+		script(type="text/javascript" src="/scripts/buttons.print.min.js")
+		link(rel="stylesheet", href="/stylesheets/jquery-ui-1.12.1.custom/jquery-ui.css")
 		link(rel='stylesheet', href='/stylesheets/style.css')
 		link(rel='stylesheet', href='/stylesheets/3.3.7.css.bootstrap.min.css')
+		link(rel='stylesheet', href='/stylesheets/datatables.min.css')
 		script.
 			$(document).ready(function(){
 				$('.cpf').mask('000.000.000-00');
 				$('.data').mask('00/00/0000');
 				$('.telefone').mask('(00) 00000-0000');
 				$('.dropdown-toggle').dropdown();
-				$(".valor").maskMoney({
-					prefix: "",
-					decimal: ".",
-					thousands: ""
-				});
+				$('.saram').mask('0000000');
+				$('.valor').mask('#0.00', {reverse: true});
 			});
 		
 
@@ -35,7 +29,7 @@ html
 		img(src="/img/logo.png", style='width:100%')
 		.botoes-wrapper
 			.botao-header
-				.botao-box.pos-botao-1
+				.botao-box.pos-botao-1(text-align: center)
 					.dropdown#dropdown-layout
 						button.btn.btn-link.dropdown-toggle.test(type='button', data-toggle='dropdown', style='color:white')
 							| Recepção
@@ -50,7 +44,9 @@ html
 							li
 								a(href='/home/recepcao/estender') Estender estada
 							li
-								a(href='/home/recepcao/mudanca') Mudança
+								a(href='/home/recepcao/mudanca') Realizar Mudança
+							li
+								a(href='/home/recepcao/walkin') Realizar Walk-in
 				.botao-box.pos-botao-2
 					.dropdown
 						button.btn.btn-link.dropdown-toggle.test(type='button', data-toggle='dropdown', style='color:white')
@@ -86,7 +82,7 @@ html
 							span.caret
 						ul.dropdown-menu
 							li
-								a(href='/home/financeiro/inserir') Inserir ganho/despesa
+								a(href='/home/financeiro/blacklist') Blacklist
 							li
 								a(href='/home/financeiro/alterar') Alterar diárias
 				.botao-box.pos-botao-6
@@ -98,16 +94,26 @@ html
 							li
 								a(href='/home/gerente/permissao') Gerenciar permissões de usuários
 							li
-								a(href='/home/gerente/log') Log
-							li
-								a(href='/home/gerente/signup') Criar usuário
+								a(href='/home/gerente/registrar/usuario') Registrar usuário
 							li
 								a(href='/home/gerente/remover/usuario') Remover usuário
 							li
-								a(href='/home/registro') Registro geral
-							li
-								a(href='/home/cadastro') Cadastros
+								a(href='/home/gerente/alterar/leito') Alterar leitos
 				.botao-box.pos-botao-7
+					.dropdown
+						button.btn.btn-link.dropdown-toggle.test(type='button', data-toggle='dropdown', style='color:white')
+							| Informação
+							span.caret
+						ul.dropdown-menu
+							li
+								a(href='/home/informacao/log') Log
+							li
+								a(href='/home/informacao/relatorio') Relatórios
+							li
+								a(href='/home/informacao/registro_geral') Registro Geral
+							li
+								a(href='/home/informacao/cadastro') Hospedes
+				.botao-box.pos-botao-8
 					.dropdown
 						button.btn.btn-link.dropdown-toggle.test(type='button', data-toggle='dropdown', style='color:white')
 							| Inicio
@@ -131,8 +137,7 @@ html
 					else
 						div.alert.alert-success #{message}
 	-}
-
-		block content
+	block content
 	
 
 

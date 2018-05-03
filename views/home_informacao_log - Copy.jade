@@ -23,10 +23,9 @@ block content
 			});
 		});
 	div.container
-		div.row
-			center
-				div.section-wall
-					h1.section-title Log de alterações no sistema
+		center
+			div.section-wall
+				h1.section-title Log de alterações no sistema
 	div.container(style="margin-top:30px")
 		div.row
 			center
@@ -48,26 +47,34 @@ block content
 							option(value='') Escolher query
 						button(class='btn btn-lg btn-primary btn-block', type='submit') Visualizar Logs
 						span.clearfix
-	div.container#reservas-table-wrapper
+	
+	script.
+		$(document).ready(function() {
+			$('#default-table').DataTable( {
+				"language": {
+					"emptyTable": "Nenhum log"
+				},
+			} );
+		});
+	div.container.default-table-wrapper
 		center
-			table#reservas-table
+			table#default-table.display.compact.cell-border
 				thead
 					tr
+						th Data
 						th Modulo
-						th Horário
 						th(style="width:30%") Log
 						th Cadastro
 						th Leito
 						th Usuário
 				tbody
 					-for (var j = 0; j < log.length; j++){
-						tr
-							td(colspan='6', style='text-align:center') ---------- ---------- ---------- #{moment(log[j].data).format("DD/MM/YYYY")} ---------- ---------- ----------
+
 						-for (var i = 0; i < log[j].log.length; i++){
 							if ((modulo == "" || modulo == log[j].modulo[i]) && (query == '' || query == log[j].query[i]))
 								tr
+									td #{moment(log[j].data).format("DD/MM/YYYY")} #{log[j].horario[i]}
 									td #{log[j].modulo[i]}
-									td #{log[j].horario[i]}
 									td #{log[j].log[i]}
 									if (log[j].modulo[i] == "Lavanderia")
 										td

@@ -3,11 +3,18 @@ body {
   font-family: "Lucida Sans Unicode", "Lucida Grande", sans-serif;
   text-align: center;
   background-color: #1D763C;
-  color: #000066; 
- }
+  color: #000066; }
+
+body header {
+    background-color: #99CCFF;
+    padding: 0;
+    margin: 0;
+    overflow: auto; }
+
 
 .body-background {
     background-color:#99CCFF;
+    /*background-image:url("/img/fab.jpg");*/
     background-size: 100%;
 }
 
@@ -41,34 +48,7 @@ body {
     background-color: #99CCFF;
 }
 
-.default-table-wrapper{
-	border: 2px solid #3333ff;
-	position: relative;
-	margin-top: 20px;
-	margin-bottom: 20px;
-	border-radius: 5px;
-	width: 95%;
-	height: 100%;
-	left: 0%;
-	padding: 20px 20px 20px 20px;
-	background-color: #f7f7f7;
-	box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.3); 
-	overflow: auto;
-}
 
-#default-table{
-	width: 100%;
-}
-
-#default-table th, #default-table td{
-	text-align: center;
-	font-size: 12px;
-}
-
-#default-table2 th, #default-table2 td{
-	text-align: center;
-	font-size: 12px;
-}
 
 #register-table{
     margin-bottom: 68px; 
@@ -361,37 +341,35 @@ body {
 
 
 .botoes-wrapper {
-	background-color: #000055;
-    background-position: 100% 0px;
+
+    background-position: 80% 0px;
     width: 100%;
-    margin: 0px 0px 30px 0px;
+    margin: 0 auto 0 auto;
     text-align: center;
 }
 
 .botao-header {
-    width: 100%;
+    width: 750px;
     height: 50px;
     text-align: left;
     display: block;
     position: relative;
-    top: -50px;
+    top: -70px;
     left: 0%;
 }
-
 .botao-box {
         position: absolute;
         float: none;
-        width: 14.28%;
-        height: 30px;
+        width: 135px;
+        height: 35px;
         /*border: 5px solid #F1F1EF;
         background: #F1F1EF;
        /* z-index: 10;*/
-        margin: 45px 0px 0px 0px;
+        margin: 30px 0px 0px 0px;
         top:25%;
         font-size: 7px;
         font-weight: bold;
         text-indent: 3px;
-		text-align: center;
         padding: 0;
 }
 
@@ -400,25 +378,22 @@ body {
     left: 0%;
 }
 .pos-botao-2{
-    left: 12.25%;
+    left: 14%;
 }
 .pos-botao-3{
-    left: 25.00%;
+    left: 26%;
 }
 .pos-botao-4{
-    left: 37.25%;
+    left: 41%;
 }
 .pos-botao-5{
-    left: 50.00%;
+    left: 56%;
 }
 .pos-botao-6{
-    left: 62.25%;
+    left: 70%;
 }
 .pos-botao-7{
-    left: 75.00%;
-}
-.pos-botao-8{
-    left: 87.25%;
+    left: 83%;
 }
 
 .form-signin{
@@ -509,34 +484,17 @@ body {
     box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.3); 
 }
 
-.header-wall{
-    border: 1px solid #3333ff;
-    width: 35%;
-    position: relative;
-    margin: auto;
-	margin-top: 30px;
-	margin-bottom: 30px;
-    border-radius: 5px;
-    padding: 5px 10px;
-    background-color: #f7f7f7;
-    box-shadow: 10px 10px 10px rgba(0, 0, 0, 0.3); 
-    overflow: auto;
-    font-weight: bold;
-}
-.header-title{
-    font-weight: 400;
-    font-size: 27px;
-}
-
 .section-wall{
-    border: 2px solid #3333ff;
+    border: 1px solid #3333ff;
     width: 35%;
     position: relative;
     margin-top: 0px;
     border-radius: 5px;
     left: 0%;
-    padding: 5px 5px 5px 5px;
+    padding: 5px 0px 5px 0px;
     background-color: #f7f7f7;
+    -moz-box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.3);
+    -webkit-box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.3);
     box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.3); 
     overflow: auto;
     font-weight: bold;
@@ -651,29 +609,4 @@ ul.user-details{
     -webkit-border-radius: 6px 0 6px 6px;
     -moz-border-radius: 6px 0 6px 6px;
     border-radius: 6px 0 6px 6px;
-}
-
-
-@media print {
-    html, body {
-        height: 80%;
-		margin: 1.6cm;
-    }
-	
-	
-	.section-to-print {
-		position: absolute;
-		left: 0;
-		top: 0;
-		margin: 1.6cm;
-	}
-	
-	
-	@page{
-		margin: 0;
-	}
-	
-	#hide {
-		visibility: hidden;
-	}
 }

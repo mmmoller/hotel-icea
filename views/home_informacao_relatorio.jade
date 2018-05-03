@@ -5,13 +5,13 @@ block content
 		div.row
 			center
 				div.section-wall
-					h1.section-title Gerência de usuários
-	div.container
+					h1.section-title Relatórios (Não funcional)
+	div.container(style="margin-top:30px")
 		div.row
-			div.col-sm-6.col-md-4.col-md-offset-4
-				div.gerencia-wall
-					form(class='form-signup', action='/home/gerente/permissao', method='GET')
-						button(class='btn btn-lg btn-primary btn-block', type='submit') Permissões de Usuários
+			center
+				div.section-wall
+					form(class='form-signup', action='/home/relatorio/teste', method='GET', target='_blank')
+						button(class='btn btn-lg btn-primary btn-block', type='submit') Relatorio Teste
 						span.clearfix
 					br
 					form(class='form-signup', action='/home/gerente/signup', method='GET')
@@ -20,8 +20,4 @@ block content
 					br
 					form(class='form-signup', action='/home/gerente/registro', method='GET')
 						button(class='btn btn-lg btn-primary btn-block', type='submit') Analisar Registros
-						span.clearfix
-				div.voltar-wall
-					form(class='form-signup', action='/home', method='GET')
-						button(class='btn btn-lg btn-primary btn-block', type='submit') Voltar
 						span.clearfix
