@@ -26,3 +26,6 @@
 - START: C:\dev\hotel-icea
 
 7) ToDo: https://docs.google.com/document/d/1NlZ1Ykn58vTtjF6aI9XLqerky6sepe67_hzR0bhxZTE/edit
+
+
+8) SET MONGOLAB_URI=mongodb://127.0.0.1/test para funcionar local

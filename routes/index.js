@@ -50,7 +50,7 @@ module.exports = function(passport){
 		});
 		res.send("teste");
 		*/
-		res.render('teste');
+		res.send('toamto');
 	});
 	
 	router.get('/teste2', function(req,res){

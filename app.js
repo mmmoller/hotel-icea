@@ -4,12 +4,22 @@ var favicon = require('static-favicon');
 var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
-
-var dbConfig = require('./db');
 var mongoose = require('mongoose');
-// Connect to DB
-mongoose.connect(dbConfig.url);
 
+var options = {
+	server: {
+		socketOptions: {
+			keepAlive: 300000, connectTimeoutMS: 30000
+		}
+	},
+	replset: {
+		socketOptions: {
+			keepAlive: 300000, connectTimeoutMS : 30000
+		}
+	}
+};
+
+mongoose.connect(process.env.MONGOLAB_URI, options);
 
 var app = express();
 
