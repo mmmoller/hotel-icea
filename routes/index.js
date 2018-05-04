@@ -50,7 +50,7 @@ module.exports = function(passport){
 		});
 		res.send("teste");
 		*/
-		res.send('toamto');
+		res.send('dasdadsasdadsadads');
 	});
 	
 	router.get('/teste2', function(req,res){
@@ -1961,7 +1961,7 @@ module.exports = function(passport){
 			"", req.user.username, "Usuário criado.", "criar usuário");
 			
 			req.flash('message', "Usuário criado com sucesso.");
-			res.redirect('/home/gerente/criar/usuario');
+			res.redirect('/home/gerente/registrar/usuario');
         });
 		
 	});
