@@ -19,7 +19,10 @@ var options = {
 	}
 };
 
-mongoose.connect(process.env.MONGOLAB_URI, options);
+if (process.env.MONGOLAB_URI)
+	mongoose.connect(process.env.MONGOLAB_URI, options);
+else
+	mongoose.connect("mongodb://127.0.0.1/test", options);
 
 var app = express();
 
