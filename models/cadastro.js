@@ -23,4 +23,6 @@ module.exports = mongoose.model('Cadastro',{
 	estado: String,
 	leito: String,
 	num_registro: String,
+	custo_estada: Number,
+	valor_pago: Number
 });

@@ -10,7 +10,7 @@
 - \hotel-icea> npm start
 
 4) No browser:
-- localhost:5000
+- localhost:3000
 
 5) Debugar:
 - /delete para deletar todos os dados do BD.

@@ -17,16 +17,18 @@ block content
 					tr
 						th Nome
 						th CPF
+						th Motivo
 						th Remover
 				tbody
-					- for(var i=0; i < blacklist.length; i = i+3){
+					- for(var i=0; i < blacklist.length; i = i+4){
 						tr
 							td
 								a(href='/home/dados/cadastro?_id=#{blacklist[i+2]}', target='blank') #{blacklist[i+1]}
 							td #{blacklist[i]}
+							td #{blacklist[i+3]}
 							td
 								form(action='/home/financeiro/blacklist', method='POST')
 									input(type='hidden', name='tipo', value='remover')
 									input(type='hidden', name='cpf', value=blacklist[i])
-									button(type='submit') Remover da Blacklist
+									button.btn.btn-primary(type='submit') Remover da Blacklist
 					-}

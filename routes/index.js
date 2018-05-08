@@ -124,6 +124,8 @@ module.exports = function(passport){
 		newCadastro.solicitante = req.param('solicitante'); 
 		newCadastro.sexo = req.param('sexo');
 		newCadastro.estado = "solicitação de reserva";
+		newCadastro.custo_estada = 0;
+		newCadastro.valor_pago = 0;
 		// Se a data de saida for maior que a data de entrada, é valido (essa validação deveria ser feita no front-end)
 		// Ou renderizar a página com os dados já preenchidos
 		if (moment(newCadastro.dateIn).isValid() &&
@@ -518,9 +520,6 @@ module.exports = function(passport){
 								cores[i] = "vermelho";
 							}
 							
-							
-							var dateIn = moment(cadastros[i].checkIn);
-							var dateOut = moment();
 							var hours = moment().diff(moment(cadastros[i].checkIn),"hours");
 							
 							if (hours < 24){
@@ -599,15 +598,22 @@ module.exports = function(passport){
 										});
 									}
 									
-									cadastro.estado = "checkOut";
+									var custo = Number(req.param("valor"));
+									
+									if (cadastro.valor_pago >= custo){
+										cadastro.estado = "checkOut-pago"
+									}
+									else {
+										cadastro.estado = "checkOut-deve";
+									}
 									cadastro.checkOut = moment().format();
+									cadastro.custo_estada = custo;
 									cadastro.save(function(err){
 										if (err) return handleError(err,req,res);
 									});
 									
 									
-									var custo = Number(req.param("valor"));
-									var tipo_pagamento = req.param("tipo_pagamento");
+									
 									
 									/*
 									if (req.param("valor") == ""){
@@ -626,7 +632,7 @@ module.exports = function(passport){
 									Financeiro.findOne({}, function(err, financeiro) {
 										if (err) return handleError(err,req,res);
 										if (financeiro){
-											financeiro.ganho += custo;
+											//financeiro.ganho += custo;
 											financeiro.save(function (err) {
 												if (err) return handleError(err,req,res);
 											});
@@ -670,7 +676,7 @@ module.exports = function(passport){
 									res.redirect('/home/recepcao/checkout');
 									*/
 									res.render('home_recepcao_checkout', 
-									{cadastro: cadastro, custo: custo, tipo_pagamento: tipo_pagamento, 
+									{cadastro: cadastro, custo: custo, 
 									checkIn: moment(cadastro.checkIn).format("DD/MM/YYYY HH:mm:ss"),
 									checkOut: moment(cadastro.checkOut).format("DD/MM/YYYY HH:mm:ss")
 									});
@@ -1145,6 +1151,8 @@ module.exports = function(passport){
 		newCadastro.curso = req.param('curso'); 
 		newCadastro.solicitante = req.param('solicitante'); 
 		newCadastro.sexo = req.param('sexo');
+		newCadastro.custo_estada = 0;
+		nweCadastro.valor_pago = 0;
 		
 		// MODIFICAR TUDO DAQUI PARA BAIXO
 		Registro.find({data: {"$gte": moment(dateIn), "$lt": moment(newCadastro.dateOut)}}
@@ -1849,6 +1857,7 @@ module.exports = function(passport){
 		});
 	});
 	
+	// ADD LOG
 	router.post('/home/financeiro/blacklist', isAuthenticated, isFinanceiro, function(req, res){
 		Financeiro.findOne({}, function(err, financeiro) {
 			if (err) return handleError(err,req,res);
@@ -1862,6 +1871,7 @@ module.exports = function(passport){
 						financeiro.blacklist.push(req.param("cpf"));
 						financeiro.blacklist.push(req.param("name"));
 						financeiro.blacklist.push(req.param("_id"));
+						financeiro.blacklist.push(req.param("motivo"));
 						financeiro.save(function (err) {
 							if (err) return handleError(err,req,res);
 						});
@@ -1870,7 +1880,7 @@ module.exports = function(passport){
 					}
 				}
 				else {
-					financeiro.blacklist.splice(financeiro.blacklist.indexOf(req.param("cpf")), 3);
+					financeiro.blacklist.splice(financeiro.blacklist.indexOf(req.param("cpf")), 4);
 					financeiro.save(function (err) {
 						if (err) return handleError(err,req,res);
 					});
@@ -1886,6 +1896,93 @@ module.exports = function(passport){
 		});
 	});
 
+	// /HOME/FINANCEIRO/PAGAMENTO
+	router.get('/home/financeiro/pagamento', isAuthenticated, isFinanceiro, function(req, res){
+		Financeiro.findOne({}, function(err, financeiro) {
+			if (err) return handleError(err,req,res);
+			if (financeiro){
+				res.render('home_financeiro_pagamento', {pagamento: financeiro.pagamento, message: req.flash("message")})
+			}
+			else {
+				req.flash('message', "O Financeiro ainda não foram criados");
+				res.redirect('/home');
+			}
+		});
+	});
+	
+	// ADD LOG
+	router.post('/home/financeiro/pagamento', isAuthenticated, isFinanceiro, function(req, res){
+		Financeiro.findOne({}, function(err, financeiro) {
+			if (err) return handleError(err,req,res);
+			if (financeiro){
+				if (req.param("tipo") == "adicionar"){
+					
+					if (financeiro.pagamento.indexOf(req.param("cpf")) > -1){
+						req.flash('message', "!Hospede já se encontra com pagamento em análise");
+						res.redirect('/home');
+					}
+					else {
+						financeiro.pagamento.push(req.param("cpf"));
+						financeiro.pagamento.push(req.param("name"));
+						financeiro.pagamento.push(req.param("_id"));
+						financeiro.pagamento.push(req.param("tipo_pagamento"));
+						financeiro.pagamento.push(req.param("valor"));
+						financeiro.pagamento.push(req.param("documento"));
+						financeiro.save(function (err) {
+							if (err) return handleError(err,req,res);
+						});
+						req.flash('message', "Pagamento foi adicionado e encaminhado para análise");
+						res.redirect('/home/financeiro/pagamento');
+					}
+				}
+				else {
+					
+					if (req.param("tipo") == "validar"){
+						Cadastro.findOne({_id: req.param('_id')},function(err, cadastro) {
+							if (err) return handleError(err,req,res);
+							if (cadastro){
+								cadastro.valor_pago += Number(req.param("valor"));
+								if (cadastro.valor_pago > cadastro.custo_estada && cadastro.estado == "checkOut-deve"){
+									cadastro.estado = "checkOut-pago"
+								}
+								cadastro.save(function (err) {
+									if (err) return handleError(err,req,res);
+								});
+								
+								financeiro.pagamento.splice(financeiro.pagamento.indexOf(req.param("cpf")), 6);
+								financeiro.ganho += Number(req.param("valor"));
+								financeiro.save(function (err) {
+									if (err) return handleError(err,req,res);
+								});
+								req.flash('message', "Pagamento foi aceito");
+								res.redirect('/home/financeiro/pagamento');
+								
+							}
+							else {
+								req.flash('message', "!Cadastro não existente");
+								res.redirect('/home');
+							}
+						
+						});
+					}
+					else {
+						financeiro.pagamento.splice(financeiro.pagamento.indexOf(req.param("cpf")), 6);
+						financeiro.save(function (err) {
+							if (err) return handleError(err,req,res);
+						});
+						req.flash('message', "Pagamento foi recusado");
+						res.redirect('/home/financeiro/pagamento');
+					}
+					
+				}
+			}
+			
+			else {
+				req.flash('message', "O Financeiro ainda não foram criados");
+				res.redirect('/home');
+			}
+		});
+	});
 	
 }
 
@@ -2309,7 +2406,52 @@ module.exports = function(passport){
 				if (err) return handleError(err,req,res);
 				if (cadastro){
 					
-					res.render('home_dados_cadastro', { cadastro: cadastro, message: req.flash("message")});
+					Financeiro.findOne({}, function(err, financeiro) {
+						if (err) return handleError(err,req,res);
+						if (financeiro){
+							
+							
+							var dateIn;
+							var dateOut;
+							
+							if (cadastro.checkIn){
+								dateIn = moment(cadastro.checkIn);
+							} else {
+								dateIn = moment(cadastro.dateIn).hour(12);
+							}
+							
+							if (cadastro.checkOut){
+								dateOut = moment(cadastro.checkOut);
+							} else {
+								dateOut = moment(cadastro.dateOut).hour(12);
+							}
+							
+							
+							
+							var hours = dateOut.diff(dateIn,"hours");
+							
+							console.log(dateIn)
+							console.log(dateOut)
+							console.log(hours)
+							
+							
+							if (hours < 24){
+								hours = 24;
+							}
+							
+							var custo = hours*financeiro.dic_posto_valor[cadastro.posto]/24;
+							
+							
+							res.render('home_dados_cadastro', { cadastro: cadastro, custo: custo, message: req.flash("message")});
+						}
+						else {
+							req.flash('message', "!O sistema não está disponível. Problemas no setor Financeiro.");
+							res.redirect('/');
+						}
+					});		
+					
+					
+					
 				}
 				else {
 					req.flash('message', "Cadastro não existente");
@@ -2344,6 +2486,7 @@ module.exports = function(passport){
 		}
 	});
 	
+	// ADD LOG
 	router.post('/home/dados/cadastro/editar', isAuthenticated, function(req,res){
 
 		if (req.param('_id') == undefined){
@@ -2370,7 +2513,7 @@ module.exports = function(passport){
 				
 				//ADD LOG
 				req.flash('message', "Cadastro editado com sucesso");
-				res.render('home_dados_cadastro', { cadastro: cadastro, message: req.flash("message") });
+				res.redirect('/home/dados/cadastro?_id='+cadastro._id);
 			}
 			else {
 				req.flash('message', "Cadastro não existente");
@@ -2503,7 +2646,7 @@ module.exports = function(passport){
 			console.log("Folha removed");
 		});
 		
-		setTimeout(function () {res.redirect('/criar')}, 1000);
+		res.send("criar");
 	});
 	
 	// CRIAR
@@ -3023,13 +3166,13 @@ module.exports = function(passport){
 
 	router.get('/populate', function(req, res){
 		for (var i = 1; i < 10; i++){
-			createCadastro( i+"hospede"+i, "guerra"+i, 1111111*i, 111111*i,
+			createCadastro( "hospede"+i, "guerra"+i, 1111111*i, 111111*i,
 			"unidade"+i, "endereço"+i, 
 			"("+i+i+")"+" "+i+i+i+i+i+"-"+i+i+i+i, 
 			i + "email@email.com", ""+i+i+i+"."+i+i+i+"."+i+i+i+"-"+i+i,
 			moment().format("YYYY-MM-DD"),
 			moment().add(i+1, "days").format("YYYY-MM-DD"),
-			0, "1o Tenente", "curso"+i, "Aluno", "Masculino"
+			0, "1o Tenente", "curso"+i, "Aluno", "M"
 			);
 		}
 		res.redirect('/');
@@ -3173,6 +3316,8 @@ telefone, email, cpf, dateIn, dateOut, dependente, posto, curso, solicitante, se
 	newCadastro.solicitante = solicitante;
 	newCadastro.sexo = sexo;
 	newCadastro.estado = "solicitação de reserva";
+	newCadastro.custo_estada = 0;
+	newCadastro.valor_pago = 0;
 	newCadastro.save(function (err) {
 		if (err) return handleError(err,req,res);
 	});

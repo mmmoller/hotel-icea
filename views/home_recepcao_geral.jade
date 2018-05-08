@@ -23,9 +23,8 @@ block content
 						th Data de Entrada
 						th Data de Saida
 						if (custos)
-							th(style="width:6%") Custo previsto
-							th(style="width:8%") Ajustar custo
-							th(style="width:5%") Opção de pagamento
+							th Custo previsto
+							th(style="width:10%") Ajustar custo
 						if (botao == "Cancelar")
 							th Motivo Cancelamento
 						if (botao == "Check-out")
@@ -50,13 +49,10 @@ block content
 								input(type='hidden', name='dateIn', value=cadastros[i].dateIn)
 								if (custos)
 									input(type='hidden', name='custo_previsto', value=custos[i].toFixed(2))
-									td R$
-										input.valor(type='text', name='valor',class='form-control', value=custos[i].toFixed(2), required)
-									td
-										select(name = 'tipo_pagamento', class = 'form-control', required)
-											option(disabled value='', selected hidden) Opções
-											option(value = "gru") GRU
-											option(value = "consignado") Consignado
+									td 
+										div.input-group
+											span.input-group-addon R$
+											input.valor(type='text', name='valor',class='form-control', value=custos[i].toFixed(2), required)
 								if (botao == "Cancelar")
 									td 
 										input(type= 'text', name='motivo_cancelar_checkin', list='motivo_cancelar_checkin', required)
