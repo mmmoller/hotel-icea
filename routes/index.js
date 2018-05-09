@@ -600,34 +600,43 @@ module.exports = function(passport){
 									
 									var custo = Number(req.param("valor"));
 									
-									if (cadastro.valor_pago >= custo){
+									if (cadastro.dependente == -1){
 										cadastro.estado = "checkOut-pago"
+										cadastro.checkOut = moment().format();
+										cadastro.save(function(err){
+											if (err) return handleError(err,req,res);
+										});
+										
+										Cadastro.findOne({'_id': cadastro.info_dependente}, function(err, responsavel) {
+											if (err) return handleError(err,req,res);
+											if (responsavel){
+												responsavel.custo_estada += custo;
+												if (responsavel.valor_pago < responsavel.custo_estada){
+													responsavel.estado = "checkOut-deve";
+												}
+												responsavel.save(function(err){
+													if (err) return handleError(err,req,res);
+												});
+											} else {
+												req.flash('message', '!Não foi possível localizar o responsável para realizar a cobrança!');
+											}
+										});
+										
 									}
 									else {
-										cadastro.estado = "checkOut-deve";
+										if (cadastro.valor_pago >= custo){
+											cadastro.estado = "checkOut-pago";
+										}
+										else {
+											cadastro.estado = "checkOut-deve";
+										}
+										cadastro.checkOut = moment().format();
+										cadastro.custo_estada += custo;
+										cadastro.save(function(err){
+											if (err) return handleError(err,req,res);
+										});
 									}
-									cadastro.checkOut = moment().format();
-									cadastro.custo_estada = custo;
-									cadastro.save(function(err){
-										if (err) return handleError(err,req,res);
-									});
-									
-									
-									
-									
-									/*
-									if (req.param("valor") == ""){
-										custo = Number(req.param("valor_previsto"));
-									}
-									else{
-										//custo = Number((req.param("valor").replace(/[^0-9\,-]+/g,"")).replace(",","."));
-										custo = Number(req.param("valor"));
-									}*/
-									
-									
-									
-									
-									
+
 									
 									Financeiro.findOne({}, function(err, financeiro) {
 										if (err) return handleError(err,req,res);
@@ -667,14 +676,6 @@ module.exports = function(passport){
 										}
 									});
 									
-									/*
-									createLog("Recepção", cadastro.name, cadastro._id,
-									leitos[index].cod_leito, req.user.username, "Check-out");
-									*/
-									/*
-									req.flash('message', 'Check-out realizado com sucesso.');
-									res.redirect('/home/recepcao/checkout');
-									*/
 									res.render('home_recepcao_checkout', 
 									{cadastro: cadastro, custo: custo, 
 									checkIn: moment(cadastro.checkIn).format("DD/MM/YYYY HH:mm:ss"),
@@ -1194,6 +1195,8 @@ module.exports = function(passport){
 										var _newCadastro = new Cadastro(newCadastro);
 										if (dependente){
 											_newCadastro._id = mongoose.Types.ObjectId();
+											_newCadastro.dependente = -1;
+											_newCadastro.info_dependente = newCadastro._id;
 										}
 										_newCadastro.estado = "checkIn";
 										_newCadastro.checkIn = moment().format();
@@ -1392,6 +1395,8 @@ module.exports = function(passport){
 												var newCadastro = new Cadastro(req.session.cadastro);
 												if (dependente){
 													newCadastro._id = mongoose.Types.ObjectId();
+													newCadastro.dependente = -1;
+													newCadastro.info_dependente = req.session.cadastro._id;
 												}
 												newCadastro.estado = "reservado";
 												newCadastro.leito = leitos[j].cod_leito;
@@ -1942,7 +1947,7 @@ module.exports = function(passport){
 							if (err) return handleError(err,req,res);
 							if (cadastro){
 								cadastro.valor_pago += Number(req.param("valor"));
-								if (cadastro.valor_pago > cadastro.custo_estada && cadastro.estado == "checkOut-deve"){
+								if (cadastro.valor_pago >= cadastro.custo_estada && cadastro.estado == "checkOut-deve"){
 									cadastro.estado = "checkOut-pago"
 								}
 								cadastro.save(function (err) {
