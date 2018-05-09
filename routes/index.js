@@ -277,7 +277,7 @@ module.exports = function(passport){
 			if (err) return handleError(err,req,res);
 			if (registros){
 				
-				Leito.find({}, function(err, leitos) {
+				Leito.find({}, null, {sort: 'cod_leito'}, function(err, leitos) {
 					if (err) return handleError(err,req,res);
 					if (leitos){
 						
