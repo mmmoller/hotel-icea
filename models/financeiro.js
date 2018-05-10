@@ -6,6 +6,9 @@ module.exports = mongoose.model('Financeiro',{
 	num_registro: Number,
 	blacklist: [String],
 	pagamento: [String],
+	tipo_pagamento: [String],
+	regra_diaria: Number,
 	ganho: Number,
-	gasto: Number
+	gasto: Number,
+	cobrar_hora: Boolean
 });

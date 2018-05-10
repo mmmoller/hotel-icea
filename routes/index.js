@@ -50,7 +50,7 @@ module.exports = function(passport){
 		});
 		res.send("teste");
 		*/
-		res.send('dasdadsasdadsadads');
+		res.send(dicionario_posto_valor["1o Tenente"] + " " + dicionario_posto_valor["1o Tenente"].residente );
 	});
 	
 	router.get('/teste2', function(req,res){
@@ -525,8 +525,22 @@ module.exports = function(passport){
 							if (hours < 24){
 								hours = 24;
 							}
-								
-							custos[i] = hours*financeiro.dic_posto_valor[cadastros[i].posto]/24;
+							
+							if (!financeiro.cobrar_hora){
+								if (hours%24 == 0) {
+								} else if (hours%24 < 6)
+									hours = hours - hours%24;
+								else {
+									hours = hours + (24 - hours%24)
+								}
+							}
+							
+							if (hours > 24*financeiro.regra_diaria){
+								custos[i] = hours*financeiro.dic_posto_valor[cadastros[i].posto].residente/24;
+							}
+							else {
+								custos[i] = hours*financeiro.dic_posto_valor[cadastros[i].posto].hospede/24;
+							}
 							
 							
 						}
@@ -1788,8 +1802,13 @@ module.exports = function(passport){
 						posto.unshift(key);
 						valor.unshift(financeiro.dic_posto_valor[key]);
 					}
-				}		
-				res.render('home_financeiro_alterar', {message: req.flash('message'), posto: posto, valor: valor});
+				}
+				var tipo_pagamento = financeiro.tipo_pagamento;
+				var regra_diaria = financeiro.regra_diaria;
+				var cobrar_hora = financeiro.cobrar_hora;
+				
+				res.render('home_financeiro_alterar', {message: req.flash('message'), posto: posto, valor: valor,
+				tipo_pagamento: tipo_pagamento, regra_diaria: regra_diaria, cobrar_hora: cobrar_hora});
 			}
 			else {
 				req.flash('message', "O Financeiro ainda não foram criados");
@@ -1807,28 +1826,42 @@ module.exports = function(passport){
 					if (log){
 
 						var aux_dic = {};
+						var aux_tipo_pagamento = []
 						var _log = "";
 						
 						for (var i = 0; i < req.body._posto.length; i++){
-							aux_dic[req.body._posto[i]] = Number(req.body._valor[i]);
-							
-							if (financeiro.dic_posto_valor[req.body._posto[i]] != req.body._valor[i]){
-								_log = _log + " " + String(req.body._posto[i]) 
-								+ ": de R$ " + String(financeiro.dic_posto_valor[req.body._posto[i]])
-								+ " para R$ " + String(req.body._valor[i]) + ".";
+							if (req.body._posto[i] != ""){
+								aux_dic[req.body._posto[i]] = {"hospede": Number(req.body._valor_hospede[i]),
+								"residente": Number(req.body._valor_residente[i])};
+								
+								// PENSAR .hospede != _hospede[i] && .residente != _hsopedesd
+								if (financeiro.dic_posto_valor[req.body._posto[i]] != aux_dic[req.body._posto[i]]){
+									_log = _log + " " + String(req.body._posto[i]) 
+									+ ": de R$ " + String(financeiro.dic_posto_valor[req.body._posto[i]])
+									+ " para R$ " + String(aux_dic[req.body._posto[i]]) + ".";
+								}
 							}
 						}
 						
+						for (var i = 0; i < req.body._tipo_pagamento.length; i++){
+							if (req.body._tipo_pagamento[i] != ""){
+								aux_tipo_pagamento.push(req.body._tipo_pagamento[i]);
+							}
+						}
+						
+						financeiro.regra_diaria = req.body._regra_diaria;
+						financeiro.cobrar_hora = req.body._cobrar_hora;
+						
+						financeiro.tipo_pagamento = aux_tipo_pagamento;
 						financeiro.dic_posto_valor = aux_dic;
 						
 						financeiro.save(function (err) {
 							if (err) return handleError(err,req,res);
 						});
 						
-						//console.log(aux_dic)
 						
 						createLog("Financeiro", "", "",
-						"", req.user.username, "Valor(es) de diária(s) alterada(s)." + _log, "alterar diária");
+						"", req.user.username, "Valor(es) de diária(s)/residente(s) alterada(s)." + _log, "alterar diária");
 						
 						
 						req.flash('message', 'Valores de diárias alteradas com sucesso');
@@ -2444,10 +2477,25 @@ module.exports = function(passport){
 								hours = 24;
 							}
 							
-							var custo = hours*financeiro.dic_posto_valor[cadastro.posto]/24;
 							
+							if (!financeiro.cobrar_hora){
+								if (hours%24 == 0) {
+								} else if (hours%24 < 6)
+									hours = hours - hours%24;
+								else {
+									hours = hours + (24 - hours%24)
+								}
+							}
 							
-							res.render('home_dados_cadastro', { cadastro: cadastro, custo: custo, message: req.flash("message")});
+							if (hours > 24*financeiro.regra_diaria){
+								custo = hours*financeiro.dic_posto_valor[cadastro.posto].residente/24;
+							}
+							else {
+								custo = hours*financeiro.dic_posto_valor[cadastro.posto].hospede/24;
+							}					
+							
+							res.render('home_dados_cadastro', { cadastro: cadastro, custo: custo,
+							tipo_pagamento: financeiro.tipo_pagamento, message: req.flash("message")});
 						}
 						else {
 							req.flash('message', "!O sistema não está disponível. Problemas no setor Financeiro.");
@@ -2693,6 +2741,9 @@ module.exports = function(passport){
 		newFinanceiro.ganho = 0;
 		newFinanceiro.num_registro = 0;
 		newFinanceiro.dic_posto_valor = dicionario_posto_valor;
+		newFinanceiro.regra_diaria = 20;
+		newFinanceiro.tipo_pagamento = ["GRU", "Consignado", "Dinheiro"];
+		newFinanceiro.cobrar_hora = true;
 		newFinanceiro.blacklist = [];
 		newFinanceiro.save(function (err) {
 			if (err) return handleError(err,req,res);
@@ -2700,205 +2751,6 @@ module.exports = function(passport){
 		res.redirect('/criar/leitos');
 		
 	});
-	
-	/*
-	router.get('/criar/leitos', function(req,res){
-		var newLeito;
-		//A
-		
-		for(var i = 1; i <= 9; i++){
-			newLeito = createLeito(("A" + '0' + i + "a"));
-			newLeito.save(function(err){
-				if(err) return handleError(err,req,res);
-			});
-			newLeito = createLeito(("A" + '0'+ i + "b"));
-			newLeito.save(function(err){
-				if(err) return handleError(err,req,res);
-			});
-		}
-		
-		for(var i = 10; i <= 18; i++){
-			newLeito = createLeito(("A" + i + "a"));
-			newLeito.save(function(err){
-				if(err) return handleError(err,req,res);
-			});
-			newLeito = createLeito(("A" + i + "b"));
-			newLeito.save(function(err){
-				if(err) return handleError(err,req,res);
-			});
-		}
-		
-		newLeito = createLeito("A19a");
-		newLeito.save(function(err){
-			if(err) return handleError(err,req,res);
-		});
-		newLeito = createLeito("A19b");
-		newLeito.save(function(err){
-			if(err) return handleError(err,req,res);
-		});
-		newLeito = createLeito("A19c");
-		newLeito.save(function(err){
-			if(err) return handleError(err,req,res);
-		});
-		newLeito = createLeito("A20a");
-		newLeito.save(function(err){
-			if(err) return handleError(err,req,res);
-		});		
-		newLeito = createLeito("A21a");
-		newLeito.save(function(err){
-			if(err) return handleError(err,req,res);
-		});		
-
-
-		//B
-
-		newLeito = createLeito("B01a");
-		newLeito.save(function(err){
-			if(err) return handleError(err,req,res);
-		});
-		for(var i = 2; i <= 9; i++){
-			newLeito = createLeito(("B" + '0' + i + "a"));
-			newLeito.save(function(err){
-				if(err) return handleError(err,req,res);
-			});
-			newLeito = createLeito(("B" + '0' + i + "b"));
-			newLeito.save(function(err){
-				if(err) return handleError(err,req,res);
-			});
-		}
-		for(var i = 10; i <= 19; i++){
-			newLeito = createLeito(("B" + i + "a"));
-			newLeito.save(function(err){
-				if(err) return handleError(err,req,res);
-			});
-			newLeito = createLeito(("B" + i + "b"));
-			newLeito.save(function(err){
-				if(err) return handleError(err,req,res);
-			});
-		}
-		
-		
-
-		//C
-
-		for(var i = 1; i <= 9; i++){
-			newLeito = createLeito(("C" + '0' + i + "a"));
-			newLeito.save(function(err){
-				if(err) return handleError(err,req,res);
-			});
-			newLeito = createLeito(("C" + '0' + i + "b"));
-			newLeito.save(function(err){
-				if(err) return handleError(err,req,res);
-			});
-			newLeito = createLeito(("C" + '0' + i + "c"));
-			newLeito.save(function(err){
-				if(err) return handleError(err,req,res);
-			});
-		}
-		for(var i = 10; i <= 25; i++){
-			newLeito = createLeito(("C" + i + "a"));
-			newLeito.save(function(err){
-				if(err) return handleError(err,req,res);
-			});
-			newLeito = createLeito(("C" + i + "b"));
-			newLeito.save(function(err){
-				if(err) return handleError(err,req,res);
-			});
-			newLeito = createLeito(("C" + i + "c"));
-			newLeito.save(function(err){
-				if(err) return handleError(err,req,res);
-			});
-		}
-		
-		
-		for(var i = 26; i <= 35; i++){
-			newLeito = createLeito(("C" + i + "a"));
-			newLeito.save(function(err){
-				if(err) return handleError(err,req,res);
-			});
-			newLeito = createLeito(("C" + i + "b"));
-			newLeito.save(function(err){
-				if(err) return handleError(err,req,res);
-			});
-		}
-
-		//D
-		for(var i = 101; i <= 119; i++){
-			newLeito = createLeito(("D" + i + "a"));
-			newLeito.save(function(err){
-				if(err) return handleError(err,req,res);
-			});
-			newLeito = createLeito(("D" + i + "b"));
-			newLeito.save(function(err){
-				if(err) return handleError(err,req,res);
-			});
-			newLeito = createLeito(("D" + i + "c"));
-			newLeito.save(function(err){
-				if(err) return handleError(err,req,res);
-			});
-			newLeito = createLeito(("D" + i + "d"));
-			newLeito.save(function(err){
-				if(err) return handleError(err,req,res);
-			});
-		}
-		newLeito = createLeito(("D200a"));
-		newLeito.save(function(err){
-			if(err) return handleError(err,req,res);
-		});
-		newLeito = createLeito(("D200b"));
-		newLeito.save(function(err){
-			if(err) return handleError(err,req,res);
-		});
-		newLeito = createLeito(("D200c"));
-		newLeito.save(function(err){
-			if(err) return handleError(err,req,res);
-		});
-		newLeito = createLeito(("D200d"));
-		newLeito.save(function(err){
-			if(err) return handleErr200		});
-		for(var i = 202; i <= 221; i++){
-			newLeito = createLeito(("D" + i + "a"));
-			newLeito.save(function(err){
-				if(err) return handleError(err,req,res);
-			});
-			newLeito = createLeito(("D" + i + "b"));
-			newLeito.save(function(err){
-				if(err) return handleError(err,req,res);
-			});
-			newLeito = createLeito(("D" + i + "c"));
-			newLeito.save(function(err){
-				if(err) return handleError(err,req,res);
-			});
-			newLeito = createLeito(("D" + i + "d"));
-			newLeito.save(function(err){
-				if(err) return handleError(err,req,res);
-			});
-		}
-		for(var i = 222; i <= 223; i++){
-			newLeito = createLeito(("D" + i + "a"));
-			newLeito.save(function(err){
-				if(err) return handleError(err,req,res);
-			});
-			newLeito = createLeito(("D" + i + "b"));
-			newLeito.save(function(err){
-				if(err) return handleError(err,req,res);
-			});
-			newLeito = createLeito(("D" + i + "c"));
-			newLeito.save(function(err){
-				if(err) return handleError(err,req,res);
-			});
-			newLeito = createLeito(("D" + i + "d"));
-			newLeito.save(function(err){
-				if(err) return handleError(err,req,res);
-			});
-			newLeito = createLeito(("D" + i + "e"));
-			newLeito.save(function(err){
-				if(err) return handleError(err,req,res);
-			});
-		}
-		setTimeout(function () {res.redirect('/criar/registro')}, 1000);
-	});
-	*/
 	
 	router.get('/criar/leitos', function(req,res){
 		var newLeito;
@@ -3460,35 +3312,39 @@ var createHash = function(password){
 
 var dicionario_permissao = {0: "Recepcao", 1: "Reserva", 2: "Lavanderia", 3:"Manutencao",4: "Financeiro",5: "Gerente"};
 
-var dicionario_posto_valor = {'Almirante-de-Esquadra': 60,
-'General-de-Exército': 60,
-'Tenente-Brigadeiro-do-Ar': 60,
-'Vice-Almirante': 60,
-'General-de-Divisão': 60,
-'Major-Brigadeiro-do-Ar': 60,
-'Contra-Almirante': 60,
-'General-de-Brigada': 60,
-'Brigadeiro-do-Ar': 60,
-'Capitão-de-Mar-e-Guerra': 60,
-'Coronel': 60,
-'Capitão-de-Fragata': 60,
-'Tenente Coronel': 60,
-'Capitão-de-Corveta': 50,
-'Major': 50,
-'Capitão-Tenente': 40,
-'Capitão': 40,
-'1o Tenente': 40,
-'2o Tenente': 40,
-'Guarda-Marinha': 40,
-'Aspirante': 40,
-'Cadete': 40,
-'Suboficial': 40,
-'SubTenente': 40,
-'1o Sargento': 40,
-'2o Sargento': 40,
-'3o Sargento': 40,
-'Cabo': 30,
-'Civil': 50};
+var dicionario_posto_valor = {'Almirante-de-Esquadra': {hospede:60, residente:30},
+'General-de-Exército': {hospede:60, residente:30},
+'Tenente-Brigadeiro-do-Ar': {hospede:60, residente:30},
+'Vice-Almirante': {hospede:60, residente:30},
+'General-de-Divisão': {hospede:60, residente:30},
+'Major-Brigadeiro-do-Ar': {hospede:60, residente:30},
+'Contra-Almirante': {hospede:60, residente:30},
+'General-de-Brigada': {hospede:60, residente:30},
+'Brigadeiro-do-Ar': {hospede:60, residente:30},
+'Capitão-de-Mar-e-Guerra': {hospede:60, residente:30},
+'Coronel': {hospede:60, residente:30},
+'Capitão-de-Fragata': {hospede:60, residente:30},
+'Tenente Coronel': {hospede:60, residente:30},
+'Capitão-de-Corveta': {hospede:50, residente:25},
+'Major': {hospede:50, residente:25},
+'Capitão-Tenente': {hospede:40, residente:20},
+'Capitão': {hospede:40, residente:20},
+'1o Tenente': {hospede:40, residente:20},
+'2o Tenente': {hospede:40, residente:20},
+'Guarda-Marinha': {hospede:40, residente:20},
+'Aspirante': {hospede:40, residente:20},
+'Cadete': {hospede:40, residente:20},
+'Suboficial': {hospede:40, residente:20},
+'SubTenente': {hospede:40, residente:20},
+'1o Sargento': {hospede:40, residente:20},
+'2o Sargento': {hospede:40, residente:20},
+'3o Sargento': {hospede:40, residente:20},
+'Cabo': {hospede:30, residente:15},
+'Civil': {hospede:50, residente:25}};
+
+var keyaa = {'key': {a: "banana", b: "abacate"},
+'key2': {a: "banana2", b: "abacate2"},
+}
 
 var dicionario_query = {
 '/': "cadastrar",

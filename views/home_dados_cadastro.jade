@@ -109,9 +109,12 @@ block content
 							td
 								select(name = 'tipo_pagamento', class = 'form-control', required)
 									//option(disabled value='', selected hidden) Opções
-									option(value = "gru") GRU
-									option(value = "consignado") Consignado
-									option(value = "dinheiro") Dinheiro
+									//option(value = "gru") GRU
+									//option(value = "consignado") Consignado
+									//option(value = "dinheiro") Dinheiro
+									- for (var i = 0; i < tipo_pagamento.length; i++) {
+										option(value = "#{tipo_pagamento[i]}") #{tipo_pagamento[i]}
+									- }
 							td
 								input(type='text', name='documento', placeholder="Número do documento", class = 'form-control')
 							td

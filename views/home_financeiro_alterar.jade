@@ -2,36 +2,64 @@ extends layout
 
 block content
 	div.container
-		div.row
-			center
-				div.section-wall
-					h1.section-title Alterar valor de diárias
-	div.container
+		center
+			div.section-wall
+				h1.section-title Alterar valor de diárias
+	script.
+		$(document).ready(function() {
+			$('#default-table').DataTable( {
+				"language": {
+					"emptyTable": "Nenhum leito"
+				},
+				"bFilter": false,
+				paging: false,
+				info: false
+			} );
+		});
+	div.container.default-table-wrapper
 		center
 			form(action='/home/financeiro/alterar', method='POST')
-				table#recepcao-table.table-striped.table-bordered
+				table#default-table.display.compact.cell-border
 					thead
 						tr
-							th(style='width:37%') Posto/Graduação
-							th(style='width:13%') Valor da diária
-							th(style='width:37%') Posto/Graduação
-							th(style='width:13%') Valor da diária
+							th Posto/Graduação
+							th Diária Hóspede
+							th Diária Residente
 					tbody
-						-for(var i = 0; i < posto.length; i+=2){
+						-for(var i = 0; i < posto.length; i++){
 							tr
-								td #{posto[i]}
-								input(type='hidden', name='_posto[#{i}]', value=posto[i])
 								td
-									input.valor(type='text', name='_valor[#{i}]',class='form-control',placeholder=valor[i].toFixed(2), value=valor[i].toFixed(2), required)
-								if (i < posto.length-1)
-									td #{posto[i+1]}
-									input(type='hidden', name='_posto[#{i+1}]', value=posto[i+1])
-									td
-										input.valor(type='text', name='_valor[#{i+1}]',class='form-control', placeholder=valor[i+1].toFixed(2), value=valor[i+1].toFixed(2), required)
+									input(type='text', name='_posto[#{i}]', class='form-control', placeholder=posto[i] + " DELETAR", value=posto[i])
+								td
+									input.valor(type='text', name='_valor_hospede[#{i}]',class='form-control',placeholder=valor[i].hospede.toFixed(2), value=valor[i].hospede.toFixed(2), required)
+								td
+									input.valor(type='text', name='_valor_residente[#{i}]',class='form-control',placeholder=valor[i].residente.toFixed(2), value=valor[i].residente.toFixed(2), required)
 						-}
 						tr
-							td(colspan='6', style='text-align:center')
-								input(type='hidden', name='length', value=posto.length)
-								button(class='btn btn-primary', type='submit',style='text-align:center;margin-bottom:10px; margin-top:10px') Alterar dados
-								span.clearfix
+							td
+								input(type='text', name='_posto[#{posto.length}]', class='form-control', placeholder="Adicionar novo")
+							td
+								input.valor(type='text', name='_valor_hospede[#{posto.length}]',class='form-control',placeholder=0)
+							td
+								input.valor(type='text', name='_valor_residente[#{posto.length}]',class='form-control',placeholder=0)
+				input(type='hidden', name='length', value=posto.length)
+				br
+				| Formas de pagamento disponíveis:
+				br
+				-for(var i = 0; i < tipo_pagamento.length; i++){
+					input(type='text', name='_tipo_pagamento[#{i}]', class='form-control', placeholder=tipo_pagamento[i] + " DELETAR", value=tipo_pagamento[i], style="width:30%")
+				-}
+				input(type='text', name='_tipo_pagamento[#{tipo_pagamento.length}]', class='form-control', placeholder="Adicionar novo", style="width:30%")
+				br
+				div.input-group(style="width:30%")
+					span.input-group-addon Regra de dias para residente
+					input(type='number', name='_regra_diaria', class='form-control', placeholder=regra_diaria, value=regra_diaria)
+				br
+				div.input-group(style="width:30%")
+					span.input-group-addon Cobrar por hora:
+					input(type='checkbox', name='_cobrar_hora', checked=cobrar_hora, style="width: 20px; height: 20px;")
+				br
+				button(class='btn btn-primary', type='submit',style='text-align:center;margin-bottom:10px; margin-top:10px, width:30%') Alterar
+				span.clearfix
+								
 		
