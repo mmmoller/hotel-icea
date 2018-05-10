@@ -2710,7 +2710,7 @@ module.exports = function(passport){
 		setTimeout(function () {BDRegistro()}, 2500);
 		setTimeout(function () {BDLog()}, 7500);
 		setTimeout(function () {BDPopulate()}, 8500);
-		setTimeout(function () {res.send("Criado")},8500);
+		res.send("Criado");
 	});
 
 	router.get('/criar/admin', function(req, res){
