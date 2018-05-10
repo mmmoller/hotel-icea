@@ -2704,7 +2704,13 @@ module.exports = function(passport){
 	
 	// CRIAR
 	router.get('/criar', function(req,res){
-		res.redirect('/criar/admin');
+		BDAdmin();
+		BDFinanceiro();
+		BDLeito();
+		setTimeout(function () {BDRegistro()}, 2500);
+		setTimeout(function () {BDLog()}, 7500);
+		setTimeout(function () {BDPopulate()}, 8500);
+		setTimeout(function () {res.send("Criado")},8500);
 	});
 
 	router.get('/criar/admin', function(req, res){
@@ -3117,6 +3123,330 @@ module.exports = function(passport){
 }
 
 { // Functions
+
+{ // BD Functions
+
+function BDAdmin(req, res){
+	
+	User.findOne({ 'username' :  'admin' }, function(err, user) {
+		if (err){
+			return handleError(err,req,res);
+		}
+		if (user){
+			user.password = createHash('admin');
+			user.save(function(err){
+				if (err) return handleError(err,req,res);
+			});
+			return;
+		}
+		var newUser = new User();
+		
+		newUser.username = 'admin';
+		newUser.password = createHash('admin');
+		newUser.permissao = [true, true, true, true, true, true];
+		
+		newUser.save(function (err) {
+			if (err) return handleError(err,req,res);
+		});
+	});
+	return
+}
+
+function BDFinanceiro(req, res){
+	var newFinanceiro = new Financeiro();
+	newFinanceiro.gasto = 0;
+	newFinanceiro.ganho = 0;
+	newFinanceiro.num_registro = 0;
+	newFinanceiro.dic_posto_valor = dicionario_posto_valor;
+	newFinanceiro.regra_diaria = 20;
+	newFinanceiro.tipo_pagamento = ["GRU", "Consignado", "Dinheiro"];
+	newFinanceiro.cobrar_hora = true;
+	newFinanceiro.blacklist = [];
+	newFinanceiro.save(function (err) {
+		if (err) return handleError(err,req,res);
+	});
+	return
+}
+
+function BDLeito(req, res){
+	var newLeito;
+	//A
+	
+	for(var i = 1; i <= 9; i++){
+		newLeito = createLeito("A" , '0' + i , "a");
+		newLeito.save(function(err){
+			if(err) return handleError(err,req,res);
+		});
+		newLeito = createLeito("A" , '0'+ i , "b");
+		newLeito.save(function(err){
+			if(err) return handleError(err,req,res);
+		});
+	}
+	
+	for(var i = 10; i <= 18; i++){
+		newLeito = createLeito("A" , i , "a");
+		newLeito.save(function(err){
+			if(err) return handleError(err,req,res);
+		});
+		newLeito = createLeito("A" , i , "b");
+		newLeito.save(function(err){
+			if(err) return handleError(err,req,res);
+		});
+	}
+	
+	newLeito = createLeito("A" , "19" , "a");
+	newLeito.save(function(err){
+		if(err) return handleError(err,req,res);
+	});
+	newLeito = createLeito("A", "19", "b");
+	newLeito.save(function(err){
+		if(err) return handleError(err,req,res);
+	});
+	newLeito = createLeito("A", "19" , "c");
+	newLeito.save(function(err){
+		if(err) return handleError(err,req,res);
+	});
+	newLeito = createLeito("A", "20", "a");
+	newLeito.save(function(err){
+		if(err) return handleError(err,req,res);
+	});		
+	newLeito = createLeito("A", "21", "a");
+	newLeito.save(function(err){
+		if(err) return handleError(err,req,res);
+	});		
+
+
+	//B
+
+	newLeito = createLeito("B", "01", "a");
+	newLeito.save(function(err){
+		if(err) return handleError(err,req,res);
+	});
+	for(var i = 2; i <= 9; i++){
+		newLeito = createLeito("B" , '0' + i.toString() , "a");
+		newLeito.save(function(err){
+			if(err) return handleError(err,req,res);
+		});
+		newLeito = createLeito("B" , '0' + i.toString() , "b");
+		newLeito.save(function(err){
+			if(err) return handleError(err,req,res);
+		});
+	}
+	for(var i = 10; i <= 19; i++){
+		newLeito = createLeito("B" , i , "a");
+		newLeito.save(function(err){
+			if(err) return handleError(err,req,res);
+		});
+		newLeito = createLeito("B" , i  , "b");
+		newLeito.save(function(err){
+			if(err) return handleError(err,req,res);
+		});
+	}
+	
+	
+
+	//C
+
+	for(var i = 1; i <= 9; i++){
+		newLeito = createLeito("C" , '0' + i , "a");
+		newLeito.save(function(err){
+			if(err) return handleError(err,req,res);
+		});
+		newLeito = createLeito("C" , '0' + i , "b");
+		newLeito.save(function(err){
+			if(err) return handleError(err,req,res);
+		});
+		newLeito = createLeito("C" , '0' + i , "c");
+		newLeito.save(function(err){
+			if(err) return handleError(err,req,res);
+		});
+	}
+	for(var i = 10; i <= 25; i++){
+		newLeito = createLeito("C" , i , "a");
+		newLeito.save(function(err){
+			if(err) return handleError(err,req,res);
+		});
+		newLeito = createLeito("C" , i , "b");
+		newLeito.save(function(err){
+			if(err) return handleError(err,req,res);
+		});
+		newLeito = createLeito("C" , i , "c");
+		newLeito.save(function(err){
+			if(err) return handleError(err,req,res);
+		});
+	}
+	
+	
+	for(var i = 26; i <= 35; i++){
+		newLeito = createLeito("C" , i , "a");
+		newLeito.save(function(err){
+			if(err) return handleError(err,req,res);
+		});
+		newLeito = createLeito("C" , i , "b");
+		newLeito.save(function(err){
+			if(err) return handleError(err,req,res);
+		});
+	}
+
+	//D
+	for(var i = 101; i <= 119; i++){
+		newLeito = createLeito("D" , i , "a");
+		newLeito.save(function(err){
+			if(err) return handleError(err,req,res);
+		});
+		newLeito = createLeito("D" , i , "b");
+		newLeito.save(function(err){
+			if(err) return handleError(err,req,res);
+		});
+		newLeito = createLeito("D" , i , "c");
+		newLeito.save(function(err){
+			if(err) return handleError(err,req,res);
+		});
+		newLeito = createLeito("D" , i , "d");
+		newLeito.save(function(err){
+			if(err) return handleError(err,req,res);
+		});
+	}
+	newLeito = createLeito("D" , "200", "a");
+	newLeito.save(function(err){
+		if(err) return handleError(err,req,res);
+	});
+	newLeito = createLeito("D", "200", "b");
+	newLeito.save(function(err){
+		if(err) return handleError(err,req,res);
+	});
+	newLeito = createLeito("D", "200", "c");
+	newLeito.save(function(err){
+		if(err) return handleError(err,req,res);
+	});
+	newLeito = createLeito("D", "200", "d");
+	newLeito.save(function(err){
+		if(err) return handleError(err,req,res);
+	});
+	for(var i = 202; i <= 221; i++){
+		newLeito = createLeito("D" , i , "a");
+		newLeito.save(function(err){
+			if(err) return handleError(err,req,res);
+		});
+		newLeito = createLeito("D" , i , "b");
+		newLeito.save(function(err){
+			if(err) return handleError(err,req,res);
+		});
+		newLeito = createLeito("D" , i , "c");
+		newLeito.save(function(err){
+			if(err) return handleError(err,req,res);
+		});
+		newLeito = createLeito("D" , i , "d");
+		newLeito.save(function(err){
+			if(err) return handleError(err,req,res);
+		});
+	}
+	for(var i = 222; i <= 223; i++){
+		newLeito = createLeito("D" , i , "a");
+		newLeito.save(function(err){
+			if(err) return handleError(err,req,res);
+		});
+		newLeito = createLeito("D" , i , "b");
+		newLeito.save(function(err){
+			if(err) return handleError(err,req,res);
+		});
+		newLeito = createLeito("D" , i , "c");
+		newLeito.save(function(err){
+			if(err) return handleError(err,req,res);
+		});
+		newLeito = createLeito("D" , i , "d");
+		newLeito.save(function(err){
+			if(err) return handleError(err,req,res);
+		});
+		newLeito = createLeito("D" , i , "e");
+		newLeito.save(function(err){
+			if(err) return handleError(err,req,res);
+		});
+	}
+	return;
+}
+
+function BDRegistro(req, res){
+	Leito.find({}, null, {sort: 'cod_leito'}, function(err, leitos) {
+		if (err) return handleError(err,req,res);
+		if (leitos){
+			var dataInicial = data_inicial_rg;
+			var dataFinal = data_final_rg;
+			var proximoDia = moment(dataInicial);
+			
+			while (proximoDia < dataFinal){
+				var newRegistro = new Registro();
+				newRegistro.data = moment(proximoDia);
+				newRegistro.estado = [];
+				newRegistro.cadastro_id = [];
+				for (var i = 0; i < leitos.length; i++){
+					newRegistro.estado[newRegistro.estado.length] = "livre";
+					newRegistro.cadastro_id[newRegistro.cadastro_id.length] = "";
+				}
+				newRegistro.save(function (err) {
+					if (err) return handleError(err,req,res);	
+				});
+				proximoDia.add(1, 'days')
+				proximoDia.hour(0);
+			}
+		}
+		else {
+			req.flash('message', "Os Leitos ainda não foram criados");
+		}
+		return
+	});
+}
+
+function BDLog(req, res){
+	Leito.find({}, null, {sort: 'cod_leito'}, function(err, leitos) {
+		if (err) return handleError(err,req,res);
+		if (leitos){
+			var dataInicial = moment('2018-01-01');
+			var dataFinal = moment('2019-01-01');
+			var proximoDia = moment(dataInicial);
+			
+			while (proximoDia < dataFinal){
+				var newLog = new Log();
+				newLog.data = moment(proximoDia);
+				newLog.modulo = [];
+				newLog.log = [];
+				newLog.query = [];
+				newLog.horario = [];
+				newLog.cadastro = [];
+				newLog.cadastro_id = [];
+				newLog.usuario = [];
+				newLog.leito = [];
+				newLog.ganho = 0;
+				newLog.gasto = 0;
+				newLog.save(function (err) {
+					if (err) return handleError(err,req,res);	
+				});
+				proximoDia.add(1, 'days')
+				proximoDia.hour(0);
+			}
+		}
+		else {
+			req.flash('message', "Os Leitos ainda não foram criados");
+		}
+		return;
+	});
+}
+
+function BDPopulate(req, res){
+	for (var i = 1; i < 10; i++){
+		createCadastro( "hospede"+i, "guerra"+i, 1111111*i, 111111*i,
+		"unidade"+i, "endereço"+i, 
+		"("+i+i+")"+" "+i+i+i+i+i+"-"+i+i+i+i, 
+		i + "email@email.com", ""+i+i+i+"."+i+i+i+"."+i+i+i+"-"+i+i,
+		moment().format("YYYY-MM-DD"),
+		moment().add(i+1, "days").format("YYYY-MM-DD"),
+		0, "1o Tenente", "curso"+i, "Aluno", "M"
+		);
+	}
+	return
+}
+
+}
 
 function createLog(modulo, cadastro, cadastro_id, leito, username, log_, query){
 	Log.findOne({data: {"$gte": moment().subtract(1, 'days'), "$lte": moment()}}, function(err, log) {
