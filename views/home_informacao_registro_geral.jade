@@ -6,9 +6,9 @@ block content
 			div.section-wall
 				h1.section-title Registro geral
 				form(class='form-signin', action='/home/informacao/registro_geral', method='GET')
-					input#from(type='text', name='from' class='form-control', placeholder='Data inicial', required)
+					input#from(type='text', name='from' class='form-control', placeholder='Data inicial', required, autocomplete="off")
 					input#dateIn(type='hidden', name='dateIn', class='form-control')
-					input#to(type='text', name='to' class='form-control', placeholder='Data final')
+					input#to(type='text', name='to' class='form-control', placeholder='Data final', autocomplete="off")
 					input#dateOut(type='hidden', name='dateOut', class='form-control')
 					input(type='hidden', name='recente', class='form-control')
 					button(class='btn btn-lg btn-primary btn-block', type='submit') Visualizar Registros

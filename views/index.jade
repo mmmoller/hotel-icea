@@ -110,14 +110,14 @@ block content
 				.cadastro-sections
 					| Data de entrada
 				if (!_debug)
-					input#from(type='text', name='checkin_', class='form-control', placeholder='Data de entrada', required)
+					input#from(type='text', name='checkin_', class='form-control', placeholder='Data de entrada', required, autocomplete="off")
 					input#checkin(type='hidden', name='checkin', class='form-control')
 				else
 					input(type='date', name='checkin', class='form-control', value=moment().format("YYYY-MM-DD"))
 				.cadastro-sections
 					| Data de saída
 				if (!_debug)
-					input#to(type='text', name='checkout_', class='form-control', placeholder='Data de saida', required)
+					input#to(type='text', name='checkout_', class='form-control', placeholder='Data de saida', required, autocomplete="off")
 					input#checkout(type='hidden', name='checkout', class='form-control')
 				else
 					input(type='date', name='checkout', class='form-control', value=moment().add(1, "days").format("YYYY-MM-DD"))
