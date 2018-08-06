@@ -1582,6 +1582,161 @@ module.exports = function(passport){
 }
 	
 { // MANUTENCAO
+
+	// 
+	router.get('/home/manutencao', isAuthenticated, isManutencao, function(req, res){
+		Leito.find({}, null, {sort: 'cod_leito'}, function(err, leitos) {
+			if (err) return handleError(err,req,res);
+			if (leitos){
+				res.render('home_manutencao', {leitos: leitos});
+			}
+			else {
+				req.flash('message', "Os Leitos ainda não foram criados");
+				res.redirect('/home');
+			}
+		});
+	});
+	
+	router.get('/home/manutencao/alterar', isAuthenticated, isManutencao, function(req, res){
+		Leito.find({cod_leito: req.param('leito_alterado')}, function(err, leito) {
+			if (err) return handleError(err,req,res);
+			if (leito){
+				res.render('home_manutencao_alterar', {leito: leito, message: req.flash('message')});
+			}
+			else {
+				req.flash('message', "Os Leito procurado não foi encontrado");
+				res.redirect('/home/manutencao');
+			}
+		});
+	});
+	
+	router.post('/home/manutencao/alterar', isAuthenticated, isManutencao, function(req, res){
+
+		Leito.find({}, null, {sort: 'cod_leito'}, function(err, leitos) {
+			if (err) return handleError(err,req,res);
+			if (leitos){
+				var leitos_selecionados = [];
+				var text_log;
+				if (req.param("tipo") == "quarto"){
+					for (var i = 0; i < leitos.length; i++){
+						if (leitos[i].bloco == req.param("leito_alterado_bloco") &&
+						leitos[i].quarto == req.param("leito_alterado_quarto")){
+							leitos_selecionados.push(leitos[i]);
+						}
+					}
+					text_log = "Quarto " + req.param("leito_alterado_bloco") + req.param("leito_alterado_quarto");
+				}
+				else if (req.param("tipo") == "bloco"){
+					for (var i = 0; i < leitos.length; i++){
+						if (leitos[i].bloco == req.param("leito_alterado_bloco")){
+							leitos_selecionados.push(leitos[i]);
+						}
+					}
+					text_log = "Bloco " + req.param("leito_alterado_bloco");
+				}
+				else { //Apenas a vaga;
+					for (var i = 0; i < leitos.length; i++){
+						if (leitos[i].cod_leito == req.param("leito_alterado")){
+							leitos_selecionados.push(leitos[i]);
+						}
+					}
+					text_log = "Leito " + req.param("leito_alterado");
+				}
+				
+				if(req.param('operacao') == "inserir"){
+					for (var i = 0; i < leitos_selecionados.length; i++){
+						
+						leitos_selecionados[i].manutencao.push(req.param('desc_pane_adc'));
+						leitos_selecionados[i].save(function (err) {
+							if (err){
+								return handleError(err,req,res);
+							}
+						});
+					}
+					
+					createLog("Manutenção", "", "", text_log, req.user.username, 
+					"Pane inserida: " + req.param('desc_pane_adc'), "inserir pane");
+					req.flash('message', "Pane inserida com sucesso");
+					res.redirect('/home/manutencao/alterar?leito_alterado='+req.param('leito_alterado'));
+					return;
+				}
+				else if(req.param('operacao') == "alterar"){
+					for (var i = 0; i < leitos_selecionados.length; i++){
+						
+						leitos_selecionados[i].ocupabilidade = req.param('ocup');
+						leitos_selecionados[i].save(function (err) {
+							if (err){
+								return handleError(err,req,res);
+							}
+						});
+					}
+					/*
+					leito.ocupabilidade = req.param('ocup');
+					leito.save(function (err) {
+						if (err){
+							return handleError(err,req,res);
+						}
+					});*/
+					
+					createLog("Manutenção", "", "", text_log, req.user.username, 
+					"Ocupabilidade alterada para " + req.param('ocup'), "ocupabilidade");
+					
+					req.flash('message', "Ocupabilidade alterada com sucesso");
+					res.redirect('/home/manutencao/alterar?leito_alterado='+req.param('leito_alterado'));
+					return;
+				}
+				else {
+					/*
+					var newManutencao = [];
+					var paneRemovida = [];
+					for(var i = 0; i < leito.manutencao.length; i++){
+						if(req.param('idx_pane_rem_'+i) != '1'){ //manter essa pane
+							newManutencao.push(leito.manutencao[i]);
+						}
+						else{
+							paneRemovida.push(leito.manutencao[i]);
+						}
+						
+					}
+					leito.manutencao = newManutencao.slice(0); //clonando array
+					leito.save(function (err) {
+						if (err){
+							return handleError(err,req,res);
+						}
+					});
+					
+					for (var i = 0; i < paneRemovida.length; i++){
+						createLog("Manutenção", "", "", text_log, req.user.username, 
+						"Pane removida: " + paneRemovida[i], "remover pane");
+					}*/
+					
+					for (var i = 0; i < leitos_selecionados.length; i++){
+						
+						leitos_selecionados[i].manutencao.splice(leitos_selecionados[i].manutencao.indexOf(req.param("remover")), 1);
+						leitos_selecionados[i].save(function (err) {
+							if (err){
+								return handleError(err,req,res);
+							}
+						});
+					}
+					
+					createLog("Manutenção", "", "", text_log, req.user.username, 
+					"Pane removida: " + req.param("remover"), "remover pane");
+					
+					req.flash('message', "Pane removida com sucesso");
+					res.redirect('/home/manutencao/alterar?leito_alterado='+req.param('leito_alterado'));
+					return;
+				}
+				
+			}
+			else {
+				req.flash('message', "Os Leito procurado não foi encontrado");
+				res.redirect('/home/manutencao');
+			}
+		});
+	});
+	
+	
 	// /HOME/MANUTENCAO/QUADRO
 	router.get('/home/manutencao/quadro', isAuthenticated, isManutencao, function(req, res){
 		Leito.find({}, null, {sort: 'cod_leito'}, function(err, leitos) {
@@ -2468,9 +2623,9 @@ module.exports = function(passport){
 							
 							var hours = dateOut.diff(dateIn,"hours");
 							
-							console.log(dateIn)
-							console.log(dateOut)
-							console.log(hours)
+							//console.log(dateIn)
+							//console.log(dateOut)
+							//console.log(hours)
 							
 							
 							if (hours < 24){
@@ -2528,7 +2683,7 @@ module.exports = function(passport){
 				if (err) return handleError(err,req,res);
 				if (cadastro){
 					
-					res.render('home_dados_cadastro_editar', { cadastro: cadastro, message: req.flash("message") });
+					res.render('home_dados_cadastro_editar', { cadastro: cadastro, user: req.user, message: req.flash("message") });
 				}
 				else {
 					req.flash('message', "Cadastro não existente");
@@ -2539,7 +2694,7 @@ module.exports = function(passport){
 		}
 	});
 	
-	// ADD LOG
+	// ADD LOG IMPORTANTE
 	router.post('/home/dados/cadastro/editar', isAuthenticated, function(req,res){
 
 		if (req.param('_id') == undefined){
@@ -2559,6 +2714,56 @@ module.exports = function(passport){
 				cadastro.telefone = req.param("telefone");
 				cadastro.email = req.param("email");
 				cadastro.cpf = req.param("cpf");
+				if (req.user.permissao[5]){
+					
+					
+					if (req.param("valor")){
+						cadastro.custo_estada = req.param("valor");
+						if (cadastro.checkOut){
+							if (cadastro.valor_pago >= cadastro.custo_estada){
+								cadastro.estado = "checkOut-pago";
+							}
+							else {
+								cadastro.estado = "checkOut-deve";
+							}
+						}
+					}
+					
+					if (req.param("dateInAlt")){
+						cadastro.dateIn = moment(req.param("dateInAlt")).format("YYYY-MM-DD")
+					}
+					
+					if (req.param("dateOutAlt")){
+						cadastro.dateOut = moment(req.param("dateOutAlt")).format("YYYY-MM-DD")
+					}
+					
+					if (req.param("checkInAlt")){
+						if (moment(req.param("checkInAlt") + " " + req.param("checkInTime")
+						, "YYYY-MM-DD HH:mm:ss").isValid())
+							cadastro.checkIn = moment(req.param("checkInAlt") + " " + req.param("checkInTime")
+							, "YYYY-MM-DD HH:mm:ss").format();
+					}
+					else if(req.param("checkInTime")) {
+						if (moment(moment(cadastro.checkIn).format("YYYY-MM-DD") + " " + req.param("checkInTime")
+							, "YYYY-MM-DD HH:mm:ss").isValid())
+						cadastro.checkIn = moment(moment(cadastro.checkIn).format("YYYY-MM-DD") + " " + req.param("checkInTime")
+							, "YYYY-MM-DD HH:mm:ss").format();
+					}
+					
+					if (req.param("checkOutAlt")){
+						if (moment(req.param("checkOutAlt") + " " + req.param("checkOutTime")
+						, "YYYY-MM-DD HH:mm:ss").isValid())
+							cadastro.checkOut = moment(req.param("checkOutAlt") + " " + req.param("checkOutTime")
+							, "YYYY-MM-DD HH:mm:ss").format();
+					}
+					else if(req.param("checkOutTime")) {
+						if (moment(moment(cadastro.checkOut).format("YYYY-MM-DD") + " " + req.param("checkOutTime")
+							, "YYYY-MM-DD HH:mm:ss").isValid())
+						cadastro.checkOut = moment(moment(cadastro.checkOut).format("YYYY-MM-DD") + " " + req.param("checkOutTime")
+							, "YYYY-MM-DD HH:mm:ss").format();
+					}
+					
+				}
 				
 				cadastro.save(function (err) {
 					if (err) return handleError(err,req,res);
@@ -3448,7 +3653,7 @@ function BDPopulate(req, res){
 
 }
 
-function createLog(modulo, cadastro, cadastro_id, leito, username, log_, query){
+function createLog(modulo, cadastro, cadastro_id, leito, username, log_, query, err, req, res){
 	Log.findOne({data: {"$gte": moment().subtract(1, 'days'), "$lte": moment()}}, function(err, log) {
 		if (err) return handleError(err,req,res);
 		if (log){
@@ -3720,7 +3925,7 @@ var transporter = nodemailer.createTransport({
 });
 	
 
-var debug = true;
+var debug = false;
 	
 var data_inicial_rg = moment('2018-01-01');
 var data_final_rg = moment('2019-01-01');

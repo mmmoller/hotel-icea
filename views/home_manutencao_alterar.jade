@@ -1,0 +1,114 @@
+extends layout
+
+block content
+	div.container
+		div.row
+			center
+				div.section-wall
+					h1.section-title Alterando estado de manutenção do leito: #{leito[0].cod_leito}
+	div.container.default-table-wrapper
+		center
+			table#default-table.table-striped.table-bordered
+				thead
+					tr
+						th Panes atuais
+						th(style='width:12%') Tipo
+						th(style='width:12%') Remover
+
+				tbody
+					-for(var i = 0; i < leito[0].manutencao.length; i++){
+						form(action='/home/manutencao/alterar?leito_alterado=#{leito[0].cod_leito}', method='POST')
+							tr
+								td
+									//input(type="text", value="#{leito[0].manutencao[i]}", name="remover", readonly)
+									| #{leito[0].manutencao[i]}
+								td
+									select(name = 'tipo', class = 'form-control')
+										option(value = 'leito') Leito #{leito[0].cod_leito}
+										option(value = 'quarto') Quarto #{leito[0].bloco}#{leito[0].quarto}
+										option(value = 'bloco') Bloco #{leito[0].bloco}
+								td
+									input(type="hidden", name="leito_alterado_bloco", value="#{leito[0].bloco}")
+									input(type="hidden", name="leito_alterado_quarto", value="#{leito[0].quarto}")
+									input(type="hidden", name="leito_alterado", value="#{leito[0].cod_leito}")
+									input(type="hidden", name="operacao", value="remover")
+									input(type="hidden", value="#{leito[0].manutencao[i]}", name="remover")
+									button.btn.btn-primary(type='submit', onsubmit='setTimeout(function(){window.location.reload();},1000)') Remover
+									span.clearfix
+					-}
+					-if(leito[0].manutencao.length == 0){
+						tr
+							td(colspan='3')
+								| Não há panes relatadas
+					-}
+			hr
+			table#default-table.table-striped.table-bordered
+				thead
+					tr
+						th Nome da pane a ser inserida
+						th(style='width:12%') Tipo
+						th(style='width:12%') Inserir
+				tbody
+					form(action='/home/manutencao/alterar?leito_alterado=#{leito[0].cod_leito}', method='POST')
+						tr
+							td
+								input(type='text', name='desc_pane_adc', placeholder='Descrição da pane',required, style='width:80%')
+							td
+								select(name = 'tipo', class = 'form-control')
+									option(value = 'leito') Leito #{leito[0].cod_leito}
+									option(value = 'quarto') Quarto #{leito[0].bloco}#{leito[0].quarto}
+									option(value = 'bloco') Bloco #{leito[0].bloco}
+							td
+								input(type="hidden", name="leito_alterado_bloco", value="#{leito[0].bloco}")
+								input(type="hidden", name="leito_alterado_quarto", value="#{leito[0].quarto}")
+								input(type="hidden", name="leito_alterado", value="#{leito[0].cod_leito}")
+								input(type="hidden", name="operacao", value="inserir")
+								button.btn.btn-primary(type='submit', onsubmit='setTimeout(function(){window.location.reload();},1000)') Inserir
+								span.clearfix
+			hr
+			table#default-table.table-striped.table-bordered
+				thead
+					tr
+						th O leito ainda está ocupável, mesmo na existência de panes?
+						th(style='width:12%') Tipo
+						th(style='width:12%') Alterar
+				tbody
+					form(action='/home/manutencao/alterar?leito_alterado=#{leito[0].cod_leito}', method='POST')
+						tr
+							td
+								.radio-inline
+									-if(leito[0].ocupabilidade == 'normal'){
+										input(type='radio', name='ocup', value='normal', checked='çhecked')
+									-}else{
+										input(type='radio', name='ocup', value='normal')
+									-}
+									| Ocupabilidade normal
+								.radio-inline
+									-if(leito[0].ocupabilidade == 'semi_ocupavel'){
+										input(type='radio', name='ocup', value='semi_ocupavel', checked='çhecked')
+									-}else{
+										input(type='radio', name='ocup', value='semi_ocupavel')
+									-}
+									| Ocupável com restrições
+								.radio-inline
+									-if(leito[0].ocupabilidade == 'inocupavel'){
+										input(type='radio', name='ocup', value='inocupavel', checked='çhecked')
+									-}else{
+										input(type='radio', name='ocup', value='inocupavel')
+									-}
+									| Inocupável
+							td
+								select(name = 'tipo', class = 'form-control')
+									option(value = 'leito') Leito #{leito[0].cod_leito}
+									option(value = 'quarto') Quarto #{leito[0].bloco}#{leito[0].quarto}
+									option(value = 'bloco') Bloco #{leito[0].bloco}
+							td
+								input(type="hidden", name="leito_alterado_bloco", value="#{leito[0].bloco}")
+								input(type="hidden", name="leito_alterado_quarto", value="#{leito[0].quarto}")
+								input(type="hidden", name="leito_alterado", value="#{leito[0].cod_leito}")
+								input(type="hidden", name="operacao", value="alterar")
+								button(class='btn btn-primary', type='submit',style='text-align:center', onsubmit='setTimeout(function(){window.location.reload();},1000)') Alterar
+								span.clearfix
+			hr
+			form(action='/home/manutencao/quadro', method='GET')
+				button.btn.btn-primary(type='submit', value='submit') Voltar

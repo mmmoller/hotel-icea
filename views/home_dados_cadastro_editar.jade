@@ -6,49 +6,124 @@ block content
 			center
 				div.section-wall
 					h1.section-title Editar dados de cadastro
+	script.
+		$( function() {
+			$( "#checkIn" ).datepicker(
+			{showOtherMonths: true,
+			selectOtherMonths: true,
+			dateFormat: "dd/mm/yy",
+			altField: "#checkInAlt",
+			altFormat: "yy-mm-dd"
+			});
+			$( "#checkOut" ).datepicker(
+			{showOtherMonths: true,
+			selectOtherMonths: true,
+			dateFormat: "dd/mm/yy",
+			altField: "#checkOutAlt",
+			altFormat: "yy-mm-dd"
+			});
+			$( "#dateIn" ).datepicker(
+			{showOtherMonths: true,
+			selectOtherMonths: true,
+			dateFormat: "dd/mm/yy",
+			altField: "#dateInAlt",
+			altFormat: "yy-mm-dd"
+			});
+			$( "#dateOut" ).datepicker(
+			{showOtherMonths: true,
+			selectOtherMonths: true,
+			dateFormat: "dd/mm/yy",
+			altField: "#dateOutAlt",
+			altFormat: "yy-mm-dd"
+			});
+		});
 	div.container.default-table-wrapper
 		center
 			table#folha-ce-table.table-striped.table-bordered
 				tbody
 					form(action='/home/dados/cadastro/editar', method='POST')
 						tr(style="margin-top: 10px;")
-							td Nome
 							td
-								input(type="text", name="name", value="#{cadastro.name}")
-						tr
-							td Nome de guerra
+								div.input-group
+									span.input-group-addon Nome
+									input(type="text", name="name", value="#{cadastro.name}", class='form-control')
 							td
-								input(type="text", name="name_guerra", value="#{cadastro.name_guerra}")
-						tr
-							td SARAM
+								div.input-group
+									span.input-group-addon Nome de guerra
+									input(type="text", name="name_guerra", value="#{cadastro.name_guerra}", class='form-control')
 							td
-								input.saram(type="text", name="saram", value="#{cadastro.saram}")
+								div.input-group
+									span.input-group-addon SARAM
+									input.saram(type="text", name="saram", value="#{cadastro.saram}", class='form-control')
 						tr
-							td Identidade
 							td
-								input(type="text", name="identidade", value="#{cadastro.identidade}")
-						tr
-							td Unidade
+								div.input-group
+									span.input-group-addon Identidade
+									input(type="text", name="identidade", value="#{cadastro.identidade}", class='form-control')
 							td
-								input(type="text", name="unidade", value="#{cadastro.unidade}")
-						tr
-							td Endereço
+								div.input-group
+									span.input-group-addon Unidade
+									input(type="text", name="unidade", value="#{cadastro.unidade}", class='form-control')
 							td
-								input(type="text", name="endereco", value="#{cadastro.endereco}")
+								div.input-group
+									span.input-group-addon Endereço
+									input(type="text", name="endereco", value="#{cadastro.endereco}", class='form-control')
 						tr
-							td Telefone
 							td
-								input.telefone(type="text", name="telefone", value="#{cadastro.telefone}")
-						tr
-							td E-mail
+								div.input-group
+									span.input-group-addon Telefone
+									input.telefone(type="text", name="telefone", value="#{cadastro.telefone}", class='form-control')
 							td
-								input(type="email", name="email", value="#{cadastro.email}")
-						tr
-							td CPF
+								div.input-group
+									span.input-group-addon E-mail
+									input(type="text", name="email", value="#{cadastro.email}", class='form-control')
 							td
-								input.cpf(type="text", name="cpf", value="#{cadastro.cpf}")
+								div.input-group
+									span.input-group-addon CPF
+									input.cpf(type="text", name="cpf", value="#{cadastro.cpf}", class='form-control')
+						if (user.permissao[5])
+							tr
+								td(colspan='3') Dados editáveis apenas pelo gerente
+							tr
+								td
+									div.input-group
+										span.input-group-addon Data de entrada
+										input#dateIn(type='text', name='dateIn', class='form-control', placeholder=moment(cadastro.dateIn).format("DD/MM/YYYY"))
+										input#dateInAlt(type='hidden', name='dateInAlt', class='form-control')
+								if (cadastro.checkIn)
+									td
+										div.input-group
+											span.input-group-addon Data de check-in 
+											input#checkIn(type='text', name='checkIn', class='form-control', placeholder=moment(cadastro.checkIn).format("DD/MM/YYYY"))
+											input#checkInAlt(type='hidden', name='checkInAlt', class='form-control')
+									td
+										div.input-group
+											span.input-group-addon Horário de check-in (formato 24h)
+											input.time(type="text", name='checkInTime', class='form-control', placeholder=moment(cadastro.checkIn).format("HH:mm:ss"))
+							tr
+								td
+									div.input-group
+										span.input-group-addon Data de saída  
+										input#dateOut(type='text', name='dateOut', class='form-control', placeholder=moment(cadastro.dateOut).format("DD/MM/YYYY"))
+										input#dateOutAlt(type='hidden', name='dateOutAlt', class='form-control')
+								if (cadastro.checkOut)
+									td
+										div.input-group
+											span.input-group-addon Data de check-out
+											input#checkOut(type='text', name='checkOut', class='form-control', placeholder=moment(cadastro.checkOut).format("DD/MM/YYYY"))
+											input#checkOutAlt(type='hidden', name='checkOutAlt', class='form-control')
+									td
+										div.input-group
+											span.input-group-addon Horário de check-out (formato 24h)
+											input.time(type="text", name='checkOutTime', class='form-control', placeholder=moment(cadastro.checkOut).format("HH:mm:ss"))
+							if (cadastro.checkOut)
+								tr
+									td
+										div.input-group
+											span.input-group-addon Custo da estada R$
+											input.valor(type='text', name='valor',class='form-control', placeholder=cadastro.custo_estada.toFixed(2))
 						tr
-							td(colspan="2")
+							td(colspan="3")
 								input(type="hidden", name="_id", value="#{cadastro._id}")
 								button.btn.btn-primary(type='submit') Confirmar edição
 						
