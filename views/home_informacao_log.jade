@@ -37,6 +37,8 @@ block content
 				"language": {
 					"emptyTable": "Nenhum log"
 				},
+				"lengthMenu": [[25, 50, 100, -1], [25, 50, 100, "All"]],
+				"ordering" : false,
 			} );
 		});
 	div.container.default-table-wrapper
@@ -44,6 +46,7 @@ block content
 			table#default-table.display.compact.cell-border
 				thead
 					tr
+						//th Nº
 						th Data
 						th Modulo
 						th(style="width:30%") Log
@@ -51,9 +54,10 @@ block content
 						th Leito
 						th Usuário
 				tbody
-					-for (var j = 0; j < log.length; j++){
-						-for (var i = 0; i < log[j].log.length; i++){
+					-for (var j = 0, n = 0; j < log.length; j++){
+						-for (var i = 0; i < log[j].log.length; i++, n++){
 							tr
+								//td #{n}
 								td #{moment(log[j].data).format("DD/MM/YYYY")} #{log[j].horario[i]}
 								td #{log[j].modulo[i]}
 								td #{log[j].log[i]}
