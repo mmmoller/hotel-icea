@@ -1616,7 +1616,7 @@ module.exports = function(passport){
 			if (err) return handleError(err,req,res);
 			if (leitos){
 				var leitos_selecionados = [];
-				var text_log;
+				var leito_log;
 				if (req.param("tipo") == "quarto"){
 					for (var i = 0; i < leitos.length; i++){
 						if (leitos[i].bloco == req.param("leito_alterado_bloco") &&
@@ -1624,7 +1624,7 @@ module.exports = function(passport){
 							leitos_selecionados.push(leitos[i]);
 						}
 					}
-					text_log = "Quarto " + req.param("leito_alterado_bloco") + req.param("leito_alterado_quarto");
+					leito_log = "Quarto " + req.param("leito_alterado_bloco") + req.param("leito_alterado_quarto");
 				}
 				else if (req.param("tipo") == "bloco"){
 					for (var i = 0; i < leitos.length; i++){
@@ -1632,7 +1632,7 @@ module.exports = function(passport){
 							leitos_selecionados.push(leitos[i]);
 						}
 					}
-					text_log = "Bloco " + req.param("leito_alterado_bloco");
+					leito_log = "Bloco " + req.param("leito_alterado_bloco");
 				}
 				else { //Apenas a vaga;
 					for (var i = 0; i < leitos.length; i++){
@@ -1640,75 +1640,71 @@ module.exports = function(passport){
 							leitos_selecionados.push(leitos[i]);
 						}
 					}
-					text_log = "Leito " + req.param("leito_alterado");
+					leito_log = "Leito " + req.param("leito_alterado");
 				}
 				
 				if(req.param('operacao') == "inserir"){
-					for (var i = 0; i < leitos_selecionados.length; i++){
-						
-						leitos_selecionados[i].manutencao.push(req.param('desc_pane_adc'));
-						leitos_selecionados[i].save(function (err) {
-							if (err){
-								return handleError(err,req,res);
-							}
-						});
-					}
 					
-					createLog("Manutenção", "", "", text_log, req.user.username, 
-					"Pane inserida: " + req.param('desc_pane_adc'), "inserir pane");
-					req.flash('message', "Pane inserida com sucesso");
-					res.redirect('/home/manutencao/alterar?leito_alterado='+req.param('leito_alterado'));
-					return;
-				}
-				else if(req.param('operacao') == "alterar"){
-					for (var i = 0; i < leitos_selecionados.length; i++){
-						
-						leitos_selecionados[i].ocupabilidade = req.param('ocup');
-						leitos_selecionados[i].save(function (err) {
-							if (err){
-								return handleError(err,req,res);
-							}
-						});
-					}
-					/*
-					leito.ocupabilidade = req.param('ocup');
-					leito.save(function (err) {
-						if (err){
-							return handleError(err,req,res);
+					var texto_log = "";
+					var flash_msg = "!Nenhuma alteração realizada.";
+					
+					if (req.param('desc_pane_adc') != ""){
+					
+						for (var i = 0; i < leitos_selecionados.length; i++){
+							
+							leitos_selecionados[i].manutencao.push(req.param('desc_pane_adc'));
+							/*
+							leitos_selecionados[i].save(function (err) {
+								if (err){
+									return handleError(err,req,res);
+								}
+							});*/
 						}
-					});*/
+						
+						texto_log += "Pane inserida: " + req.param('desc_pane_adc') + ". ";
+						flash_msg = "Pane inserida com sucesso.";
+						
+						//req.flash('message', "Pane inserida com sucesso");
+						
+						
+					}
 					
-					createLog("Manutenção", "", "", text_log, req.user.username, 
-					"Ocupabilidade alterada para " + req.param('ocup'), "ocupabilidade");
-					
-					req.flash('message', "Ocupabilidade alterada com sucesso");
+					if (req.param('alterar_ocup')){
+						for (var i = 0; i < leitos_selecionados.length; i++){
+							leitos_selecionados[i].ocupabilidade = req.param('ocup');
+							/*
+							leitos_selecionados[i].save(function (err) {
+								if (err){
+									return handleError(err,req,res);
+								}
+							});*/
+						}
+						texto_log += "Ocupabilidade alterada para " + req.param('ocup') + ".";
+						if (flash_msg.toString().charAt(0) == '!'){
+							flash_msg = "Ocupabilidade alterada com sucesso."
+						}
+						else{
+							flash_msg += " Ocupabilidade alterada com sucesso."
+						}
+							
+						//req.flash('message', "Ocupabilidade alterada com sucesso.");
+					}
+					if (texto_log != ""){
+						createLog("Manutenção", "", "", leito_log, req.user.username, 
+						texto_log, "inserir pane");
+						for (var i = 0; i < leitos_selecionados.length; i++){
+							leitos_selecionados[i].save(function (err) {
+								if (err){
+									return handleError(err,req,res);
+								}
+							});
+						}
+					}
+					req.flash('message', flash_msg);
 					res.redirect('/home/manutencao/alterar?leito_alterado='+req.param('leito_alterado'));
 					return;
 				}
 				else {
-					/*
-					var newManutencao = [];
-					var paneRemovida = [];
-					for(var i = 0; i < leito.manutencao.length; i++){
-						if(req.param('idx_pane_rem_'+i) != '1'){ //manter essa pane
-							newManutencao.push(leito.manutencao[i]);
-						}
-						else{
-							paneRemovida.push(leito.manutencao[i]);
-						}
-						
-					}
-					leito.manutencao = newManutencao.slice(0); //clonando array
-					leito.save(function (err) {
-						if (err){
-							return handleError(err,req,res);
-						}
-					});
-					
-					for (var i = 0; i < paneRemovida.length; i++){
-						createLog("Manutenção", "", "", text_log, req.user.username, 
-						"Pane removida: " + paneRemovida[i], "remover pane");
-					}*/
 					
 					for (var i = 0; i < leitos_selecionados.length; i++){
 						
@@ -1720,7 +1716,7 @@ module.exports = function(passport){
 						});
 					}
 					
-					createLog("Manutenção", "", "", text_log, req.user.username, 
+					createLog("Manutenção", "", "", leito_log, req.user.username, 
 					"Pane removida: " + req.param("remover"), "remover pane");
 					
 					req.flash('message', "Pane removida com sucesso");
@@ -1990,11 +1986,22 @@ module.exports = function(passport){
 								"residente": Number(req.body._valor_residente[i])};
 								
 								// PENSAR .hospede != _hospede[i] && .residente != _hsopedesd
+								if (financeiro.dic_posto_valor[req.body._posto[i]].hospede != aux_dic[req.body._posto[i]].hospede){
+									_log = _log + " " + String(req.body._posto[i]) 
+									+ ": valor de Diária Hóspede de R$ " + financeiro.dic_posto_valor[req.body._posto[i]].hospede.toFixed(2)
+									+ " para R$ " + aux_dic[req.body._posto[i]].hospede.toFixed(2) + ".";
+								}
+								if (financeiro.dic_posto_valor[req.body._posto[i]].residente != aux_dic[req.body._posto[i]].residente){
+									_log = _log + " " + String(req.body._posto[i]) 
+									+ ": valor de Diária Residente de R$ " + financeiro.dic_posto_valor[req.body._posto[i]].residente.toFixed(2)
+									+ " para R$ " + aux_dic[req.body._posto[i]].residente.toFixed(2) + ".";
+								}
+								/*
 								if (financeiro.dic_posto_valor[req.body._posto[i]] != aux_dic[req.body._posto[i]]){
 									_log = _log + " " + String(req.body._posto[i]) 
 									+ ": de R$ " + String(financeiro.dic_posto_valor[req.body._posto[i]])
 									+ " para R$ " + String(aux_dic[req.body._posto[i]]) + ".";
-								}
+								}*/
 							}
 						}
 						

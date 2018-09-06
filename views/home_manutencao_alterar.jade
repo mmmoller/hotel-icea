@@ -45,14 +45,32 @@ block content
 			table#default-table.table-striped.table-bordered
 				thead
 					tr
-						th Nome da pane a ser inserida
+						th Pane
+						th(style='width:16%') Ocupabilidade
+						th(style='width:6%') Alterar Ocupabilidade
 						th(style='width:12%') Tipo
 						th(style='width:12%') Inserir
 				tbody
 					form(action='/home/manutencao/alterar?leito_alterado=#{leito[0].cod_leito}', method='POST')
 						tr
 							td
-								input(type='text', name='desc_pane_adc', placeholder='Descrição da pane',required, style='width:80%')
+								input.form-control(type='text', name='desc_pane_adc', placeholder='Descrição da pane')
+							td
+								select(name='ocup', class='form-control', value='inocupavel')
+									if(leito[0].ocupabilidade == 'normal')
+										option(value = 'normal', selected="") Normal
+									else
+										option(value = 'normal') Normal
+									if(leito[0].ocupabilidade == 'semi_ocupavel')
+										option(value = 'semi_ocupavel', selected="") Com Restrições
+									else
+										option(value = 'semi_ocupavel') Com Restrições
+									if(leito[0].ocupabilidade == 'inocupavel')
+										option(value = 'inocupavel', selected="") Inocupável
+									else
+										option(value = 'inocupavel') Inocupável
+							td
+								input(type='checkbox', name="alterar_ocup", style="width: 20px; height: 20px;")
 							td
 								select(name = 'tipo', class = 'form-control')
 									option(value = 'leito') Leito #{leito[0].cod_leito}
@@ -64,50 +82,6 @@ block content
 								input(type="hidden", name="leito_alterado", value="#{leito[0].cod_leito}")
 								input(type="hidden", name="operacao", value="inserir")
 								button.btn.btn-primary(type='submit', onsubmit='setTimeout(function(){window.location.reload();},1000)') Inserir
-								span.clearfix
-			hr
-			table#default-table.table-striped.table-bordered
-				thead
-					tr
-						th O leito ainda está ocupável, mesmo na existência de panes?
-						th(style='width:12%') Tipo
-						th(style='width:12%') Alterar
-				tbody
-					form(action='/home/manutencao/alterar?leito_alterado=#{leito[0].cod_leito}', method='POST')
-						tr
-							td
-								.radio-inline
-									-if(leito[0].ocupabilidade == 'normal'){
-										input(type='radio', name='ocup', value='normal', checked='çhecked')
-									-}else{
-										input(type='radio', name='ocup', value='normal')
-									-}
-									| Ocupabilidade normal
-								.radio-inline
-									-if(leito[0].ocupabilidade == 'semi_ocupavel'){
-										input(type='radio', name='ocup', value='semi_ocupavel', checked='çhecked')
-									-}else{
-										input(type='radio', name='ocup', value='semi_ocupavel')
-									-}
-									| Ocupável com restrições
-								.radio-inline
-									-if(leito[0].ocupabilidade == 'inocupavel'){
-										input(type='radio', name='ocup', value='inocupavel', checked='çhecked')
-									-}else{
-										input(type='radio', name='ocup', value='inocupavel')
-									-}
-									| Inocupável
-							td
-								select(name = 'tipo', class = 'form-control')
-									option(value = 'leito') Leito #{leito[0].cod_leito}
-									option(value = 'quarto') Quarto #{leito[0].bloco}#{leito[0].quarto}
-									option(value = 'bloco') Bloco #{leito[0].bloco}
-							td
-								input(type="hidden", name="leito_alterado_bloco", value="#{leito[0].bloco}")
-								input(type="hidden", name="leito_alterado_quarto", value="#{leito[0].quarto}")
-								input(type="hidden", name="leito_alterado", value="#{leito[0].cod_leito}")
-								input(type="hidden", name="operacao", value="alterar")
-								button(class='btn btn-primary', type='submit',style='text-align:center', onsubmit='setTimeout(function(){window.location.reload();},1000)') Alterar
 								span.clearfix
 			hr
 			form(action='/home/manutencao/quadro', method='GET')
